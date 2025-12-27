@@ -91,14 +91,12 @@ const getLabel = (key: string): string => {
         .replace(/\b\w/g, (l) => l.toUpperCase());
 };
 
-const getImagePreview = (key: string): string | null => {
-    // Return new preview if available
-    if (previews.value[key]) return previews.value[key];
-    // Return existing value
-    const val = (form as any)[key];
-    if (!val) return null;
-    if (val.startsWith('http') || val.startsWith('/storage') || val.startsWith('/assets')) return val;
-    return `/storage/${val}`;
+const getImagePreview = (setting: Setting): string | null => {
+    // Return new preview if available from file upload
+    if (previews.value[setting.key]) return previews.value[setting.key];
+
+    // Use backend-provided image_url (uses Storage::url)
+    return setting.image_url || null;
 };
 
 const breadcrumbs = [
@@ -139,9 +137,9 @@ const breadcrumbs = [
 
                             <!-- Image Upload -->
                             <div v-else-if="setting.type === 'image'" class="space-y-3">
-                                <div v-if="getImagePreview(setting.key)" class="relative inline-block">
+                                <div v-if="getImagePreview(setting)" class="relative inline-block">
                                     <img
-                                        :src="getImagePreview(setting.key)!"
+                                        :src="getImagePreview(setting)!"
                                         :alt="setting.key"
                                         class="h-32 w-auto rounded-lg border object-cover"
                                     />
@@ -226,11 +224,10 @@ const breadcrumbs = [
                                 class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                             ></textarea>
 
-                            <!-- Image Upload for About -->
                             <div v-else-if="setting.type === 'image'" class="space-y-3">
-                                <div v-if="getImagePreview(setting.key)" class="relative inline-block">
+                                <div v-if="getImagePreview(setting)" class="relative inline-block">
                                     <img
-                                        :src="getImagePreview(setting.key)!"
+                                        :src="getImagePreview(setting)!"
                                         :alt="setting.key"
                                         class="h-32 w-auto rounded-lg border object-cover"
                                     />
@@ -286,9 +283,9 @@ const breadcrumbs = [
 
                             <!-- Image Upload for Contact (logo) -->
                             <div v-if="setting.type === 'image'" class="space-y-3">
-                                <div v-if="getImagePreview(setting.key)" class="relative inline-block">
+                                <div v-if="getImagePreview(setting)" class="relative inline-block">
                                     <img
-                                        :src="getImagePreview(setting.key)!"
+                                        :src="getImagePreview(setting)!"
                                         :alt="setting.key"
                                         class="h-20 w-auto rounded-lg border object-contain bg-white p-2"
                                     />
