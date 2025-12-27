@@ -14,6 +14,8 @@ class LandingPageSetting extends Model
         'group',
     ];
 
+    protected $appends = ['image_url'];
+
     /**
      * Get value by key
      */
@@ -51,9 +53,14 @@ class LandingPageSetting extends Model
      */
     public function getImageUrlAttribute()
     {
-        if ($this->type === 'image' && $this->value) {
-            return Storage::url($this->value);
+        if ($this->type !== 'image' || !$this->value) {
+            return null;
         }
-        return null;
+
+        if (str_starts_with($this->value, 'http') || str_starts_with($this->value, '/storage') || str_starts_with($this->value, '/assets')) {
+            return $this->value;
+        }
+
+        return Storage::url($this->value);
     }
 }

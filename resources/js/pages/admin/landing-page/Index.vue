@@ -95,7 +95,10 @@ const getImagePreview = (key: string): string | null => {
     // Return new preview if available
     if (previews.value[key]) return previews.value[key];
     // Return existing value
-    return (form as any)[key] || null;
+    const val = (form as any)[key];
+    if (!val) return null;
+    if (val.startsWith('http') || val.startsWith('/storage') || val.startsWith('/assets')) return val;
+    return `/storage/${val}`;
 };
 
 const breadcrumbs = [

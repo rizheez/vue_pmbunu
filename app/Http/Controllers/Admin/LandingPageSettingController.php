@@ -42,7 +42,7 @@ class LandingPageSettingController extends Controller
                     }
 
                     $path = $request->file($key)->store('landing-page', 'public');
-                    $setting->update(['value' => '/storage/' . $path]);
+                    $setting->update(['value' => $path]);
                 } else {
                     $setting->update(['value' => $value]);
                 }

@@ -168,6 +168,10 @@ const submitBulkVerify = () => {
     );
 };
 
+const isPdf = (url: string) => {
+    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+};
+
 const hasChanges = computed(() => {
     return Object.values(verificationStatuses.value).some(v => v.status !== 'pending');
 });
@@ -276,7 +280,12 @@ const hasChanges = computed(() => {
                             class="relative aspect-video cursor-pointer overflow-hidden rounded-lg border bg-gray-100"
                             @click="openPreview(getDocumentUrl(verification.document_type)!, documentLabels[verification.document_type])"
                         >
+                            <div v-if="isPdf(getDocumentUrl(verification.document_type)!)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 transition hover:bg-gray-100">
+                                <FileText class="size-12 text-red-500" />
+                                <span class="text-xs font-medium">Dokumen PDF</span>
+                            </div>
                             <img
+                                v-else
                                 :src="getDocumentUrl(verification.document_type)!"
                                 :alt="documentLabels[verification.document_type]"
                                 class="size-full object-cover transition hover:scale-105"
@@ -336,12 +345,23 @@ const hasChanges = computed(() => {
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="max-w-3xl">
+            <DialogContent class="max-w-7xl h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>
-                <div class="mt-4">
-                    <img :src="previewImage" :alt="previewTitle" class="w-full rounded-lg" />
+                <div class="flex-1 max-w-full overflow-hidden rounded-lg bg-gray-100 mt-2">
+                    <iframe
+                        v-if="isPdf(previewImage)"
+                        :src="previewImage"
+                        class="size-full"
+                        frameborder="0"
+                    ></iframe>
+                    <img
+                        v-else
+                        :src="previewImage"
+                        :alt="previewTitle"
+                        class="size-full object-contain"
+                    />
                 </div>
             </DialogContent>
         </Dialog>

@@ -27,7 +27,9 @@ Route::get('/', function () {
 
     // Get landing page settings grouped by section
     $settings = LandingPageSetting::all()->groupBy('group')->map(function ($group) {
-        return $group->pluck('value', 'key');
+        return $group->mapWithKeys(function ($setting) {
+            return [$setting->key => $setting->type === 'image' ? $setting->image_url : $setting->value];
+        });
     });
 
     return Inertia::render('Welcome', [

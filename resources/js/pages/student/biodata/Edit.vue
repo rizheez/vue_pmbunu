@@ -55,6 +55,11 @@ const certificatePreview = ref<string | null>(
     props.biodata?.certificate_url ?? null
 );
 
+const isPdf = (url: string | null) => {
+    if (!url) return false;
+    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+};
+
 const handleFileChange = (
     event: Event,
     field: 'photo' | 'ktp' | 'kk' | 'certificate'
@@ -384,7 +389,12 @@ const breadcrumbs = [
                                             v-if="ktpPreview"
                                             class="size-24 overflow-hidden rounded-lg bg-gray-100"
                                         >
+                                            <div v-if="isPdf(ktpPreview)" class="flex size-full flex-col items-center justify-center bg-gray-50 text-gray-500">
+                                                <FileText class="size-8 text-red-500" />
+                                                <span class="text-[10px]">PDF</span>
+                                            </div>
                                             <img
+                                                v-else
                                                 :src="ktpPreview"
                                                 class="size-full object-cover"
                                             />
@@ -431,7 +441,12 @@ const breadcrumbs = [
                                             v-if="kkPreview"
                                             class="size-24 overflow-hidden rounded-lg bg-gray-100"
                                         >
+                                            <div v-if="isPdf(kkPreview)" class="flex size-full flex-col items-center justify-center bg-gray-50 text-gray-500">
+                                                <FileText class="size-8 text-red-500" />
+                                                <span class="text-[10px]">PDF</span>
+                                            </div>
                                             <img
+                                                v-else
                                                 :src="kkPreview"
                                                 class="size-full object-cover"
                                             />
@@ -478,7 +493,12 @@ const breadcrumbs = [
                                             v-if="certificatePreview"
                                             class="size-24 overflow-hidden rounded-lg bg-gray-100"
                                         >
+                                            <div v-if="isPdf(certificatePreview)" class="flex size-full flex-col items-center justify-center bg-gray-50 text-gray-500">
+                                                <FileText class="size-8 text-red-500" />
+                                                <span class="text-[10px]">PDF</span>
+                                            </div>
                                             <img
+                                                v-else
                                                 :src="certificatePreview"
                                                 class="size-full object-cover"
                                             />

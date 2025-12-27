@@ -62,6 +62,8 @@ const getSetting = (group: keyof Settings, key: string, defaultVal = ''): string
     return props.settings?.[group]?.[key] || defaultVal;
 };
 
+
+
 // Map icon names to components
 const featureIcons: Record<string, typeof Award> = {
     'clipboard-check': ClipboardCheck,

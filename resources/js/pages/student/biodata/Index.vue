@@ -34,6 +34,11 @@ const breadcrumbs = [
     { title: 'Dashboard', href: '/student/dashboard' },
     { title: 'Biodata', href: '/student/biodata' },
 ];
+
+const isPdf = (url: string | null) => {
+    if (!url) return false;
+    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+};
 </script>
 
 <template>
@@ -213,7 +218,12 @@ const breadcrumbs = [
                                     v-if="props.biodata.ktp_url"
                                     class="aspect-video overflow-hidden rounded-lg bg-gray-100"
                                 >
+                                    <div v-if="isPdf(props.biodata.ktp_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
                                     <img
+                                        v-else
                                         :src="props.biodata.ktp_url"
                                         class="size-full object-cover"
                                     />
@@ -239,7 +249,12 @@ const breadcrumbs = [
                                     v-if="props.biodata.kk_url"
                                     class="aspect-video overflow-hidden rounded-lg bg-gray-100"
                                 >
+                                    <div v-if="isPdf(props.biodata.kk_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
                                     <img
+                                        v-else
                                         :src="props.biodata.kk_url"
                                         class="size-full object-cover"
                                     />
@@ -263,7 +278,12 @@ const breadcrumbs = [
                                     v-if="props.biodata.certificate_url"
                                     class="aspect-video overflow-hidden rounded-lg bg-gray-100"
                                 >
+                                    <div v-if="isPdf(props.biodata.certificate_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
                                     <img
+                                        v-else
                                         :src="props.biodata.certificate_url"
                                         class="size-full object-cover"
                                     />

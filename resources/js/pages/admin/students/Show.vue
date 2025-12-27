@@ -109,6 +109,11 @@ const getStatusBadge = (status: string | undefined) => {
     };
     return map[status || ''] || { variant: 'secondary', label: 'Unknown' };
 };
+
+const isPdf = (url: string | null) => {
+    if (!url) return false;
+    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+};
 </script>
 
 <template>
@@ -360,8 +365,12 @@ const getStatusBadge = (status: string | undefined) => {
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KTP</p>
+                                <div v-if="isPdf(props.student.student_biodata.ktp_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
+                                    <FileText class="size-8 text-red-500" />
+                                    <span class="text-xs">PDF Document</span>
+                                </div>
                                 <img
-                                    v-if="props.student.student_biodata.ktp_url"
+                                    v-else-if="props.student.student_biodata.ktp_url"
                                     :src="props.student.student_biodata.ktp_url"
                                     class="aspect-video rounded-lg object-cover"
                                 />
@@ -369,8 +378,12 @@ const getStatusBadge = (status: string | undefined) => {
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KK</p>
+                                <div v-if="isPdf(props.student.student_biodata.kk_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
+                                    <FileText class="size-8 text-red-500" />
+                                    <span class="text-xs">PDF Document</span>
+                                </div>
                                 <img
-                                    v-if="props.student.student_biodata.kk_url"
+                                    v-else-if="props.student.student_biodata.kk_url"
                                     :src="props.student.student_biodata.kk_url"
                                     class="aspect-video rounded-lg object-cover"
                                 />
@@ -378,8 +391,12 @@ const getStatusBadge = (status: string | undefined) => {
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">Ijazah</p>
+                                <div v-if="isPdf(props.student.student_biodata.certificate_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
+                                    <FileText class="size-8 text-red-500" />
+                                    <span class="text-xs">PDF Document</span>
+                                </div>
                                 <img
-                                    v-if="props.student.student_biodata.certificate_url"
+                                    v-else-if="props.student.student_biodata.certificate_url"
                                     :src="props.student.student_biodata.certificate_url"
                                     class="aspect-video rounded-lg object-cover"
                                 />
