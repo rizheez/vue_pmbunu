@@ -2,6 +2,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/composables/useFormat';
 import {
     Card,
     CardContent,
@@ -121,7 +122,7 @@ const breadcrumbs = [
                                 <tr v-for="period in props.periods" :key="period.id" class="hover:bg-gray-50">
                                     <td class="px-4 py-3 font-medium">{{ period.name }}</td>
                                     <td class="px-4 py-3">{{ period.academic_year }}</td>
-                                    <td class="px-4 py-3">{{ period.start_date }} - {{ period.end_date }}</td>
+                                    <td class="px-4 py-3">{{ formatDate(period.start_date) }} - {{ formatDate(period.end_date) }}</td>
                                     <td class="px-4 py-3">
                                         <Badge :variant="period.is_active ? 'default' : 'secondary'">
                                             {{ period.is_active ? 'Aktif' : 'Nonaktif' }}

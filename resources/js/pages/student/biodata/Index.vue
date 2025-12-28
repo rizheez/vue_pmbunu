@@ -16,6 +16,7 @@ import {
     AlertCircle,
     CheckCircle,
     Edit,
+    ExternalLink,
     FileText,
     User,
 } from 'lucide-vue-next';
@@ -190,15 +191,21 @@ const isPdf = (url: string | null) => {
                                         >Belum</Badge
                                     >
                                 </div>
-                                <div
+                                <a
                                     v-if="props.biodata.photo_url"
-                                    class="aspect-square overflow-hidden rounded-lg bg-gray-100"
+                                    :href="props.biodata.photo_url"
+                                    target="_blank"
+                                    class="relative block aspect-square cursor-pointer overflow-hidden rounded-lg bg-gray-100"
                                 >
                                     <img
                                         :src="props.biodata.photo_url"
                                         class="size-full object-cover"
                                     />
-                                </div>
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <ExternalLink class="size-6 text-white" />
+                                    </div>
+                                </a>
+                                <p v-if="props.biodata.photo_url" class="mt-1 text-center text-xs text-gray-400">Tekan file/gambar untuk melihat</p>
                             </div>
 
                             <!-- KTP -->
@@ -214,11 +221,13 @@ const isPdf = (url: string | null) => {
                                         >Belum</Badge
                                     >
                                 </div>
-                                <div
+                                <a
                                     v-if="props.biodata.ktp_url"
-                                    class="aspect-video overflow-hidden rounded-lg bg-gray-100"
+                                    :href="props.biodata.ktp_url"
+                                    target="_blank"
+                                    class="relative block aspect-video cursor-pointer overflow-hidden rounded-lg bg-gray-100"
                                 >
-                                    <div v-if="isPdf(props.biodata.ktp_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                    <div v-if="isPdf(props.biodata.ktp_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 hover:bg-gray-100">
                                         <FileText class="size-8 text-red-500" />
                                         <span class="text-xs">PDF Document</span>
                                     </div>
@@ -227,7 +236,11 @@ const isPdf = (url: string | null) => {
                                         :src="props.biodata.ktp_url"
                                         class="size-full object-cover"
                                     />
-                                </div>
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <ExternalLink class="size-6 text-white" />
+                                    </div>
+                                </a>
+                                <p v-if="props.biodata.ktp_url" class="mt-1 text-center text-xs text-gray-400">Tekan file/gambar untuk melihat</p>
                             </div>
 
                             <!-- KK -->
@@ -245,11 +258,13 @@ const isPdf = (url: string | null) => {
                                         >Belum</Badge
                                     >
                                 </div>
-                                <div
+                                <a
                                     v-if="props.biodata.kk_url"
-                                    class="aspect-video overflow-hidden rounded-lg bg-gray-100"
+                                    :href="props.biodata.kk_url"
+                                    target="_blank"
+                                    class="relative block aspect-video cursor-pointer overflow-hidden rounded-lg bg-gray-100"
                                 >
-                                    <div v-if="isPdf(props.biodata.kk_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                    <div v-if="isPdf(props.biodata.kk_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 hover:bg-gray-100">
                                         <FileText class="size-8 text-red-500" />
                                         <span class="text-xs">PDF Document</span>
                                     </div>
@@ -258,7 +273,11 @@ const isPdf = (url: string | null) => {
                                         :src="props.biodata.kk_url"
                                         class="size-full object-cover"
                                     />
-                                </div>
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <ExternalLink class="size-6 text-white" />
+                                    </div>
+                                </a>
+                                <p v-if="props.biodata.kk_url" class="mt-1 text-center text-xs text-gray-400">Tekan file/gambar untuk melihat</p>
                             </div>
 
                             <!-- Certificate -->
@@ -274,11 +293,13 @@ const isPdf = (url: string | null) => {
                                         >Opsional</Badge
                                     >
                                 </div>
-                                <div
+                                <a
                                     v-if="props.biodata.certificate_url"
-                                    class="aspect-video overflow-hidden rounded-lg bg-gray-100"
+                                    :href="props.biodata.certificate_url"
+                                    target="_blank"
+                                    class="relative block aspect-video cursor-pointer overflow-hidden rounded-lg bg-gray-100"
                                 >
-                                    <div v-if="isPdf(props.biodata.certificate_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500">
+                                    <div v-if="isPdf(props.biodata.certificate_url)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 hover:bg-gray-100">
                                         <FileText class="size-8 text-red-500" />
                                         <span class="text-xs">PDF Document</span>
                                     </div>
@@ -287,7 +308,11 @@ const isPdf = (url: string | null) => {
                                         :src="props.biodata.certificate_url"
                                         class="size-full object-cover"
                                     />
-                                </div>
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <ExternalLink class="size-6 text-white" />
+                                    </div>
+                                </a>
+                                <p v-if="props.biodata.certificate_url" class="mt-1 text-center text-xs text-gray-400">Tekan file/gambar untuk melihat</p>
                             </div>
                         </div>
                     </CardContent>

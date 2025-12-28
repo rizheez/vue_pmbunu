@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Registration, RegistrationPeriod, StudentBiodata } from '@/types/pmb';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Eye, Search } from 'lucide-vue-next';
+import { Eye, Printer, Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import { formatDate } from '@/composables/useFormat';
 
@@ -234,18 +234,34 @@ const breadcrumbs = [
                                         </Badge>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <Button
-                                            as-child
-                                            variant="ghost"
-                                            size="sm"
-                                        >
-                                            <Link
-                                                :href="`/admin/students/${student.id}`"
+                                        <div class="flex gap-1">
+                                            <Button
+                                                as-child
+                                                variant="ghost"
+                                                size="sm"
                                             >
-                                                <Eye class="mr-1 size-4" />
-                                                Detail
-                                            </Link>
-                                        </Button>
+                                                <Link
+                                                    :href="`/admin/students/${student.id}`"
+                                                >
+                                                    <Eye class="mr-1 size-4" />
+                                                    Detail
+                                                </Link>
+                                            </Button>
+                                            <Button
+                                                v-if="student.registration"
+                                                as-child
+                                                variant="ghost"
+                                                size="icon"
+                                                title="Cetak Kartu Peserta"
+                                            >
+                                                <a
+                                                    :href="`/admin/students/${student.id}/registration-card`"
+                                                    target="_blank"
+                                                >
+                                                    <Printer class="size-4" />
+                                                </a>
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="props.students.data.length === 0">

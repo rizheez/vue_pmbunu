@@ -2,20 +2,21 @@
 
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DocumentVerificationController;
 use App\Http\Controllers\Admin\FakultasController;
 use App\Http\Controllers\Admin\PeriodController;
 use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\StudentController;
-use App\Http\Controllers\Admin\DocumentVerificationController;
+use App\Http\Controllers\RegistrationCardController;
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentRegistrationController;
 use App\Models\Fakultas;
+use App\Models\LandingPageSetting;
 use App\Models\RegistrationPeriod;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Models\LandingPageSetting;
 
 Route::get('/', function () {
     $fakultas = Fakultas::where('is_active', true)
@@ -43,7 +44,6 @@ Route::get('/', function () {
 Route::get('/panduan', [App\Http\Controllers\GuideController::class, 'index'])->name('panduan');
 Route::get('/panduan-lengkap', [App\Http\Controllers\GuideController::class, 'view'])->name('panduan.view');
 
-
 Route::get('dashboard', function (Illuminate\Http\Request $request) {
     if ($request->user()->isStudent()) {
         return redirect()->route('student.dashboard', $request->query());
@@ -51,6 +51,7 @@ Route::get('dashboard', function (Illuminate\Http\Request $request) {
     if ($request->user()->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
+
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -71,6 +72,9 @@ Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('stu
     Route::get('/daftar-ulang', function () {
         return Inertia::render('student/daftar-ulang/Index');
     })->name('daftar-ulang.index');
+
+    // Registration card PDF
+    Route::get('/registration-card', [RegistrationCardController::class, 'showStudent'])->name('registration-card');
 });
 
 // Admin Panel Routes
@@ -87,6 +91,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/students/{id}/verify', [StudentController::class, 'verify'])->name('students.verify');
     Route::post('/students/{id}/accept', [StudentController::class, 'accept'])->name('students.accept');
     Route::post('/students/{id}/reject', [StudentController::class, 'reject'])->name('students.reject');
+    Route::get('/students/{id}/registration-card', [RegistrationCardController::class, 'show'])->name('students.registration-card');
 
     // Document Verification
     Route::get('/students/{id}/documents', [DocumentVerificationController::class, 'show'])->name('students.documents');

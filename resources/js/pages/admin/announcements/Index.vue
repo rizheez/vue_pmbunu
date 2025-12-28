@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate } from '@/composables/useFormat';
 import {
     Dialog,
     DialogContent,
@@ -35,6 +36,10 @@ const form = useForm({
     content: '',
     is_published: true,
 });
+
+const limitText = (text: string, limit: number) => {
+    return text.length > limit ? text.substring(0, limit) + '...' : text;
+};
 
 const openCreate = () => {
     editingAnn.value = null;
@@ -108,8 +113,8 @@ const breadcrumbs = [
                                         {{ ann.is_published ? 'Aktif' : 'Nonaktif' }}
                                     </Badge>
                                 </div>
-                                <p class="mt-1 text-sm text-gray-600">{{ ann.content }}</p>
-                                <p class="mt-2 text-xs text-gray-400">{{ ann.created_at }}</p>
+                                <p class="mt-1 text-sm text-gray-600">{{ limitText(ann.content, 300) }}</p>
+                                <p class="mt-2 text-xs text-gray-400">{{ formatDate(ann.created_at) }}</p>
                             </div>
                             <div class="flex gap-2">
                                 <Button size="sm" variant="ghost" @click="openEdit(ann)">
@@ -129,7 +134,7 @@ const breadcrumbs = [
         </div>
 
         <Dialog v-model:open="showDialog">
-            <DialogContent>
+            <DialogContent class="min-w-2xl">
                 <DialogHeader>
                     <DialogTitle>{{ editingAnn ? 'Edit Pengumuman' : 'Tambah Pengumuman' }}</DialogTitle>
                 </DialogHeader>
@@ -143,7 +148,7 @@ const breadcrumbs = [
                         <textarea
                             v-model="form.content"
                             rows="4"
-                            class="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                            class="flex min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                             placeholder="Isi pengumuman..."
                         ></textarea>
                     </div>

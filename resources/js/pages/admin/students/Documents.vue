@@ -345,7 +345,7 @@ const hasChanges = computed(() => {
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="max-w-7xl h-[90vh] flex flex-col">
+            <DialogContent class="min-w-auto md:min-w-4xl h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>

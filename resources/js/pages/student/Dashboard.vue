@@ -28,6 +28,7 @@ import {
     Inbox,
     Megaphone,
     PartyPopper,
+    Printer,
     X,
     XCircle,
 } from 'lucide-vue-next';
@@ -184,7 +185,7 @@ const props = defineProps<Props>();
                                         >
                                             {{ ann.title }}
                                         </h4>
-                                        <p class="mt-2 text-sm text-justify text-teal-700">
+                                        <p class="mt-2 text-sm md:text-justify text-teal-700">
                                             {{ ann.content }}
                                         </p>
 
@@ -361,6 +362,23 @@ const props = defineProps<Props>();
                                         }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <!-- Print Registration Card Button -->
+                            <div class="mt-4 pt-4 border-t">
+                                <Button
+                                    as-child
+                                    variant="outline"
+                                    class="w-full"
+                                >
+                                    <a
+                                        href="/student/registration-card"
+                                        target="_blank"
+                                    >
+                                        <Printer class="mr-2 size-4" />
+                                        Cetak Kartu Peserta
+                                    </a>
+                                </Button>
                             </div>
                         </div>
                         <div v-else class="py-4 text-center">

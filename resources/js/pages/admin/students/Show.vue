@@ -23,9 +23,11 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
     AlertCircle,
     CheckCircle,
+    Eye,
     FileText,
     GraduationCap,
     Pencil,
+    Printer,
     User,
     XCircle,
 } from 'lucide-vue-next';
@@ -53,10 +55,19 @@ const flash = computed(
 
 const showAcceptDialog = ref(false);
 const showRejectDialog = ref(false);
+const showPreviewDialog = ref(false);
+const previewImage = ref('');
+const previewTitle = ref('');
 const selectedProdi = ref<number | null>(null);
 const acceptNotes = ref('');
 const rejectReason = ref('');
 const processing = ref(false);
+
+const openPreview = (url: string, title: string) => {
+    previewImage.value = url;
+    previewTitle.value = title;
+    showPreviewDialog.value = true;
+};
 
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
@@ -147,6 +158,19 @@ const isPdf = (url: string | null) => {
                             <Pencil class="mr-2 size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button
+                        v-if="props.student.registration"
+                        variant="outline"
+                        as-child
+                    >
+                        <a
+                            :href="`/admin/students/${props.student.id}/registration-card`"
+                            target="_blank"
+                        >
+                            <Printer class="mr-2 size-4" />
+                            Cetak Kartu
+                        </a>
                     </Button>
                     <Button
                         v-if="canAcceptReject"
@@ -356,50 +380,85 @@ const isPdf = (url: string | null) => {
                         <div class="grid gap-4 md:grid-cols-4">
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">Pas Foto</p>
-                                <img
+                                <div
                                     v-if="props.student.student_biodata.photo_url"
-                                    :src="props.student.student_biodata.photo_url"
-                                    class="aspect-square rounded-lg object-cover"
-                                />
+                                    class="relative cursor-pointer"
+                                    @click="openPreview(props.student.student_biodata.photo_url, 'Pas Foto')"
+                                >
+                                    <img
+                                        :src="props.student.student_biodata.photo_url"
+                                        class="aspect-square rounded-lg object-cover"
+                                    />
+                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <Eye class="size-6 text-white" />
+                                    </div>
+                                </div>
                                 <p v-else class="text-sm text-gray-400">Belum upload</p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KTP</p>
-                                <div v-if="isPdf(props.student.student_biodata.ktp_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
-                                    <FileText class="size-8 text-red-500" />
-                                    <span class="text-xs">PDF Document</span>
+                                <div
+                                    v-if="props.student.student_biodata.ktp_url"
+                                    class="relative cursor-pointer"
+                                    @click="openPreview(props.student.student_biodata.ktp_url, 'KTP')"
+                                >
+                                    <div v-if="isPdf(props.student.student_biodata.ktp_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
+                                    <img
+                                        v-else
+                                        :src="props.student.student_biodata.ktp_url"
+                                        class="aspect-video rounded-lg object-cover"
+                                    />
+                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <Eye class="size-6 text-white" />
+                                    </div>
                                 </div>
-                                <img
-                                    v-else-if="props.student.student_biodata.ktp_url"
-                                    :src="props.student.student_biodata.ktp_url"
-                                    class="aspect-video rounded-lg object-cover"
-                                />
                                 <p v-else class="text-sm text-gray-400">Belum upload</p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KK</p>
-                                <div v-if="isPdf(props.student.student_biodata.kk_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
-                                    <FileText class="size-8 text-red-500" />
-                                    <span class="text-xs">PDF Document</span>
+                                <div
+                                    v-if="props.student.student_biodata.kk_url"
+                                    class="relative cursor-pointer"
+                                    @click="openPreview(props.student.student_biodata.kk_url, 'Kartu Keluarga')"
+                                >
+                                    <div v-if="isPdf(props.student.student_biodata.kk_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
+                                    <img
+                                        v-else
+                                        :src="props.student.student_biodata.kk_url"
+                                        class="aspect-video rounded-lg object-cover"
+                                    />
+                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <Eye class="size-6 text-white" />
+                                    </div>
                                 </div>
-                                <img
-                                    v-else-if="props.student.student_biodata.kk_url"
-                                    :src="props.student.student_biodata.kk_url"
-                                    class="aspect-video rounded-lg object-cover"
-                                />
                                 <p v-else class="text-sm text-gray-400">Belum upload</p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">Ijazah</p>
-                                <div v-if="isPdf(props.student.student_biodata.certificate_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500">
-                                    <FileText class="size-8 text-red-500" />
-                                    <span class="text-xs">PDF Document</span>
+                                <div
+                                    v-if="props.student.student_biodata.certificate_url"
+                                    class="relative cursor-pointer"
+                                    @click="openPreview(props.student.student_biodata.certificate_url, 'Ijazah')"
+                                >
+                                    <div v-if="isPdf(props.student.student_biodata.certificate_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                        <FileText class="size-8 text-red-500" />
+                                        <span class="text-xs">PDF Document</span>
+                                    </div>
+                                    <img
+                                        v-else
+                                        :src="props.student.student_biodata.certificate_url"
+                                        class="aspect-video rounded-lg object-cover"
+                                    />
+                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                        <Eye class="size-6 text-white" />
+                                    </div>
                                 </div>
-                                <img
-                                    v-else-if="props.student.student_biodata.certificate_url"
-                                    :src="props.student.student_biodata.certificate_url"
-                                    class="aspect-video rounded-lg object-cover"
-                                />
                                 <p v-else class="text-sm text-gray-400">Belum upload</p>
                             </div>
                         </div>
@@ -501,6 +560,29 @@ const isPdf = (url: string | null) => {
                         Tolak
                     </Button>
                 </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Preview Dialog -->
+        <Dialog v-model:open="showPreviewDialog">
+            <DialogContent class="w-[95vw] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col p-4">
+                <DialogHeader>
+                    <DialogTitle>{{ previewTitle }}</DialogTitle>
+                </DialogHeader>
+                <div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100 mt-2">
+                    <iframe
+                        v-if="isPdf(previewImage)"
+                        :src="previewImage"
+                        class="w-full h-full min-h-[60vh]"
+                        frameborder="0"
+                    ></iframe>
+                    <img
+                        v-else
+                        :src="previewImage"
+                        :alt="previewTitle"
+                        class="w-full h-auto max-h-full object-contain"
+                    />
+                </div>
             </DialogContent>
         </Dialog>
     </AppLayout>
