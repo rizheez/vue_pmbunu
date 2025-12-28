@@ -21,7 +21,7 @@ class StudentRegistrationController extends Controller
     {
         $biodata = StudentBiodata::where('user_id', Auth::id())->first();
 
-        if (! $biodata) {
+        if (! $biodata || $biodata->nik == null || $biodata->photo_path == null || $biodata->ktp_path == null) {
             return redirect()->route('student.biodata.index')
                 ->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
         }

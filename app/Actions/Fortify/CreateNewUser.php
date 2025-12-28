@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\StudentBiodata;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -31,11 +32,20 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'phone' => $input['phone'],
             'password' => $input['password'],
         ]);
+
+        // Auto-create StudentBiodata with name and phone pre-filled
+        StudentBiodata::create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'phone' => $user->phone,
+        ]);
+
+        return $user;
     }
 }

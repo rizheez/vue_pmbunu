@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import UserInfo from '@/components/UserInfo.vue';
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
@@ -11,13 +21,25 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { ChevronsUpDown } from 'lucide-vue-next';
+import { ref } from 'vue';
 import UserMenuContent from './UserMenuContent.vue';
 
 const page = usePage();
 const user = page.props.auth.user;
 const { isMobile, state } = useSidebar();
+
+const showLogoutDialog = ref(false);
+
+const handleLogoutClick = () => {
+    showLogoutDialog.value = true;
+};
+
+const handleLogout = () => {
+    router.post('/logout');
+    router.flushAll();
+};
 </script>
 
 <template>
@@ -46,9 +68,30 @@ const { isMobile, state } = useSidebar();
                     align="end"
                     :side-offset="4"
                 >
-                    <UserMenuContent :user="user" />
+                    <UserMenuContent :user="user" @logout="handleLogoutClick" />
                 </DropdownMenuContent>
             </DropdownMenu>
         </SidebarMenuItem>
     </SidebarMenu>
+
+    <!-- Logout Confirmation Dialog -->
+    <AlertDialog v-model:open="showLogoutDialog">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Konfirmasi Logout</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Apakah Anda yakin ingin keluar dari akun?
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                    class="bg-red-600 hover:bg-red-700"
+                    @click="handleLogout"
+                >
+                    Ya, Logout
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

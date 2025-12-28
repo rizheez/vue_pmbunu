@@ -150,8 +150,7 @@ const isMobileMenuOpen = ref(false);
                     <!-- Logo -->
                     <div class="flex flex-col items-center">
                         <img
-                            v-if="getSetting('contact', 'university_logo')"
-                            :src="getSetting('contact', 'university_logo')"
+                            :src="getSetting('contact', 'university_logo') || '/assets/images/logo_unu.png'"
                             alt="Logo"
                             class="h-10 w-10 object-contain"
                         />
@@ -239,37 +238,37 @@ const isMobileMenuOpen = ref(false);
             <!-- Dark Overlay -->
             <div v-if="getSetting('hero', 'hero_background_image_desktop') || getSetting('hero', 'hero_background_image_mobile')" class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"></div>
 
-            <div class="relative z-10 mx-auto max-w-7xl px-4 py-20 text-center text-white sm:px-6 lg:px-8">
-                <h1 class="text-outline-black mb-6 text-4xl font-bold text-white md:text-6xl">
+            <div class="relative z-10 mx-auto max-w-7xl px-4 py-12 text-center text-white sm:px-6 sm:py-20 lg:px-8">
+                <h1 class="text-outline-black mb-4 text-4xl font-bold text-white sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
                     {{ getSetting('hero', 'hero_title', 'Selamat Datang') }}
                 </h1>
 
-                <div class="mx-auto rounded-xl bg-black/20 px-6 py-4 backdrop-blur-sm">
-                     <p class="mb-3 text-xl font-light text-white/90 md:text-3xl">
+                <div class="mx-auto rounded-xl bg-black/20 px-4 py-3 backdrop-blur-sm sm:px-6 sm:py-4">
+                     <p class="mb-2 text-base font-light text-white/90 sm:mb-3 sm:text-xl md:text-2xl lg:text-3xl">
                         {{ getSetting('hero', 'hero_subtitle', '') }}
                     </p>
-                    <p class="mx-auto max-w-3xl text-base text-white/80 md:text-xl">
+                    <p class="mx-auto max-w-3xl text-sm text-white/80 sm:text-base md:text-lg lg:text-xl">
                         {{ getSetting('hero', 'hero_description', '') }}
                     </p>
                 </div>
 
                 <div
                     v-if="props.activePeriod"
-                    class="mx-auto my-3 mb-8 inline-block rounded-lg bg-white/20 px-6 py-3 backdrop-blur-sm"
+                    class="mx-auto my-3 mb-6 inline-block rounded-lg bg-white/20 px-4 py-2 backdrop-blur-sm sm:mb-8 sm:px-6 sm:py-3"
                 >
-                    <p class="text-sm font-semibold">Periode Pendaftaran Aktif</p>
+                    <p class="text-xs font-semibold sm:text-sm">Periode Pendaftaran Aktif</p>
                     <p class="text-xs opacity-90">{{ props.activePeriod.name }}</p>
                     <p class="text-xs opacity-90">
                         {{ formatDate(props.activePeriod.start_date) }} - {{ formatDate(props.activePeriod.end_date) }}
                     </p>
                 </div>
 
-                <div class="flex justify-center gap-4">
+                <div class="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
                     <Button
                         v-if="user"
                         as-child
                         size="lg"
-                         class="rounded-full bg-white px-8 py-6 text-lg font-semibold text-teal-600 shadow-lg hover:bg-gray-100"
+                        class="w-full max-w-xs rounded-full bg-white px-6 py-4 text-sm font-semibold text-teal-600 shadow-lg hover:bg-gray-100 sm:w-auto sm:px-8 sm:py-6 sm:text-lg"
                     >
                         <Link :href="dashboardUrl">
                              {{ user.role === 'admin' ? 'Dashboard Admin' : 'Dashboard Mahasiswa' }}
@@ -279,7 +278,7 @@ const isMobileMenuOpen = ref(false);
                         v-else
                         as-child
                         size="lg"
-                        class="rounded-full bg-white px-8 py-6 text-lg font-semibold text-teal-600 shadow-lg hover:bg-gray-100"
+                        class="w-full max-w-xs rounded-full bg-white px-6 py-4 text-sm font-semibold text-teal-600 shadow-lg hover:bg-gray-100 sm:w-auto sm:px-8 sm:py-6 sm:text-lg"
                     >
                         <Link :href="getSetting('hero', 'hero_button_url', '/register')">
                             {{ getSetting('hero', 'hero_button_text', 'Daftar Sekarang') }}
@@ -288,14 +287,14 @@ const isMobileMenuOpen = ref(false);
                     <Button
                         as-child
                         size="lg"
-                        class="border-2 border-white bg-transparent px-8 py-6 text-lg font-semibold text-white transition hover:bg-white/10"
+                        class="w-full max-w-xs border-2 border-white bg-transparent px-6 py-4 text-sm font-semibold text-white transition hover:bg-white/10 sm:w-auto sm:px-8 sm:py-6 sm:text-lg"
                     >
                         <a href="#programs">Lihat Program</a>
                     </Button>
                 </div>
 
-                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-                    <ChevronDown class="size-8 text-white" />
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 animate-bounce sm:bottom-8">
+                    <ChevronDown class="size-6 text-white sm:size-8" />
                 </div>
             </div>
         </section>

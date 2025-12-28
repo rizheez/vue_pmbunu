@@ -79,7 +79,7 @@ const getStatusBadge = (regStatus: string | undefined) => {
 
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
-    { title: 'Students', href: '/admin/students' },
+    { title: 'Calon Mahasiswa', href: '/admin/students' },
 ];
 
 const exportUrl = computed(() => {
@@ -93,7 +93,7 @@ const exportUrl = computed(() => {
 
 <template>
 
-    <Head title="Manajemen Mahasiswa" />
+    <Head title="Manajemen Calon Mahasiswa" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4">
@@ -101,9 +101,9 @@ const exportUrl = computed(() => {
                 <CardHeader>
                     <div class="flex items-center justify-between">
                         <div>
-                            <CardTitle>Manajemen Mahasiswa</CardTitle>
+                            <CardTitle>Manajemen Calon Mahasiswa</CardTitle>
                             <CardDescription>
-                                Total: {{ props.students.total }} mahasiswa
+                                Total: {{ props.students.total }} calon mahasiswa
                             </CardDescription>
                         </div>
                         <Button as-child class="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">

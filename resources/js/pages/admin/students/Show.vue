@@ -565,7 +565,7 @@ const isPdf = (url: string | null) => {
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="w-[95vw] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col p-4">
+            <DialogContent class="min-w-[80vw] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col p-4">
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>

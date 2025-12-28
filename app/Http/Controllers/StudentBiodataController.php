@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DocumentVerification;
 use App\Models\RegistrationPeriod;
 use App\Models\StudentBiodata;
 use Illuminate\Http\RedirectResponse;
@@ -136,6 +135,12 @@ class StudentBiodataController extends Controller
             ['user_id' => Auth::id()],
             $data
         );
+
+        // Sync name and phone to users table
+        Auth::user()->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+        ]);
 
         // Reset verification status for changed documents
         $this->resetVerificationStatus($biodata, $request);

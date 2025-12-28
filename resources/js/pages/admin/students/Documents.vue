@@ -90,7 +90,7 @@ const getDocumentUrl = (type: string): string | null => {
     const biodata = props.student.student_biodata;
     if (!biodata) return null;
 
-    const urls: Record<string, string | null> = {
+    const urls: Record<string, string | null | undefined> = {
         photo: biodata.photo_url,
         ktp: biodata.ktp_url,
         kk: biodata.kk_url,
@@ -345,7 +345,7 @@ const hasChanges = computed(() => {
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="min-w-auto md:min-w-4xl h-[90vh] flex flex-col">
+            <DialogContent class="min-w-[80vw] max-w-4xl h-[85vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>
