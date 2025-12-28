@@ -110,7 +110,7 @@ defineProps<{
                     <div class="space-y-2 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             <Phone class="size-4 text-teal-600" />
-                            <span>WhatsApp: <strong>0811-4200-9990</strong></span>
+                            <span>WhatsApp: <strong>0812-5317-738</strong></span>
                         </div>
                         <div class="flex items-center gap-2">
                             <Mail class="size-4 text-teal-600" />
