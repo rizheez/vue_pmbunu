@@ -175,7 +175,7 @@ const getStatusLabel = (status: string) => {
                     <Button as-child variant="outline" class="flex-1">
                         <Link href="/admin/students/create">
                             <UserPlus class="mr-2 size-4" />
-                            Tambah Mahasiswa
+                            Tambah Calon Mahasiswa
                         </Link>
                     </Button>
                     <Button as-child variant="outline" class="flex-1">

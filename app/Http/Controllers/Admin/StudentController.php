@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\StudentsExport;
 use App\Http\Controllers\Controller;
+use App\Mail\ManualRegistrationCredentials;
+use App\Mail\StudentAcceptedMail;
+use App\Mail\StudentRejectedMail;
 use App\Models\Fakultas;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
@@ -16,11 +20,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ManualRegistrationCredentials;
-use App\Mail\StudentAcceptedMail;
-use App\Mail\StudentRejectedMail;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentController extends Controller
 {
@@ -208,17 +211,19 @@ class StudentController extends Controller
             });
         }
 
+        $perPage = min((int) $request->input('per_page', 10), 100);
+
         $students = $query
             ->join('registrations', 'users.id', '=', 'registrations.user_id')
             ->orderByDesc('registrations.created_at')
             ->select('users.*')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return Inertia::render('admin/students/Index', [
             'students' => $students,
             'periods' => $periods,
-            'filters' => $request->only(['status', 'period', 'search']),
+            'filters' => $request->only(['status', 'period', 'search', 'per_page']),
         ]);
     }
 
@@ -457,5 +462,12 @@ class StudentController extends Controller
         Mail::to($student->email)->send(new StudentRejectedMail($student, $student->registration, $request->reason));
 
         return redirect()->back()->with('success', 'Pendaftaran ditolak dan email notifikasi telah dikirim.');
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        $filename = 'mahasiswa-'.now()->format('Y-m-d-His').'.xlsx';
+
+        return Excel::download(new StudentsExport($request), $filename);
     }
 }

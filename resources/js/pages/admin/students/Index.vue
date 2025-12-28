@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Registration, RegistrationPeriod, StudentBiodata } from '@/types/pmb';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Eye, Printer, Search } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { Download, Eye, Printer, Search } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import { formatDate } from '@/composables/useFormat';
 
 interface Student {
@@ -49,6 +49,7 @@ const props = defineProps<Props>();
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || 'all');
 const period = ref(props.filters.period || 'all');
+const perPage = ref(props.students.per_page || 10);
 
 const applyFilters = () => {
     router.get(
@@ -57,12 +58,13 @@ const applyFilters = () => {
             search: search.value || undefined,
             status: status.value !== 'all' ? status.value : undefined,
             period: period.value !== 'all' ? period.value : undefined,
+            per_page: perPage.value,
         },
         { preserveState: true }
     );
 };
 
-watch([status, period], () => applyFilters());
+watch([status, period, perPage], () => applyFilters());
 
 const getStatusBadge = (regStatus: string | undefined) => {
     const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
@@ -79,9 +81,18 @@ const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
     { title: 'Students', href: '/admin/students' },
 ];
+
+const exportUrl = computed(() => {
+    const params = new URLSearchParams();
+    if (search.value) params.append('search', search.value);
+    if (status.value !== 'all') params.append('status', status.value);
+    if (period.value !== 'all') params.append('period', period.value);
+    return `/admin/students-export?${params.toString()}`;
+});
 </script>
 
 <template>
+
     <Head title="Manajemen Mahasiswa" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -95,27 +106,28 @@ const breadcrumbs = [
                                 Total: {{ props.students.total }} mahasiswa
                             </CardDescription>
                         </div>
+                        <Button as-child class="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
+                            <a :href="exportUrl" download>
+                                <Download class="size-4" />
+                                Export Excel
+                            </a>
+                        </Button>
+
                     </div>
                 </CardHeader>
                 <CardContent>
                     <!-- Filters -->
                     <div class="mb-6 flex flex-wrap gap-4">
                         <div class="flex items-center gap-2">
-                            <Input
-                                v-model="search"
-                                placeholder="Cari nama, email, no. pendaftaran..."
-                                class="w-64"
-                                @keyup.enter="applyFilters"
-                            />
+                            <Input v-model="search" placeholder="Cari nama, email, no. pendaftaran..." class="w-64"
+                                @keyup.enter="applyFilters" />
                             <Button size="icon" variant="outline" @click="applyFilters">
                                 <Search class="size-4" />
                             </Button>
                         </div>
 
-                        <select
-                            v-model="status"
-                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                        >
+                        <select v-model="status"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
                             <option value="all">Semua Status</option>
                             <option value="draft">Draft</option>
                             <option value="submitted">Terdaftar</option>
@@ -124,18 +136,20 @@ const breadcrumbs = [
                             <option value="rejected">Ditolak</option>
                         </select>
 
-                        <select
-                            v-model="period"
-                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                        >
+                        <select v-model="period"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
                             <option value="all">Semua Periode</option>
-                            <option
-                                v-for="p in props.periods"
-                                :key="p.id"
-                                :value="p.id"
-                            >
+                            <option v-for="p in props.periods" :key="p.id" :value="p.id">
                                 {{ p.name }}
                             </option>
+                        </select>
+
+                        <select v-model="perPage"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+                            <option :value="10">10 per halaman</option>
+                            <option :value="25">25 per halaman</option>
+                            <option :value="50">50 per halaman</option>
+                            <option :value="100">100 per halaman</option>
                         </select>
                     </div>
 
@@ -171,11 +185,7 @@ const breadcrumbs = [
                                 </tr>
                             </thead>
                             <tbody class="divide-y">
-                                <tr
-                                    v-for="student in props.students.data"
-                                    :key="student.id"
-                                    class="hover:bg-gray-50"
-                                >
+                                <tr v-for="student in props.students.data" :key="student.id" class="hover:bg-gray-50">
                                     <td class="px-4 py-3 font-mono text-xs">
                                         {{
                                             student.registration
@@ -196,10 +206,8 @@ const breadcrumbs = [
                                             <span class="font-medium">
                                                 {{ student.registration?.referral_source || '-' }}
                                             </span>
-                                            <span
-                                                v-if="student.registration?.referral_detail"
-                                                class="text-xs text-gray-500"
-                                            >
+                                            <span v-if="student.registration?.referral_detail"
+                                                class="text-xs text-gray-500">
                                                 {{ student.registration.referral_detail }}
                                             </span>
                                         </div>
@@ -219,13 +227,10 @@ const breadcrumbs = [
                                         }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        <Badge
-                                            :variant="
-                                                getStatusBadge(
-                                                    student.registration?.status
-                                                ).variant
-                                            "
-                                        >
+                                        <Badge :variant="getStatusBadge(
+                                            student.registration?.status
+                                        ).variant
+                                            ">
                                             {{
                                                 getStatusBadge(
                                                     student.registration?.status
@@ -235,29 +240,16 @@ const breadcrumbs = [
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex gap-1">
-                                            <Button
-                                                as-child
-                                                variant="ghost"
-                                                size="sm"
-                                            >
-                                                <Link
-                                                    :href="`/admin/students/${student.id}`"
-                                                >
+                                            <Button as-child variant="ghost" size="sm">
+                                                <Link :href="`/admin/students/${student.id}`">
                                                     <Eye class="mr-1 size-4" />
                                                     Detail
                                                 </Link>
                                             </Button>
-                                            <Button
-                                                v-if="student.registration"
-                                                as-child
-                                                variant="ghost"
-                                                size="icon"
-                                                title="Cetak Kartu Peserta"
-                                            >
-                                                <a
-                                                    :href="`/admin/students/${student.id}/registration-card`"
-                                                    target="_blank"
-                                                >
+                                            <Button v-if="student.registration" as-child variant="ghost" size="icon"
+                                                title="Cetak Kartu Peserta">
+                                                <a :href="`/admin/students/${student.id}/registration-card`"
+                                                    target="_blank">
                                                     <Printer class="size-4" />
                                                 </a>
                                             </Button>
@@ -265,10 +257,7 @@ const breadcrumbs = [
                                     </td>
                                 </tr>
                                 <tr v-if="props.students.data.length === 0">
-                                    <td
-                                        colspan="8"
-                                        class="px-4 py-8 text-center text-gray-500"
-                                    >
+                                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">
                                         Tidak ada data mahasiswa
                                     </td>
                                 </tr>
@@ -277,32 +266,18 @@ const breadcrumbs = [
                     </div>
 
                     <!-- Pagination -->
-                    <div
-                        v-if="props.students.last_page > 1"
-                        class="mt-4 flex items-center justify-between"
-                    >
+                    <div v-if="props.students.last_page > 1" class="mt-4 flex items-center justify-between">
                         <p class="text-sm text-gray-500">
                             Halaman {{ props.students.current_page }} dari
                             {{ props.students.last_page }}
                         </p>
                         <div class="flex gap-1">
-                            <template
-                                v-for="link in props.students.links"
-                                :key="link.label"
-                            >
-                                <Button
-                                    v-if="link.url"
-                                    as-child
-                                    variant="outline"
-                                    size="sm"
-                                    :class="{
-                                        'bg-primary text-primary-foreground':
-                                            link.active,
-                                    }"
-                                >
-                                    <Link
-                                        :href="link.url"
-                                    >
+                            <template v-for="link in props.students.links" :key="link.label">
+                                <Button v-if="link.url" as-child variant="outline" size="sm" :class="{
+                                    'bg-primary text-primary-foreground':
+                                        link.active,
+                                }">
+                                    <Link :href="link.url">
                                         <span v-html="link.label" />
                                     </Link>
                                 </Button>

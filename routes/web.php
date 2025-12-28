@@ -92,6 +92,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/students/{id}/accept', [StudentController::class, 'accept'])->name('students.accept');
     Route::post('/students/{id}/reject', [StudentController::class, 'reject'])->name('students.reject');
     Route::get('/students/{id}/registration-card', [RegistrationCardController::class, 'show'])->name('students.registration-card');
+    Route::get('/students-export', [StudentController::class, 'export'])->name('students.export');
 
     // Document Verification
     Route::get('/students/{id}/documents', [DocumentVerificationController::class, 'show'])->name('students.documents');
