@@ -305,17 +305,17 @@ const props = defineProps<Props>();
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Status</span>
-                                <Badge>{{
-                                    props.registration.status_label ||
-                                    props.registration.status
+                                <Badge :class="props.registration?.status_badge_class">{{
+                                    props.registration?.status_label ||
+                                    props.registration?.status
                                 }}</Badge>
                             </div>
 
                             <!-- Accepted -->
                             <div
                                 v-if="
-                                    props.registration.status === 'accepted' &&
-                                    props.registration.accepted_program_studi
+                                    props.registration?.status === 'accepted' &&
+                                    props.registration?.accepted_program_studi
                                 "
                                 class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
                             >
@@ -342,7 +342,7 @@ const props = defineProps<Props>();
 
                             <!-- Rejected -->
                             <div
-                                v-if="props.registration.status === 'rejected'"
+                                v-if="props.registration?.status === 'rejected'"
                                 class="mt-4 rounded-lg border border-red-200 bg-red-50 p-4"
                             >
                                 <div class="mb-2 flex items-center gap-2">
@@ -352,13 +352,13 @@ const props = defineProps<Props>();
                                     >
                                 </div>
                                 <div
-                                    v-if="props.registration.rejection_reason"
+                                    v-if="props.registration?.rejection_reason"
                                     class="text-sm text-red-700"
                                 >
                                     <span class="text-gray-600">Alasan:</span>
                                     <p class="mt-1 text-red-900">
                                         {{
-                                            props.registration.rejection_reason
+                                            props.registration?.rejection_reason
                                         }}
                                     </p>
                                 </div>
@@ -369,7 +369,7 @@ const props = defineProps<Props>();
                                 <Button
                                     as-child
                                     variant="outline"
-                                    class="w-full"
+                                    class="w-full border-teal-500 text-teal-700 hover:bg-teal-50"
                                 >
                                     <a
                                         href="/student/registration-card"

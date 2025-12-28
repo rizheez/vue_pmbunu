@@ -28,6 +28,11 @@ class Registration extends Model
         'rejection_reason',
     ];
 
+    protected $appends = [
+        'status_label',
+        'status_badge_class',
+    ];
+
     /**
      * Generate unique registration number for a given period
      * Format: [ACADEMIC_YEAR][WAVE][SEQUENCE] e.g. 25260100001
