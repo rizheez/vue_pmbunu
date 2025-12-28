@@ -12,7 +12,6 @@ Route::get('/sitemap.xml', function () {
         ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => url('/login'), 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['loc' => url('/register'), 'priority' => '0.9', 'changefreq' => 'monthly'],
-        ['loc' => url('/panduan'), 'priority' => '0.7', 'changefreq' => 'weekly'],
         ['loc' => url('/panduan-lengkap'), 'priority' => '0.7', 'changefreq' => 'weekly'],
     ];
 

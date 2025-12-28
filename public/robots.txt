@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /student
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Sitemap: https://pmb.unukaltim.ac.id/sitemap.xml
+
