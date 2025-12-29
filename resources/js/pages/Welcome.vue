@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import ChatWidget from '@/components/chat/ChatWidget.vue';
 import type { Fakultas, RegistrationPeriod } from '@/types/pmb';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import {
@@ -586,5 +587,8 @@ const isMobileMenuOpen = ref(false);
                 </p>
             </div>
         </footer>
+
+        <!-- Chatbot Widget -->
+        <ChatWidget />
     </div>
 </template>

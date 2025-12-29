@@ -151,4 +151,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/dokumentasi', fn () => \Inertia\Inertia::render('admin/Dokumentasi'))->name('dokumentasi');
 });
 
+// Chat API
+Route::post('/api/chat', [App\Http\Controllers\Api\ChatController::class, 'send'])->name('api.chat');
+Route::get('/api/chat/training-data', [App\Http\Controllers\Api\ChatController::class, 'trainingData'])->name('api.chat.training');
+
 require __DIR__.'/settings.php';
