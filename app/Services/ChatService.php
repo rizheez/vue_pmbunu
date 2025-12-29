@@ -104,6 +104,20 @@ class ChatService
                 ];
             }
 
+            // Handle rate limit exceeded (429)
+            if ($response->status() === 429) {
+                Log::warning('OpenRouter Rate Limit Exceeded', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => 'Maaf, layanan AI sedang sibuk. Silakan tunggu beberapa saat dan coba lagi.',
+                    'error' => 'rate_limit_exceeded',
+                ];
+            }
+
             Log::error('OpenRouter API Error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
@@ -182,10 +196,9 @@ class ChatService
     public function getSystemPromptContext(): string
     {
         if (!\Illuminate\Support\Facades\Storage::exists('chat_context.txt')) {
-             \Illuminate\Support\Facades\Artisan::call('chat:generate-context');
+            \Illuminate\Support\Facades\Artisan::call('chat:generate-context');
         }
 
         return \Illuminate\Support\Facades\Storage::get('chat_context.txt');
     }
-
 }
