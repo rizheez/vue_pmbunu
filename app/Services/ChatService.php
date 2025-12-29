@@ -96,7 +96,6 @@ class ChatService
 
             if ($response->successful()) {
                 $text = $response->json()['choices'][0]['message']['content'] ?? 'Maaf, tidak ada respons.';
-
                 return [
                     'success' => true,
                     'message' => $text,

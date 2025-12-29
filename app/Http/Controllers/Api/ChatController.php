@@ -74,8 +74,8 @@ PROMPT;
         ], 500);
     }
     /**
-    * Return all chatbot training data.
-    */
+     * Return all chatbot training data.
+     */
     public function trainingData(): \Illuminate\Http\JsonResponse
     {
         $data = $this->chatService->getAllTrainingData();
@@ -84,5 +84,4 @@ PROMPT;
             'data' => $data,
         ]);
     }
-
 }
