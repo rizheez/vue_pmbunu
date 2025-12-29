@@ -110,6 +110,18 @@ class GenerateChatContext extends Command
         $importantInfo .= "- Hati-hati terhadap penipuan yang mengatasnamakan PMB UNU Kaltim.\n";
         $importantInfo .= '- Jika mengalami kendala teknis, hubungi panitia resmi melalui kontak yang tertera di website.';
 
+        // Biaya UKT
+        $biayaUKT = "BIAYA UKT / Biaya Kuliah Per Semester:\n";
+        $biayaUKT .= "- Reguler non farmasi: Rp. 5.000.000\n";
+        $biayaUKT .= "- Reguler farmasi: Rp. 7.000.000 an\n";
+        $biayaUKT .= "- Kelas Karyawan: Kunjungi edunitas.com untuk informasi lebih lanjut\n";
+
+        // Website Features Info
+        $websiteInfo = "FITUR WEBSITE PMB:\n";
+        $websiteInfo .= "- Di website PMB (pmb.unukaltim.ac.id) terdapat Asisten Virtual AI (chatbot) yang dapat membantu menjawab pertanyaan seputar pendaftaran.\n";
+        $websiteInfo .= "- Tombol chat AI terletak di pojok kanan bawah halaman landing page, berbentuk ikon bulat berwarna hijau.\n";
+        $websiteInfo .= '- Calon mahasiswa dapat bertanya langsung kepada chatbot ini kapan saja untuk mendapatkan informasi PMB.';
+
         $content = "[DATA REAL-TIME UNU KALTIM]\n\n";
         $content .= "{$periodInfo}\n{$pathsInfo}\n\n";
         $content .= "{$prodiInfo}\n\n";
@@ -117,15 +129,17 @@ class GenerateChatContext extends Command
         $content .= "{$documentsInfo}\n\n";
         $content .= "{$tipsInfo}\n\n";
         $content .= "{$importantInfo}\n\n";
+        $content .= "{$biayaUKT}\n\n";
         $content .= "{$contactInfo}\n\n";
         $content .= "{$socialInfo}\n\n";
         $content .= "{$aboutInfo}\n\n";
         $content .= "{$beasiswaInfo}\n\n";
+        $content .= "{$websiteInfo}\n\n";
         $content .= "{$knowledgeInfo}\n\n";
         $content .= '[AKHIR DATA REAL-TIME]';
 
         \Illuminate\Support\Facades\Storage::put('chat_context.txt', $content);
 
-        $this->info('Chat context generated successfully at '.storage_path('app/chat_context.txt'));
+        $this->info('Chat context generated successfully at ' . storage_path('app/chat_context.txt'));
     }
 }
