@@ -55,7 +55,7 @@ async function sendMessage() {
             credentials: 'include',
             body: JSON.stringify({
                 message,
-                history: messages.value.slice(-10), // Send last 10 messages for context
+                history: messages.value.slice(-5), // Send last 5 messages for context (optimized)
             }),
         });
 

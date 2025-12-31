@@ -140,6 +140,9 @@ class GenerateChatContext extends Command
 
         \Illuminate\Support\Facades\Storage::put('chat_context.txt', $content);
 
-        $this->info('Chat context generated successfully at ' . storage_path('app/chat_context.txt'));
+        // Clear cached context so next request gets fresh data
+        \Illuminate\Support\Facades\Cache::forget('chat_context');
+
+        $this->info('Chat context generated successfully at '.storage_path('app/chat_context.txt'));
     }
 }
