@@ -762,6 +762,63 @@ const isMobileMenuOpen = ref(false);
                     </p>
                 </div>
 
+                <!-- Kelas Karyawan Banner -->
+                <div
+                    class="mb-16 rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 p-8 text-white shadow-xl md:p-12"
+                >
+                    <div
+                        class="flex flex-col items-center justify-between gap-8 md:flex-row"
+                    >
+                        <div class="text-center md:text-left">
+                            <div
+                                class="mb-2 inline-flex items-center rounded-full bg-teal-500/30 px-3 py-1 text-sm font-medium text-teal-50 backdrop-blur-sm"
+                            >
+                                <Award class="mr-2 size-4" />
+                                Program Khusus
+                            </div>
+                            <h3 class="mb-4 text-3xl font-bold">
+                                Kelas Karyawan
+                            </h3>
+                            <p class="max-w-xl text-lg text-teal-50">
+                                Ingin kuliah sambil bekerja? Gabung program
+                                Kelas Karyawan dengan jadwal fleksibel dan biaya
+                                terjangkau.
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-4 sm:flex-row">
+                            <Button
+                                as-child
+                                size="lg"
+                                class="bg-white text-teal-600 hover:bg-teal-50"
+                            >
+                                <a
+                                    href="https://edunitas.com/kampus/unu-kaltim/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Globe class="mr-2 size-5" />
+                                    Daftar via Edunitas
+                                </a>
+                            </Button>
+                            <Button
+                                as-child
+                                variant="outline"
+                                size="lg"
+                                class="bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                            >
+                                <a
+                                    href="https://wa.me/6285216013229"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <MessageCircle class="mr-2 size-5" />
+                                    Hubungi WhatsApp
+                                </a>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
                 <div v-for="fak in props.fakultas" :key="fak.id" class="mb-12">
                     <h3
                         class="mb-6 flex items-center text-2xl font-bold text-gray-900"
@@ -843,6 +900,32 @@ const isMobileMenuOpen = ref(false);
                             class="aspect-square rounded-3xl bg-gradient-to-br from-teal-400 to-cyan-500"
                         ></div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location Map -->
+        <section id="location" class="bg-gray-50 py-20">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="mb-12 text-center">
+                    <h2 class="mb-4 text-4xl font-bold text-gray-900">
+                        Lokasi Kampus
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        Kunjungi kampus kami di Samarinda
+                    </p>
+                </div>
+                <div class="overflow-hidden rounded-2xl shadow-lg">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6709.759363348243!2d117.12728847972218!3d-0.531295777316329!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2df67f382d6e5633%3A0xb15fef11f1f68259!2sNahdlatul%20Ulama%20University%20SAMARINDA%20-%20CAMPUS%202!5e0!3m2!1sen!2sid!4v1767164903242!5m2!1sen!2sid"
+                        width="100%"
+                        height="450"
+                        style="border: 0"
+                        allowfullscreen="true"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="w-full"
+                    ></iframe>
                 </div>
             </div>
         </section>

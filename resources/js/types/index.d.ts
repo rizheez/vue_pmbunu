@@ -33,6 +33,7 @@ export interface User {
     phone?: string;
     role: 'admin' | 'staff' | 'student';
     avatar?: string;
+    registration_status?: string;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

@@ -68,10 +68,10 @@ Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('stu
     Route::get('/pendaftaran', [StudentRegistrationController::class, 'index'])->name('pendaftaran.index');
     Route::post('/pendaftaran', [StudentRegistrationController::class, 'store'])->name('pendaftaran.store');
 
-    // Re-registration routes (placeholder)
-    Route::get('/daftar-ulang', function () {
-        return Inertia::render('student/daftar-ulang/Index');
-    })->name('daftar-ulang.index');
+    // Re-registration routes (Neo Feeder compatible)
+    Route::get('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'edit'])->name('reregistration.edit');
+    Route::post('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'update'])->name('reregistration.update');
+    Route::post('/reregistration/payment', [App\Http\Controllers\ReregistrationController::class, 'uploadPayment'])->name('reregistration.payment');
 
     // Registration card PDF
     Route::get('/registration-card', [RegistrationCardController::class, 'showStudent'])->name('registration-card');
@@ -149,6 +149,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Dokumentasi
     Route::get('/dokumentasi', fn () => \Inertia\Inertia::render('admin/Dokumentasi'))->name('dokumentasi');
+
+    // Reregistration Payments
+    Route::get('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'index'])->name('reregistration-payments.index');
+    Route::post('/reregistration-payments/{payment}/verify', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'verify'])->name('reregistration-payments.verify');
+    Route::post('/reregistration-payments/{payment}/reject', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'reject'])->name('reregistration-payments.reject');
 });
 
 // Chat API

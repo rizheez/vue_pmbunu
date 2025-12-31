@@ -2,7 +2,6 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatDate } from '@/composables/useFormat';
 import {
     Card,
     CardContent,
@@ -20,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     Fakultas,
@@ -30,7 +30,7 @@ import type {
     RegistrationType,
 } from '@/types/pmb';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { CheckCircle, AlertCircle, GraduationCap } from 'lucide-vue-next';
+import { AlertCircle, CheckCircle, GraduationCap } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Props {
@@ -46,17 +46,27 @@ const props = defineProps<Props>();
 const page = usePage();
 
 const flash = computed(
-    () => page.props.flash as { success?: string; error?: string }
+    () => page.props.flash as { success?: string; error?: string },
 );
 
 const form = useForm({
-    registration_type_id: props.registration?.registration_type_id ? String(props.registration.registration_type_id) : '',
-    registration_path_id: props.registration?.registration_path_id ? String(props.registration.registration_path_id) : '',
+    registration_type_id: props.registration?.registration_type_id
+        ? String(props.registration.registration_type_id)
+        : '',
+    registration_path_id: props.registration?.registration_path_id
+        ? String(props.registration.registration_path_id)
+        : '',
     referral_source: props.registration?.referral_source ?? '',
     referral_detail: props.registration?.referral_detail ?? '',
-    choice_1: props.registration?.choice_1 ? String(props.registration.choice_1) : '',
-    choice_2: props.registration?.choice_2 ? String(props.registration.choice_2) : '',
-    choice_3: props.registration?.choice_3 ? String(props.registration.choice_3) : '',
+    choice_1: props.registration?.choice_1
+        ? String(props.registration.choice_1)
+        : '',
+    choice_2: props.registration?.choice_2
+        ? String(props.registration.choice_2)
+        : '',
+    choice_3: props.registration?.choice_3
+        ? String(props.registration.choice_3)
+        : '',
 });
 
 const referralSources = [
@@ -88,7 +98,6 @@ const breadcrumbs = [
 </script>
 
 <template>
-
     <Head title="Pendaftaran" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -126,7 +135,10 @@ const breadcrumbs = [
                     <div class="flex items-center justify-between">
                         <CardTitle>Status Pendaftaran</CardTitle>
                         <Badge :class="props.registration?.status_badge_class">
-                            {{ props.registration?.status_label || props.registration?.status }}
+                            {{
+                                props.registration?.status_label ||
+                                props.registration?.status
+                            }}
                         </Badge>
                     </div>
                 </CardHeader>
@@ -163,9 +175,15 @@ const breadcrumbs = [
                             <span class="text-gray-500">Sumber Informasi</span>
                             <div class="text-right">
                                 <span class="block font-medium">
-                                    {{ props.registration?.referral_source || '-' }}
+                                    {{
+                                        props.registration?.referral_source ||
+                                        '-'
+                                    }}
                                 </span>
-                                <span v-if="props.registration?.referral_detail" class="text-xs text-gray-500">
+                                <span
+                                    v-if="props.registration?.referral_detail"
+                                    class="text-xs text-gray-500"
+                                >
                                     {{ props.registration?.referral_detail }}
                                 </span>
                             </div>
@@ -196,9 +214,7 @@ const breadcrumbs = [
             <Card>
                 <CardHeader>
                     <CardTitle>{{
-                        isRegistered
-                            ? 'Update Pendaftaran'
-                            : 'Form Pendaftaran'
+                        isRegistered ? 'Update Pendaftaran' : 'Form Pendaftaran'
                     }}</CardTitle>
                     <CardDescription>
                         Pilih jenis pendaftaran dan program studi yang
@@ -206,12 +222,20 @@ const breadcrumbs = [
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Alert v-if="!canEdit" class="mb-6 border-yellow-500 bg-yellow-50">
+                    <Alert
+                        v-if="!canEdit"
+                        class="mb-6 border-yellow-500 bg-yellow-50"
+                    >
                         <AlertCircle class="size-4 text-yellow-600" />
-                        <AlertTitle class="text-yellow-800">Form Terkunci</AlertTitle>
+                        <AlertTitle class="text-yellow-800"
+                            >Form Terkunci</AlertTitle
+                        >
                         <AlertDescription class="text-yellow-700">
-                            Pendaftaran tidak dapat diubah karena status saat ini adalah <strong>{{
-                                props.registration?.status }}</strong>.
+                            Pendaftaran tidak dapat diubah karena status anda
+                            saat ini adalah
+                            <strong>{{
+                                props.registration?.status_label?.toUpperCase()
+                            }}</strong>
                         </AlertDescription>
                     </Alert>
 
@@ -220,45 +244,81 @@ const breadcrumbs = [
                             <!-- Registration Type & Path -->
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
-                                    <Label for="registration_type_id">Jenis Pendaftaran *</Label>
+                                    <Label for="registration_type_id"
+                                        >Jenis Pendaftaran *</Label
+                                    >
                                     <Select v-model="form.registration_type_id">
                                         <SelectTrigger class="w-full">
-                                            <SelectValue placeholder="Pilih Jenis" />
+                                            <SelectValue
+                                                placeholder="Pilih Jenis"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem v-for="type in props.registrationTypes" :key="type.id"
-                                                :value="String(type.id)">
+                                            <SelectItem
+                                                v-for="type in props.registrationTypes"
+                                                :key="type.id"
+                                                :value="String(type.id)"
+                                            >
                                                 {{ type.name }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <p v-if="form.errors.registration_type_id" class="text-sm text-red-500">
+                                    <p
+                                        v-if="form.errors.registration_type_id"
+                                        class="text-sm text-red-500"
+                                    >
                                         {{ form.errors.registration_type_id }}
                                     </p>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label for="registration_path_id">Jalur Pendaftaran *</Label>
+                                    <Label for="registration_path_id"
+                                        >Jalur Pendaftaran *</Label
+                                    >
                                     <Select v-model="form.registration_path_id">
                                         <SelectTrigger class="w-full">
-                                            <SelectValue placeholder="Pilih Jalur" />
+                                            <SelectValue
+                                                placeholder="Pilih Jalur"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem v-for="path in props.registrationPaths" :key="path.id"
-                                                :value="String(path.id)" :disabled="path.name === 'Kelas Karyawan'">
+                                            <SelectItem
+                                                v-for="path in props.registrationPaths"
+                                                :key="path.id"
+                                                :value="String(path.id)"
+                                                :disabled="
+                                                    path.name ===
+                                                    'Kelas Karyawan'
+                                                "
+                                            >
                                                 {{ path.name }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <p class="text-xs text-muted-foreground">
-                                        Untuk pendaftaran Kelas Karyawan, silakan kunjungi
-                                        <a href="https://edunitas.com/kampus/unu-kaltim/" target="_blank"
+                                        Untuk pendaftaran Kelas Karyawan,
+                                        silakan kunjungi
+                                        <a
+                                            href="https://edunitas.com/kampus/unu-kaltim/"
+                                            target="_blank"
                                             rel="noopener noreferrer"
-                                            class="text-blue-600 hover:text-blue-800 hover:underline">
+                                            class="text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
                                             edunitas.com
-                                        </a>.
+                                        </a>
+                                        atau hubungi (WA)
+                                        <a
+                                            href="https://wa.me/6285216013229"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="text-blue-600 hover:text-blue-800 hover:underline"
+                                            >+62 852-1601-3229</a
+                                        >.
                                     </p>
-                                    <p v-if="form.errors.registration_path_id" class="text-sm text-red-500">
+                                    <p
+                                        v-if="form.errors.registration_path_id"
+                                        class="text-sm text-red-500"
+                                    >
                                         {{ form.errors.registration_path_id }}
                                     </p>
                                 </div>
@@ -267,28 +327,54 @@ const breadcrumbs = [
                             <!-- Referral Source -->
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
-                                    <Label for="referral_source">Sumber Informasi</Label>
+                                    <Label for="referral_source"
+                                        >Sumber Informasi</Label
+                                    >
                                     <Select v-model="form.referral_source">
                                         <SelectTrigger class="w-full">
-                                            <SelectValue placeholder="Pilih Sumber" />
+                                            <SelectValue
+                                                placeholder="Pilih Sumber"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem v-for="src in referralSources" :key="src" :value="src">
+                                            <SelectItem
+                                                v-for="src in referralSources"
+                                                :key="src"
+                                                :value="src"
+                                            >
                                                 {{ src }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
-                                <div v-if="
-                                    form.referral_source === 'Lainnya' || form.referral_source === 'Sekolah/Guru' ||
-                                    form.referral_source ===
-                                    'Dosen/Panitia PMB UNU Kaltim'
-                                " class="space-y-2">
-                                    <Label for="referral_detail">Detail Sumber Informasi</Label>
-                                    <input id="referral_detail" v-model="form.referral_detail" type="text"
-                                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                        :placeholder=" form.referral_source === 'Lainnya' || form.referral_source === 'Dosen/Panitia PMB UNU Kaltim' ? 'Sebutkan Nama yang Merekomendasikan Anda. Contoh Gilang Suhendra, S.Pd' : 'Sebutkan Nama Sekolah/Guru. Contoh: Ahmad Galih, S.Pd (SMA Negeri 1 Kaltim)'" />
+                                <div
+                                    v-if="
+                                        form.referral_source === 'Lainnya' ||
+                                        form.referral_source ===
+                                            'Sekolah/Guru' ||
+                                        form.referral_source ===
+                                            'Dosen/Panitia PMB UNU Kaltim'
+                                    "
+                                    class="space-y-2"
+                                >
+                                    <Label for="referral_detail"
+                                        >Detail Sumber Informasi</Label
+                                    >
+                                    <input
+                                        id="referral_detail"
+                                        v-model="form.referral_detail"
+                                        type="text"
+                                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                                        :placeholder="
+                                            form.referral_source ===
+                                                'Lainnya' ||
+                                            form.referral_source ===
+                                                'Dosen/Panitia PMB UNU Kaltim'
+                                                ? 'Sebutkan Nama yang Merekomendasikan Anda. Contoh Gilang Suhendra, S.Pd'
+                                                : 'Sebutkan Nama Sekolah/Guru. Contoh: Ahmad Galih, S.Pd (SMA Negeri 1 Kaltim)'
+                                        "
+                                    />
                                 </div>
                             </div>
 
@@ -300,59 +386,98 @@ const breadcrumbs = [
 
                                 <div class="grid gap-4 md:grid-cols-3">
                                     <div class="space-y-2">
-                                        <Label for="choice_1">Pilihan 1 *</Label>
+                                        <Label for="choice_1"
+                                            >Pilihan 1 *</Label
+                                        >
                                         <Select v-model="form.choice_1">
                                             <SelectTrigger class="w-full">
-                                                <SelectValue placeholder="Pilih Program Studi" />
+                                                <SelectValue
+                                                    placeholder="Pilih Program Studi"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectGroup v-for="fak in props.fakultas" :key="fak.id">
-                                                    <SelectLabel>{{ fak.name }}</SelectLabel>
-                                                    <SelectItem v-for="prodi in fak.program_studi" :key="prodi.id"
-                                                        :value="String(prodi.id)">
-                                                        {{ prodi.jenjang }} - {{ prodi.name }}
+                                                <SelectGroup
+                                                    v-for="fak in props.fakultas"
+                                                    :key="fak.id"
+                                                >
+                                                    <SelectLabel>{{
+                                                        fak.name
+                                                    }}</SelectLabel>
+                                                    <SelectItem
+                                                        v-for="prodi in fak.program_studi"
+                                                        :key="prodi.id"
+                                                        :value="
+                                                            String(prodi.id)
+                                                        "
+                                                    >
+                                                        {{ prodi.jenjang }} -
+                                                        {{ prodi.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
-                                        <p v-if="form.errors.choice_1" class="text-sm text-red-500">
+                                        <p
+                                            v-if="form.errors.choice_1"
+                                            class="text-sm text-red-500"
+                                        >
                                             {{ form.errors.choice_1 }}
                                         </p>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <Label for="choice_2">Pilihan 2 *</Label>
+                                        <Label for="choice_2"
+                                            >Pilihan 2 *</Label
+                                        >
                                         <Select v-model="form.choice_2">
                                             <SelectTrigger class="w-full">
-                                                <SelectValue placeholder="Pilih Program Studi" />
+                                                <SelectValue
+                                                    placeholder="Pilih Program Studi"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectGroup v-for="fak in props.fakultas" :key="fak.id">
-                                                    <SelectLabel>{{ fak.name }}</SelectLabel>
-                                                    <SelectItem v-for="prodi in fak.program_studi" :key="prodi.id"
-                                                        :value="String(prodi.id)">
-                                                        {{ prodi.jenjang }} - {{ prodi.name }}
+                                                <SelectGroup
+                                                    v-for="fak in props.fakultas"
+                                                    :key="fak.id"
+                                                >
+                                                    <SelectLabel>{{
+                                                        fak.name
+                                                    }}</SelectLabel>
+                                                    <SelectItem
+                                                        v-for="prodi in fak.program_studi"
+                                                        :key="prodi.id"
+                                                        :value="
+                                                            String(prodi.id)
+                                                        "
+                                                    >
+                                                        {{ prodi.jenjang }} -
+                                                        {{ prodi.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
-                                        <p v-if="form.errors.choice_2" class="text-sm text-red-500">
+                                        <p
+                                            v-if="form.errors.choice_2"
+                                            class="text-sm text-red-500"
+                                        >
                                             {{ form.errors.choice_2 }}
                                         </p>
                                     </div>
-
                                 </div>
                             </div>
 
                             <!-- Submit -->
                             <div class="flex justify-end">
-                                <Button type="submit" :disabled="form.processing || !canEdit" class="w-full md:w-auto">
+                                <Button
+                                    type="submit"
+                                    :disabled="form.processing || !canEdit"
+                                    class="w-full md:w-auto"
+                                >
                                     {{
                                         form.processing
                                             ? 'Menyimpan...'
                                             : isRegistered
-                                                ? 'Update Pendaftaran'
-                                                : 'Kirim Pendaftaran'
+                                              ? 'Update Pendaftaran'
+                                              : 'Kirim Pendaftaran'
                                     }}
                                 </Button>
                             </div>

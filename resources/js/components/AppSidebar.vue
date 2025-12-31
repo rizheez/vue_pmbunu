@@ -19,6 +19,7 @@ import {
     Building2,
     CalendarDays,
     ClipboardList,
+    CreditCard,
     FileText,
     GraduationCap,
     Home,
@@ -34,31 +35,41 @@ import AppLogo from './AppLogo.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
-const isAdmin = computed(() => user.value?.role === 'admin' || user.value?.role === 'staff');
+const isAdmin = computed(
+    () => user.value?.role === 'admin' || user.value?.role === 'staff',
+);
 
-// Student sidebar items
-const studentNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/student/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Biodata',
-        href: '/student/biodata',
-        icon: FileText,
-    },
-    {
-        title: 'Pendaftaran',
-        href: '/student/pendaftaran',
-        icon: ClipboardList,
-    },
-    // {
-    //     title: 'Daftar Ulang',
-    //     href: '/student/daftar-ulang',
-    //     icon: RefreshCw,
-    // },
-];
+// Student sidebar items - computed to conditionally show Daftar Ulang
+const studentNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/student/dashboard',
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Biodata',
+            href: '/student/biodata',
+            icon: FileText,
+        },
+        {
+            title: 'Pendaftaran',
+            href: '/student/pendaftaran',
+            icon: ClipboardList,
+        },
+    ];
+
+    // Only show Daftar Ulang if registration is accepted
+    if (user.value?.registration_status === 'accepted') {
+        items.push({
+            title: 'Daftar Ulang',
+            href: '/student/reregistration',
+            icon: Users,
+        });
+    }
+
+    return items;
+});
 
 // Admin sidebar - grouped by section
 const adminDashboard: NavItem[] = [
@@ -94,6 +105,11 @@ const adminPendaftaran: NavItem[] = [
         title: 'Jalur Pendaftaran',
         href: '/admin/registration-paths',
         icon: Route,
+    },
+    {
+        title: 'Verifikasi Pembayaran',
+        href: '/admin/reregistration-payments',
+        icon: CreditCard,
     },
 ];
 
@@ -136,7 +152,9 @@ const adminSistem: NavItem[] = [
     },
 ];
 
-const dashboardUrl = computed(() => (isAdmin.value ? '/admin/dashboard' : '/student/dashboard'));
+const dashboardUrl = computed(() =>
+    isAdmin.value ? '/admin/dashboard' : '/student/dashboard',
+);
 
 const footerNavItems: NavItem[] = [
     {

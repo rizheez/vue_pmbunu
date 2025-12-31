@@ -47,6 +47,9 @@ class HandleInertiaRequests extends Middleware
                     'avatar' => $request->user()->role === 'student' && $request->user()->studentBiodata
                         ? $request->user()->studentBiodata->photo_url
                         : null,
+                    'registration_status' => $request->user()->role === 'student' && $request->user()->registration
+                        ? $request->user()->registration->status
+                        : null,
                 ]) : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
