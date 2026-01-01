@@ -62,6 +62,10 @@ class HandleInertiaRequests extends Middleware
                 'warning' => fn () => $request->session()->get('warning'),
                 'info' => fn () => $request->session()->get('info'),
             ],
+            'pending_counts' => $request->user()?->role === 'admin' ? [
+                'documents' => \App\Models\Registration::where('status', 'submitted')->count(),
+                'payments' => \App\Models\ReregistrationPayment::where('status', 'pending')->count(),
+            ] : null,
         ];
     }
 }
