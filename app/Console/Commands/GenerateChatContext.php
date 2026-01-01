@@ -105,16 +105,22 @@ class GenerateChatContext extends Command
 
         // Important Notices
         $importantInfo = "INFORMASI PENTING:\n";
-        $importantInfo .= "- Pendaftaran PMB UNU Kaltim GRATIS, tidak dipungut biaya apapun.\n";
-        $importantInfo .= "- Panitia TIDAK PERNAH meminta transfer uang melalui WhatsApp atau telepon.\n";
+        $importantInfo .= "- Pembayaran biaya registrasi awal dilakukan SAAT DAFTAR ULANG, bukan saat mengisi formulir awal.\n";
+        $importantInfo .= "- Panitia TIDAK PERNAH meminta transfer uang ke rekening PRIBADI.\n";
         $importantInfo .= "- Hati-hati terhadap penipuan yang mengatasnamakan PMB UNU Kaltim.\n";
         $importantInfo .= '- Jika mengalami kendala teknis, hubungi panitia resmi melalui kontak yang tertera di website.';
 
-        // Biaya UKT
-        $biayaUKT = "BIAYA UKT / Biaya Kuliah Per Semester:\n";
-        $biayaUKT .= "- Reguler non farmasi: Rp. 5.000.000\n";
-        $biayaUKT .= "- Reguler farmasi: Rp. 7.000.000 an\n";
-        $biayaUKT .= "- Kelas Karyawan: Kunjungi edunitas.com untuk informasi lebih lanjut\n";
+        // Informasi Biaya (Pendaftaran, RPL, UKT)
+        $biayaInfo = "INFORMASI BIAYA:\n";
+        $biayaInfo .= "1. BIAYA REGISTRASI AWAL / DAFTAR ULANG (Dibayar saat melakukan daftar ulang):\n";
+        $biayaInfo .= "   - Nominal: Rp 300.000\n";
+        $biayaInfo .= "   - Mencakup: Pembuatan NIM, KTM (Kartu Tanda Mahasiswa), dan Jaket Almamater.\n";
+        $biayaInfo .= "2. BIAYA RPL (Rekognisi Pembelajaran Lampau) / ALIH JENJANG / PINDAHAN:\n";
+        $biayaInfo .= "   - Biaya Konversi: Rp 120.000 per SKS\n";
+        $biayaInfo .= "3. BIAYA UKT (Uang Kuliah Tunggal) PER SEMESTER:\n";
+        $biayaInfo .= "   - Reguler Non-Farmasi: Rp 5.000.000\n";
+        $biayaInfo .= "   - Reguler Farmasi: Rp 7.000.000\n";
+        $biayaInfo .= "   - Kelas Karyawan: Kunjungi https://edunitas.com/kampus/unu-kaltim untuk simulasi cicilan.\n";
 
         // Website Features Info
         $websiteInfo = "FITUR WEBSITE PMB:\n";
@@ -129,7 +135,7 @@ class GenerateChatContext extends Command
         $content .= "{$documentsInfo}\n\n";
         $content .= "{$tipsInfo}\n\n";
         $content .= "{$importantInfo}\n\n";
-        $content .= "{$biayaUKT}\n\n";
+        $content .= "{$biayaInfo}\n\n";
         $content .= "{$contactInfo}\n\n";
         $content .= "{$socialInfo}\n\n";
         $content .= "{$aboutInfo}\n\n";

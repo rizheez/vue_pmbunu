@@ -82,6 +82,7 @@ class StudentController extends Controller
             // Referral
             'referral_source' => 'nullable|string|max:255',
             'referral_detail' => 'nullable|string|max:255',
+            // Status options
         ], [
             'required' => ':attribute wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -165,7 +166,7 @@ class StudentController extends Controller
                 'choice_2' => $validated['program_studi_2'],
                 'referral_source' => $validated['referral_source'] ?? null,
                 'referral_detail' => $validated['referral_detail'] ?? null,
-                'status' => 'submitted',
+                'status' => $request->boolean('set_verified') ? 'verified' : 'submitted',
             ]);
 
             // Send email with credentials to student
@@ -336,22 +337,30 @@ class StudentController extends Controller
 
             // Handle file uploads if available
             if ($request->hasFile('photo')) {
-                if ($biodata->photo_path) Storage::disk('public')->delete($biodata->photo_path);
+                if ($biodata->photo_path) {
+                    Storage::disk('public')->delete($biodata->photo_path);
+                }
                 $biodata->photo_path = $request->file('photo')->store('biodata/photos', 'public');
                 $biodata->updateVerificationStatus('photo');
             }
             if ($request->hasFile('ktp')) {
-                if ($biodata->ktp_path) Storage::disk('public')->delete($biodata->ktp_path);
+                if ($biodata->ktp_path) {
+                    Storage::disk('public')->delete($biodata->ktp_path);
+                }
                 $biodata->ktp_path = $request->file('ktp')->store('biodata/ktp', 'public');
                 $biodata->updateVerificationStatus('ktp');
             }
             if ($request->hasFile('kk')) {
-                if ($biodata->kk_path) Storage::disk('public')->delete($biodata->kk_path);
+                if ($biodata->kk_path) {
+                    Storage::disk('public')->delete($biodata->kk_path);
+                }
                 $biodata->kk_path = $request->file('kk')->store('biodata/kk', 'public');
                 $biodata->updateVerificationStatus('kk');
             }
             if ($request->hasFile('certificate')) {
-                if ($biodata->certificate_path) Storage::disk('public')->delete($biodata->certificate_path);
+                if ($biodata->certificate_path) {
+                    Storage::disk('public')->delete($biodata->certificate_path);
+                }
                 $biodata->certificate_path = $request->file('certificate')->store('biodata/certificates', 'public');
                 $biodata->updateVerificationStatus('certificate');
             }

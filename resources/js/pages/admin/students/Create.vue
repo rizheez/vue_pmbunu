@@ -2,6 +2,7 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -54,6 +55,8 @@ const form = ref({
     // Referral
     referral_source: '',
     referral_detail: '',
+    // Status options (admin only)
+    set_verified: false,
 });
 
 // Computed for active period display
@@ -140,6 +143,11 @@ const breadcrumbs = [
     { title: 'Calon Mahasiswa', href: '/admin/students' },
     { title: 'Daftarkan Manual', href: '/admin/students/create' },
 ];
+
+const hasAvailableOptions = (fak: Fakultas) => {
+    if (!form.value.program_studi_1) return true;
+    return fak?.program_studi?.some((p) => String(p.id) !== form.value.program_studi_1);
+};
 </script>
 
 <template>
@@ -398,19 +406,26 @@ const breadcrumbs = [
                                 </Select>
                                 <p v-if="errors.program_studi_1" class="text-sm text-red-500">{{ errors.program_studi_1 }}</p>
                             </div>
-                            <div class="space-y-2">
+                            <div class="space-y-2" v-if="form.program_studi_1">
                                 <Label>Pilihan 2 <span class="text-red-500">*</span></Label>
                                 <Select v-model="form.program_studi_2">
                                     <SelectTrigger class="w-full">
                                         <SelectValue placeholder="Pilih prodi" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectGroup v-for="fak in props.fakultas" :key="fak.id">
-                                            <SelectLabel>{{ fak.name }}</SelectLabel>
-                                            <SelectItem v-for="prodi in fak.program_studi" :key="prodi.id" :value="String(prodi.id)">
-                                                {{ prodi.jenjang }} - {{ prodi.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
+                                        <template v-for="fak in props.fakultas" :key="fak.id">
+                                            <SelectGroup v-if="hasAvailableOptions(fak)">
+                                                <SelectLabel>{{ fak.name }}</SelectLabel>
+                                                <template v-for="prodi in fak.program_studi" :key="prodi.id">
+                                                    <SelectItem
+                                                        v-if="String(prodi.id) !== form.program_studi_1"
+                                                        :value="String(prodi.id)"
+                                                    >
+                                                        {{ prodi.jenjang }} - {{ prodi.name }}
+                                                    </SelectItem>
+                                                </template>
+                                            </SelectGroup>
+                                        </template>
                                     </SelectContent>
                                 </Select>
                                 <p v-if="errors.program_studi_2" class="text-sm text-red-500">{{ errors.program_studi_2 }}</p>
@@ -444,6 +459,22 @@ const breadcrumbs = [
                                     :placeholder="form.referral_source === 'Dosen/Panitia PMB UNU Kaltim' ? 'Contoh: Dr. Ahmad Fauzi, M.Pd' : 'Contoh: Radio, Iklan Google, dll'"
                                 />
                             </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Status Options (Admin Only) -->
+                <Card class="border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/30">
+                    <CardHeader>
+                        <CardTitle class="text-amber-800 dark:text-amber-200">Opsi Status (Khusus Admin)</CardTitle>
+                        <CardDescription class="text-amber-700 dark:text-amber-400">Langsung set status tanpa perlu verifikasi manual</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="flex items-center space-x-2">
+                            <Checkbox id="set_verified" v-model="form.set_verified" />
+                            <Label for="set_verified" class="cursor-pointer">
+                                Langsung set status ke <strong>Terverifikasi</strong> (skip verifikasi dokumen)
+                            </Label>
                         </div>
                     </CardContent>
                 </Card>

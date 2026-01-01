@@ -95,6 +95,11 @@ const breadcrumbs = [
     { title: 'Dashboard', href: '/student/dashboard' },
     { title: 'Pendaftaran', href: '/student/pendaftaran' },
 ];
+
+const hasAvailableOptions = (fak: Fakultas) => {
+    if (!form.choice_1) return true;
+    return fak?.program_studi?.some((p) => String(p.id) !== form.choice_1);
+};
 </script>
 
 <template>
@@ -424,7 +429,7 @@ const breadcrumbs = [
                                         </p>
                                     </div>
 
-                                    <div class="space-y-2">
+                                    <div class="space-y-2" v-if="form.choice_1">
                                         <Label for="choice_2"
                                             >Pilihan 2 *</Label
                                         >
@@ -435,24 +440,46 @@ const breadcrumbs = [
                                                 />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectGroup
+                                                <template
                                                     v-for="fak in props.fakultas"
                                                     :key="fak.id"
                                                 >
-                                                    <SelectLabel>{{
-                                                        fak.name
-                                                    }}</SelectLabel>
-                                                    <SelectItem
-                                                        v-for="prodi in fak.program_studi"
-                                                        :key="prodi.id"
-                                                        :value="
-                                                            String(prodi.id)
+                                                    <SelectGroup
+                                                        v-if="
+                                                            hasAvailableOptions(
+                                                                fak,
+                                                            )
                                                         "
                                                     >
-                                                        {{ prodi.jenjang }} -
-                                                        {{ prodi.name }}
-                                                    </SelectItem>
-                                                </SelectGroup>
+                                                        <SelectLabel>{{
+                                                            fak.name
+                                                        }}</SelectLabel>
+                                                        <template
+                                                            v-for="prodi in fak.program_studi"
+                                                            :key="prodi.id"
+                                                        >
+                                                            <SelectItem
+                                                                v-if="
+                                                                    String(
+                                                                        prodi.id,
+                                                                    ) !==
+                                                                    form.choice_1
+                                                                "
+                                                                :value="
+                                                                    String(
+                                                                        prodi.id,
+                                                                    )
+                                                                "
+                                                            >
+                                                                {{
+                                                                    prodi.jenjang
+                                                                }}
+                                                                -
+                                                                {{ prodi.name }}
+                                                            </SelectItem>
+                                                        </template>
+                                                    </SelectGroup>
+                                                </template>
                                             </SelectContent>
                                         </Select>
                                         <p

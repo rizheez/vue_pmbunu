@@ -10,6 +10,7 @@ import {
     User,
     X,
 } from 'lucide-vue-next';
+import TypeWriter from '@/components/ui/TypeWriter.vue';
 import sanitizeHtml from 'sanitize-html';
 import { computed, nextTick, ref, watch } from 'vue';
 
@@ -124,10 +125,16 @@ function formatMarkdown(content: string) {
     // Bold: **teks**
     formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 
-    // Link: [text](url)
+    // Link markdown: [text](url)
     formatted = formatted.replace(
         /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
         '<a href="$2">$1</a>',
+    );
+
+    // URL polos → <a>
+    formatted = formatted.replace(
+        /(?<!href=")(https?:\/\/[^\s<]+)/g,
+        '<a href="$1">$1</a>',
     );
 
     // Newline → <br>
@@ -161,13 +168,14 @@ function formatMarkdown(content: string) {
             'span',
         ],
         allowedAttributes: {
-            a: ['href', 'target', 'rel'],
+            a: ['href', 'target', 'rel', 'class'],
         },
         transformTags: {
             a: (tagName, attribs) => {
                 if (attribs) {
                     attribs.target = '_blank';
                     attribs.rel = 'noopener noreferrer';
+                    attribs.class = 'text-blue-500 hover:underline';
                 }
                 return { tagName, attribs };
             },
@@ -176,6 +184,8 @@ function formatMarkdown(content: string) {
 
     return formatted;
 }
+
+
 </script>
 
 <template>
@@ -270,12 +280,15 @@ function formatMarkdown(content: string) {
                             ]"
                             style="overflow-wrap: anywhere"
                         >
+                            <TypeWriter
+                                v-if="msg.role === 'assistant'"
+                                :content="formatMarkdown(msg.content)"
+                                :show-cursor="false"
+                                :type-speed="20"
+                            />
                             <div
-                                v-html="
-                                    msg.role === 'assistant'
-                                        ? formatMarkdown(msg.content)
-                                        : msg.content
-                                "
+                                v-else
+                                v-html="msg.content"
                             ></div>
                         </div>
 

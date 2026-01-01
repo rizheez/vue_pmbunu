@@ -33,6 +33,7 @@ const editingProdi = ref<ProgramStudi | null>(null);
 const form = useForm({
     name: '',
     code: '',
+    nim_code: '',
     jenjang: 'S1',
     fakultas_id: '',
     is_active: true,
@@ -50,6 +51,7 @@ const openEdit = (prodi: ProgramStudi) => {
     editingProdi.value = prodi;
     form.name = prodi.name;
     form.code = prodi.code;
+    form.nim_code = prodi.nim_code || '';
     form.jenjang = prodi.jenjang;
     form.fakultas_id = String(prodi.fakultas_id);
     form.is_active = prodi.is_active;
@@ -105,6 +107,7 @@ const breadcrumbs = [
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-4 py-3 text-left">Kode</th>
+                                    <th class="px-4 py-3 text-left">Kode NIM</th>
                                     <th class="px-4 py-3 text-left">Nama</th>
                                     <th class="px-4 py-3 text-left">Jenjang</th>
                                     <th class="px-4 py-3 text-left">Fakultas</th>
@@ -115,6 +118,7 @@ const breadcrumbs = [
                             <tbody class="divide-y">
                                 <tr v-for="prodi in props.programStudi" :key="prodi.id" class="hover:bg-gray-50">
                                     <td class="px-4 py-3 font-mono">{{ prodi.code }}</td>
+                                    <td class="px-4 py-3 font-mono text-primary">{{ prodi.nim_code || '-' }}</td>
                                     <td class="px-4 py-3 font-medium">{{ prodi.name }}</td>
                                     <td class="px-4 py-3">{{ prodi.jenjang }}</td>
                                     <td class="px-4 py-3">{{ prodi.fakultas?.name || '-' }}</td>
@@ -153,6 +157,16 @@ const breadcrumbs = [
                             <Input v-model="form.code" placeholder="TI" />
                         </div>
                         <div class="space-y-2">
+                            <Label>Kode NIM (4 digit)</Label>
+                            <Input v-model="form.nim_code" placeholder="0105" maxlength="4" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <Label>Nama Program Studi</Label>
+                            <Input v-model="form.name" placeholder="Teknik Informatika" />
+                        </div>
+                        <div class="space-y-2">
                             <Label>Jenjang</Label>
                             <select v-model="form.jenjang" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
                                 <option value="D3">D3</option>
@@ -162,10 +176,6 @@ const breadcrumbs = [
                                 <option value="S3">S3</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="space-y-2">
-                        <Label>Nama Program Studi</Label>
-                        <Input v-model="form.name" placeholder="Teknik Informatika" />
                     </div>
                     <div class="space-y-2">
                         <Label>Fakultas</Label>

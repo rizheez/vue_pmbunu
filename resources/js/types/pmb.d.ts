@@ -33,6 +33,7 @@ export interface ProgramStudi {
     fakultas_id: number;
     name: string;
     code: string;
+    nim_code?: string;
     jenjang: string;
     description?: string;
     accreditation: string;

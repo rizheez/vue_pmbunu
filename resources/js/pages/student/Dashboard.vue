@@ -308,7 +308,8 @@ const props = defineProps<Props>();
                                 <Badge :class="props.registration?.status_badge_class">{{
                                     props.registration?.status_label ||
                                     props.registration?.status
-                                }}</Badge>
+                                }} </Badge>
+
                             </div>
 
                             <!-- Accepted -->
@@ -337,6 +338,41 @@ const props = defineProps<Props>();
                                                 .accepted_program_studi?.name
                                         }}
                                     </p>
+                                    <span
+                                        >Segera lakukan pendaftaran ulang di
+                                        <Link
+                                            href="/student/reregistration"
+                                            class="font-semibold text-blue-600 hover:underline"
+                                            >Daftar Ulang</Link
+                                        ></span
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Enrolled - Show NIM -->
+                            <div
+                                v-if="props.registration?.status === 'enrolled'"
+                                class="mt-4 rounded-lg border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-4"
+                            >
+                                <div class="mb-3 flex items-center gap-2">
+                                    <PartyPopper class="size-5 text-emerald-600" />
+                                    <span class="font-semibold text-emerald-800"
+                                        >Anda Resmi Menjadi Mahasiswa!</span
+                                    >
+                                </div>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Program Studi:</span>
+                                        <span class="font-medium text-emerald-900">
+                                            {{ props.registration.accepted_program_studi?.name }}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-emerald-200 pt-2">
+                                        <span class="text-gray-600">NIM:</span>
+                                        <span class="font-mono text-lg font-bold text-emerald-700">
+                                            {{ props.registration.user?.nim || '-' }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 

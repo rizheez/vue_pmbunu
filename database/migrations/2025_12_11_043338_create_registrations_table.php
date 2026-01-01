@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('choice_1')->nullable();
             $table->string('choice_2')->nullable();
             $table->string('choice_3')->nullable();
-            $table->enum('status', ['draft', 'submitted'])->default('draft');
+            // Use string instead of enum for flexibility
+            $table->string('status')->default('draft');
             $table->timestamps();
         });
     }

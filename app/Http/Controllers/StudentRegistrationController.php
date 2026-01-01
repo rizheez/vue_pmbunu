@@ -119,10 +119,18 @@ class StudentRegistrationController extends Controller
             $data['registration_number'] = Registration::generateRegistrationNumber($activePeriod);
         }
 
-        Registration::updateOrCreate(
+        $registration = Registration::updateOrCreate(
             ['user_id' => Auth::id()],
             $data
         );
+
+        // Send confirmation email only for new registrations
+        if (! $existingRegistration) {
+            $registration->load(['programStudiChoice1', 'programStudiChoice2']);
+            \Illuminate\Support\Facades\Mail::to(Auth::user())->send(
+                new \App\Mail\RegistrationReceivedMail(Auth::user(), $registration)
+            );
+        }
 
         $message = $existingRegistration ? 'Pendaftaran berhasil diperbarui!' : 'Pendaftaran berhasil dikirim!';
 

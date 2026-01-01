@@ -28,12 +28,17 @@ class ReregistrationController extends Controller
                 ->with('error', 'Tidak ada periode pendaftaran yang aktif saat ini.');
         }
 
-        // Check if registration is accepted
+        // Check if registration is accepted or already in re-registration process
         $registration = \App\Models\Registration::where('user_id', Auth::id())->first();
 
-        if (! $registration || $registration->status !== 'accepted') {
+        if (! $registration || ! in_array($registration->status, ['accepted', 're_registration_pending'])) {
             return redirect()->route('student.dashboard')
                 ->with('error', 'Daftar ulang hanya untuk mahasiswa yang sudah diterima.');
+        }
+
+        // Auto-update status to re_registration_pending if currently accepted
+        if ($registration->status === 'accepted') {
+            $registration->update(['status' => 're_registration_pending']);
         }
 
         $biodata = StudentBiodata::with(['parents', 'specialNeeds'])
@@ -56,6 +61,34 @@ class ReregistrationController extends Controller
             'options' => $this->getFormOptions(),
             'payment' => $payment,
             'paymentAmount' => 300000,
+        ]);
+    }
+
+    /**
+     * Show the payment page.
+     */
+    public function paymentPage(): Response|RedirectResponse
+    {
+        $biodata = StudentBiodata::where('user_id', Auth::id())->first();
+
+        if (! $biodata) {
+            return redirect()->route('student.reregistration.edit')
+                ->with('error', 'Silakan lengkapi form daftar ulang terlebih dahulu.');
+        }
+
+        // Check if form is completed
+        if (! in_array($biodata->reregistration_status, ['form_completed', 'payment_pending', 'payment_verified'])) {
+            return redirect()->route('student.reregistration.edit')
+                ->with('error', 'Silakan lengkapi form daftar ulang terlebih dahulu.');
+        }
+
+        $payment = ReregistrationPayment::where('user_id', Auth::id())->first();
+        $paymentInfo = \App\Models\PaymentSetting::getPaymentInfo();
+
+        return Inertia::render('student/reregistration/Payment', [
+            'biodata' => $biodata,
+            'payment' => $payment,
+            'paymentInfo' => $paymentInfo,
         ]);
     }
 
@@ -83,8 +116,8 @@ class ReregistrationController extends Controller
             // Additional info
             'kps_recipient' => 'boolean',
             'kps_number' => 'nullable|required_if:kps_recipient,true|string|max:50',
-            'residence_type' => 'required|string|in:' . implode(',', array_keys(StudentBiodata::residenceTypeOptions())),
-            'transportation' => 'required|string|in:' . implode(',', array_keys(StudentBiodata::transportationOptions())),
+            'residence_type' => 'required|string|in:'.implode(',', array_keys(StudentBiodata::residenceTypeOptions())),
+            'transportation' => 'required|string|in:'.implode(',', array_keys(StudentBiodata::transportationOptions())),
 
             // Parents data
             'parents' => 'required|array|min:1',
@@ -93,14 +126,14 @@ class ReregistrationController extends Controller
             'parents.*.nik' => 'nullable|string|max:16',
             'parents.*.birth_date' => 'nullable|date|before:today',
             'parents.*.is_alive' => 'boolean',
-            'parents.*.education' => 'nullable|string|in:' . implode(',', array_keys(StudentParent::educationOptions())),
+            'parents.*.education' => 'nullable|string|in:'.implode(',', array_keys(StudentParent::educationOptions())),
             'parents.*.occupation' => 'nullable|string|max:100',
-            'parents.*.income' => 'nullable|string|in:' . implode(',', array_keys(StudentParent::incomeOptions())),
+            'parents.*.income' => 'nullable|string|in:'.implode(',', array_keys(StudentParent::incomeOptions())),
             'parents.*.phone' => 'nullable|string|max:20',
             'parents.*.address' => 'nullable|string',
 
             // Special needs
-            'special_need_type' => 'required|string|in:' . implode(',', array_keys(StudentSpecialNeed::typeOptions())),
+            'special_need_type' => 'required|string|in:'.implode(',', array_keys(StudentSpecialNeed::typeOptions())),
             'special_need_description' => 'nullable|string',
             'special_need_assistance' => 'nullable|string',
         ], [

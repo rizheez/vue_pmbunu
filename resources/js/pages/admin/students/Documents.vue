@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { DocumentVerification, StudentBiodata, Registration } from '@/types/pmb';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
@@ -260,7 +261,7 @@ const hasChanges = computed(() => {
                                  <div class="grid grid-cols-2 gap-2">
                                      <div>
                                          <span class="text-xs text-gray-500">Tempat, Tgl Lahir</span>
-                                         <p class="font-medium">{{ props.student.student_biodata?.birth_place }}, {{ props.student.student_biodata?.birth_date }}</p>
+                                         <p class="font-medium">{{ props.student.student_biodata?.birth_place }}, {{ formatDate(props.student.student_biodata?.birth_date) }}</p>
                                      </div>
                                      <div>
                                          <span class="text-xs text-gray-500">Agama</span>

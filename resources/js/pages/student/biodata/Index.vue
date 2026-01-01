@@ -10,6 +10,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatDate } from '@/composables/useFormat';
 import type { StudentBiodata } from '@/types/pmb';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import {
@@ -111,7 +112,7 @@ const isPdf = (url: string | null) => {
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Tempat, Tgl Lahir</span>
                                 <span class="font-medium">{{ props.biodata.birth_place }},
-                                    {{ props.biodata.birth_date }}</span>
+                                    {{ formatDate(props.biodata.birth_date, {month: 'long'}) }}</span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Agama</span>

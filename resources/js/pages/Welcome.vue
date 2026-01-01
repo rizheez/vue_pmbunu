@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ChatWidget from '@/components/chat/ChatWidget.vue';
+import TypeWriter from '@/components/ui/TypeWriter.vue';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/composables/useFormat';
 import type { Fakultas, RegistrationPeriod } from '@/types/pmb';
@@ -144,6 +145,17 @@ const dashboardUrl = computed(() => {
 });
 
 const isMobileMenuOpen = ref(false);
+
+const heroTypedStrings = [
+    'Kampus Berkarakter Aswaja',
+    'Kampus Moderat dan Berintegritas',
+    'Mencetak Generasi Unggul dan Berakhlak',
+    // tambahan
+    'Integrasi Ilmu, Iman, dan Akhlak',
+    'Kampus Kebangsaan Berbasis Keislaman',
+    'Mencetak Sarjana Profesional dan Bermoral',
+    'Berilmu, Berakhlak, dan Berdaya Saing',
+];
 </script>
 
 <template>
@@ -435,11 +447,19 @@ const isMobileMenuOpen = ref(false);
                     >
                         {{ getSetting('hero', 'hero_subtitle', '') }}
                     </p>
-                    <p
-                        class="mx-auto max-w-3xl text-sm text-white/80 sm:text-base md:text-lg lg:text-xl"
+                    <div
+                        class="mx-auto max-w-3xl min-h-[3rem] text-sm text-white/80 sm:text-base md:text-lg lg:text-xl"
                     >
-                        {{ getSetting('hero', 'hero_description', '') }}
-                    </p>
+                        <TypeWriter
+                            :strings="heroTypedStrings"
+                            :type-speed="40"
+                            :back-speed="20"
+                            :show-cursor="true"
+                            :loop="true"
+                            class="inline-block"
+                        />
+                        <!-- <span v-else>{{ getSetting('hero', 'hero_description') }}</span> -->
+                    </div>
                 </div>
 
                 <div

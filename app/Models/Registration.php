@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Registration extends Model
 {
@@ -10,7 +11,6 @@ class Registration extends Model
         'user_id',
         'registration_number',
         'registration_type_id',
-        'registration_path',
         'registration_path_id',
         'referral_source',
         'referral_detail',
@@ -36,35 +36,40 @@ class Registration extends Model
     /**
      * Generate unique registration number for a given period
      * Format: [ACADEMIC_YEAR][WAVE][SEQUENCE] e.g. 25260100001
+     *
+     * Uses database transaction with row locking to prevent duplicate numbers
+     * during concurrent requests.
      */
     public static function generateRegistrationNumber(RegistrationPeriod $period): string
     {
-        // Parse academic year (2025/2026 -> 2526)
-        $years = explode('/', $period->academic_year);
-        $academicYear = substr($years[0], -2) . substr($years[1] ?? $years[0], -2);
+        return DB::transaction(function () use ($period) {
+            // Parse academic year (2025/2026 -> 2526)
+            $years = explode('/', $period->academic_year);
+            $academicYear = substr($years[0], -2).substr($years[1] ?? $years[0], -2);
 
-        // Format wave number (1 -> 01)
-        $wave = str_pad($period->wave_number, 2, '0', STR_PAD_LEFT);
+            // Format wave number (1 -> 01)
+            $wave = str_pad($period->wave_number, 2, '0', STR_PAD_LEFT);
 
-        // Get next sequence number for this period
-        $lastRegistration = self::where('registration_period_id', $period->id)
-            ->whereNotNull('registration_number')
-            ->orderByRaw('CAST(SUBSTRING(registration_number, -5) AS UNSIGNED) DESC')
-            ->first();
+            // Get next sequence number for this period with row lock
+            $lastRegistration = self::where('registration_period_id', $period->id)
+                ->whereNotNull('registration_number')
+                ->orderByRaw('CAST(SUBSTRING(registration_number, -5) AS UNSIGNED) DESC')
+                ->lockForUpdate()
+                ->first();
 
-        if ($lastRegistration) {
-            $lastSequence = (int) substr($lastRegistration->registration_number, -5);
-            $nextSequence = $lastSequence + 1;
-        } else {
-            $nextSequence = 1;
-        }
+            if ($lastRegistration) {
+                $lastSequence = (int) substr($lastRegistration->registration_number, -5);
+                $nextSequence = $lastSequence + 1;
+            } else {
+                $nextSequence = 1;
+            }
 
-        // Format sequence (1 -> 00001)
-        $sequence = str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
+            // Format sequence (1 -> 00001)
+            $sequence = str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
 
-        return $academicYear . $wave . $sequence;
+            return $academicYear.$wave.$sequence;
+        });
     }
-
 
     public function user()
     {
@@ -186,7 +191,7 @@ class Registration extends Model
     {
         $labels = [
             'draft' => 'Draft',
-            'submitted' => 'Terdaftar',
+            'submitted' => 'Terdaftar (Menunggu hasil verifikasi)',
             'verified' => 'Terverifikasi',
             'accepted' => 'Diterima',
             'rejected' => 'Ditolak',
@@ -196,6 +201,11 @@ class Registration extends Model
         ];
 
         return $labels[$this->status] ?? ucfirst($this->status);
+    }
+
+    public function getRegistrationNumberAttribute($value)
+    {
+        return $value ? "UNU-$value" : null;
     }
 
     /**
@@ -246,5 +256,114 @@ class Registration extends Model
     public function rejectedBy()
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    /**
+     * Registration type ID constants for NIM generation
+     */
+    public const TYPE_PESERTA_DIDIK_BARU = 1;
+
+    public const TYPE_ALIH_JENJANG = 2;
+
+    public const TYPE_PINDAHAN = 4;
+
+    /**
+     * Generate unique NIM for enrolled student
+     * Format: [YEAR 2 digit][PRODI CODE 4 digit][SEQUENCE 3 digit]
+     *
+     * Sequence ranges:
+     * - Peserta Didik Baru: 001-799
+     * - Pindahan: 801-899
+     * - Alih Jenjang: 901-999
+     *
+     * Uses database transaction with row locking to prevent duplicate NIM.
+     */
+    public static function generateNim(self $registration): string
+    {
+        return DB::transaction(function () use ($registration) {
+            // Get accepted prodi with nim_code
+            $prodi = ProgramStudi::find($registration->accepted_program_studi_id);
+
+            if (! $prodi || ! $prodi->nim_code) {
+                throw new \RuntimeException('Program studi tidak memiliki kode NIM');
+            }
+
+            // Get year from registration period (2025/2026 -> 25)
+            $period = $registration->registrationPeriod;
+            $years = explode('/', $period->academic_year);
+            $year = substr($years[0], -2);
+
+            // Determine sequence start based on registration type
+            $registrationTypeId = $registration->registration_type_id;
+
+            $sequenceStart = match ($registrationTypeId) {
+                self::TYPE_PINDAHAN => 801,
+                self::TYPE_ALIH_JENJANG => 901,
+                default => 1, // Peserta Didik Baru
+            };
+
+            $sequenceEnd = match ($registrationTypeId) {
+                self::TYPE_PINDAHAN => 899,
+                self::TYPE_ALIH_JENJANG => 999,
+                default => 799,
+            };
+
+            // Build NIM prefix for this combination
+            $nimPrefix = $year.$prodi->nim_code;
+
+            // Get last NIM in this sequence range with lock
+            $lastUser = User::where('nim', 'like', $nimPrefix.'%')
+                ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) >= ?', [$sequenceStart])
+                ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) <= ?', [$sequenceEnd])
+                ->orderByRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) DESC')
+                ->lockForUpdate()
+                ->first();
+
+            if ($lastUser) {
+                $lastSequence = (int) substr($lastUser->nim, -3);
+                $nextSequence = $lastSequence + 1;
+            } else {
+                $nextSequence = $sequenceStart;
+            }
+
+            // Check if we've exceeded the range
+            if ($nextSequence > $sequenceEnd) {
+                throw new \RuntimeException('Nomor urut NIM untuk jenis pendaftaran ini sudah penuh');
+            }
+
+            // Format sequence (1 -> 001)
+            $sequence = str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+
+            return $nimPrefix.$sequence;
+        });
+    }
+
+    /**
+     * Enroll student: update status to enrolled and generate NIM
+     *
+     * @return string The generated NIM
+     *
+     * @throws \RuntimeException If enrollment fails
+     */
+    public function enrollStudent(): string
+    {
+        if ($this->status !== 're_registration_verified') {
+            throw new \RuntimeException('Status harus "Daftar Ulang Terverifikasi" untuk melakukan enrollment');
+        }
+
+        if (! $this->accepted_program_studi_id) {
+            throw new \RuntimeException('Program studi yang diterima belum ditentukan');
+        }
+
+        // Generate NIM
+        $nim = self::generateNim($this);
+
+        // Update user with NIM
+        $this->user->update(['nim' => $nim]);
+
+        // Update registration status
+        $this->update(['status' => 'enrolled']);
+
+        return $nim;
     }
 }

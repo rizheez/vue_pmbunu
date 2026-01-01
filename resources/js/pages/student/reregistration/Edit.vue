@@ -26,7 +26,7 @@ import type {
     StudentParent,
     StudentSpecialNeed,
 } from '@/types/pmb';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import {
     Accessibility,
     MapPin,
@@ -147,6 +147,10 @@ const removeParent = (index: number) => {
 const submit = () => {
     form.post('/student/reregistration', {
         preserveScroll: true,
+        onSuccess: () => {
+            // Redirect to payment page after successful form submission
+            router.visit('/student/reregistration/payment', { preserveScroll: true });
+        },
     });
 };
 
@@ -164,37 +168,6 @@ watch(
         }
     },
 );
-
-// Payment form
-const paymentForm = useForm({
-    payment_proof: null as File | null,
-});
-
-const handlePaymentUpload = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
-        paymentForm.payment_proof = target.files[0];
-    }
-};
-
-const submitPayment = () => {
-    paymentForm.post('/student/reregistration/payment', {
-        preserveScroll: true,
-        forceFormData: true,
-    });
-};
-
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-    }).format(amount);
-};
-
-const canUploadPayment =
-    props.biodata.reregistration_status === 'form_completed' ||
-    props.biodata.reregistration_status === 'payment_pending';
 </script>
 
 <template>
@@ -259,7 +232,7 @@ const canUploadPayment =
 
                     <form @submit.prevent="submit" class="space-y-6">
                         <Tabs v-model="activeTab" class="w-full">
-                            <TabsList class="grid w-full grid-cols-5">
+                            <TabsList class="grid w-full grid-cols-4">
                                 <TabsTrigger
                                     value="alamat"
                                     class="flex cursor-pointer items-center gap-2"
@@ -290,15 +263,6 @@ const canUploadPayment =
                                     <Accessibility class="size-4" />
                                     <span class="hidden sm:inline"
                                         >Kebutuhan Khusus</span
-                                    >
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="pembayaran"
-                                    class="flex cursor-pointer items-center gap-2"
-                                >
-                                    <CreditCard class="size-4" />
-                                    <span class="hidden sm:inline"
-                                        >Pembayaran</span
                                     >
                                 </TabsTrigger>
                             </TabsList>
@@ -937,234 +901,10 @@ const canUploadPayment =
                                     </div>
                                 </div>
                             </TabsContent>
-
-                            <!-- Tab: Pembayaran -->
-                            <TabsContent
-                                value="pembayaran"
-                                class="mt-6 space-y-6"
-                            >
-                                <!-- Payment Info Card -->
-                                <div
-                                    class="rounded-lg border bg-gradient-to-r from-blue-50 to-indigo-50 p-6 dark:from-blue-950/30 dark:to-indigo-950/30"
-                                >
-                                    <h4
-                                        class="mb-4 text-lg font-semibold text-blue-900 dark:text-blue-100"
-                                    >
-                                        Biaya Daftar Ulang
-                                    </h4>
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between">
-                                            <span class="text-muted-foreground"
-                                                >NIM / KTM</span
-                                            >
-                                            <span class="font-medium"
-                                                >Termasuk</span
-                                            >
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-muted-foreground"
-                                                >Almamater</span
-                                            >
-                                            <span class="font-medium"
-                                                >Termasuk</span
-                                            >
-                                        </div>
-                                        <div
-                                            class="flex justify-between border-t pt-3"
-                                        >
-                                            <span class="text-lg font-semibold"
-                                                >Total</span
-                                            >
-                                            <span
-                                                class="text-lg font-bold text-blue-600 dark:text-blue-400"
-                                                >{{
-                                                    formatCurrency(
-                                                        paymentAmount,
-                                                    )
-                                                }}</span
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bank Info -->
-                                <div class="rounded-lg border p-6">
-                                    <h4 class="mb-4 font-semibold">
-                                        Informasi Transfer
-                                    </h4>
-                                    <div class="space-y-2 text-sm">
-                                        <div class="flex justify-between">
-                                            <span class="text-muted-foreground"
-                                                >Bank</span
-                                            >
-                                            <span class="font-medium">BRI</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-muted-foreground"
-                                                >No. Rekening</span
-                                            >
-                                            <span class="font-mono font-medium"
-                                                >0123-01-012345-50-8</span
-                                            >
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-muted-foreground"
-                                                >Atas Nama</span
-                                            >
-                                            <span class="font-medium"
-                                                >Universitas Nahdlatul
-                                                Ulama</span
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Payment Status -->
-                                <div
-                                    v-if="payment"
-                                    class="rounded-lg border p-6"
-                                >
-                                    <h4 class="mb-4 font-semibold">
-                                        Status Pembayaran
-                                    </h4>
-                                    <div class="space-y-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                :class="[
-                                                    'rounded-full px-3 py-1 text-sm font-medium',
-                                                    payment.status ===
-                                                    'verified'
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                        : payment.status ===
-                                                            'rejected'
-                                                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                                                ]"
-                                            >
-                                                {{
-                                                    payment.status ===
-                                                    'verified'
-                                                        ? 'Terverifikasi'
-                                                        : payment.status ===
-                                                            'rejected'
-                                                          ? 'Ditolak'
-                                                          : 'Menunggu Verifikasi'
-                                                }}
-                                            </div>
-                                        </div>
-                                        <div
-                                            v-if="
-                                                payment.notes &&
-                                                payment.status === 'rejected'
-                                            "
-                                            class="rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
-                                        >
-                                            <strong>Catatan:</strong>
-                                            {{ payment.notes }}
-                                        </div>
-                                        <div
-                                            v-if="payment.payment_proof_url"
-                                            class="space-y-2"
-                                        >
-                                            <Label
-                                                >Bukti yang telah
-                                                diunggah:</Label
-                                            >
-                                            <a
-                                                :href="
-                                                    payment.payment_proof_url
-                                                "
-                                                target="_blank"
-                                                class="inline-block text-sm text-blue-600 underline hover:text-blue-800"
-                                            >
-                                                Lihat bukti pembayaran
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Upload Form -->
-                                <div
-                                    v-if="
-                                        canUploadPayment &&
-                                        (!payment ||
-                                            payment.status === 'rejected')
-                                    "
-                                    class="rounded-lg border p-6"
-                                >
-                                    <h4 class="mb-4 font-semibold">
-                                        Upload Bukti Pembayaran
-                                    </h4>
-                                    <form
-                                        @submit.prevent="submitPayment"
-                                        class="space-y-4"
-                                    >
-                                        <div class="space-y-2">
-                                            <Label for="payment_proof"
-                                                >Bukti Transfer *</Label
-                                            >
-                                            <input
-                                                id="payment_proof"
-                                                type="file"
-                                                accept=".jpg,.jpeg,.png,.pdf"
-                                                class="block w-full rounded-md border p-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
-                                                @change="handlePaymentUpload"
-                                            />
-                                            <p
-                                                class="text-xs text-muted-foreground"
-                                            >
-                                                Format: JPG, PNG, atau PDF.
-                                                Maksimal 2MB.
-                                            </p>
-                                            <p
-                                                v-if="
-                                                    paymentForm.errors
-                                                        .payment_proof
-                                                "
-                                                class="text-sm text-red-500"
-                                            >
-                                                {{
-                                                    paymentForm.errors
-                                                        .payment_proof
-                                                }}
-                                            </p>
-                                        </div>
-                                        <Button
-                                            type="submit"
-                                            :disabled="
-                                                paymentForm.processing ||
-                                                !paymentForm.payment_proof
-                                            "
-                                        >
-                                            <Upload class="mr-2 size-4" />
-                                            {{
-                                                paymentForm.processing
-                                                    ? 'Mengupload...'
-                                                    : 'Upload Bukti'
-                                            }}
-                                        </Button>
-                                    </form>
-                                </div>
-
-                                <!-- Note if form not completed -->
-                                <div
-                                    v-if="!canUploadPayment"
-                                    class="rounded-lg border border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-900/20"
-                                >
-                                    <p
-                                        class="text-sm text-yellow-800 dark:text-yellow-200"
-                                    >
-                                        Silakan lengkapi dan simpan form daftar
-                                        ulang terlebih dahulu sebelum melakukan
-                                        pembayaran.
-                                    </p>
-                                </div>
-                            </TabsContent>
                         </Tabs>
 
                         <!-- Submit -->
                         <div
-                            v-if="activeTab !== 'pembayaran'"
                             class="flex justify-end gap-4 border-t pt-6"
                         >
                             <Button

@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('stu
     // Re-registration routes (Neo Feeder compatible)
     Route::get('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'edit'])->name('reregistration.edit');
     Route::post('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'update'])->name('reregistration.update');
+    Route::get('/reregistration/payment', [App\Http\Controllers\ReregistrationController::class, 'paymentPage'])->name('reregistration.payment.page');
     Route::post('/reregistration/payment', [App\Http\Controllers\ReregistrationController::class, 'uploadPayment'])->name('reregistration.payment');
 
     // Registration card PDF
@@ -154,6 +155,22 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'index'])->name('reregistration-payments.index');
     Route::post('/reregistration-payments/{payment}/verify', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'verify'])->name('reregistration-payments.verify');
     Route::post('/reregistration-payments/{payment}/reject', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'reject'])->name('reregistration-payments.reject');
+
+    // NIM Generation
+    Route::get('/nim-generation', [\App\Http\Controllers\Admin\NimGenerationController::class, 'index'])->name('nim-generation.index');
+    Route::post('/nim-generation/generate', [\App\Http\Controllers\Admin\NimGenerationController::class, 'generate'])->name('nim-generation.generate');
+
+    // Admin Reregistration (Manual)
+    Route::get('/reregistration', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'index'])->name('reregistration.index');
+    Route::get('/reregistration/{id}/edit', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'edit'])->name('reregistration.edit');
+    Route::put('/reregistration/{id}', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'update'])->name('reregistration.update');
+
+    // Enrolled Students
+    Route::get('/enrolled-students', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'index'])->name('enrolled-students.index');
+
+    // Payment Settings
+    Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('payment-settings.index');
+    Route::post('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('payment-settings.update');
 });
 
 // Chat API

@@ -19,6 +19,7 @@ class StudentDashboardController extends Controller
             ->first();
 
         $registration = Registration::with([
+            'user',
             'acceptedProgramStudi',
             'programStudiChoice1',
             'programStudiChoice2',
@@ -43,17 +44,22 @@ class StudentDashboardController extends Controller
                 ->get()
             : collect();
 
-        $isVerified = $registration && in_array($registration->status, ['verified', 'accepted']);
+        $isVerified = $registration && in_array($registration->status, ['verified', 'accepted', 'enrolled']);
         $isRejected = $registration && $registration->status === 'rejected';
         $isAccepted = $registration && $registration->status === 'accepted';
+        $isEnrolled = $registration && $registration->status === 'enrolled';
+
+        // Check reregistration status
+        $reregistrationCompleted = $biodata && in_array($biodata->reregistration_status, ['payment_verified', 'completed']);
+        $reregistrationInProgress = $isAccepted && ! $isEnrolled && ! $reregistrationCompleted;
 
         $steps = [
             ['name' => 'Registrasi Akun', 'completed' => true, 'active' => false, 'failed' => false],
             ['name' => 'Lengkapi Biodata', 'completed' => (bool) $biodata, 'active' => ! $biodata, 'failed' => false],
             ['name' => 'Pilih Program Studi', 'completed' => (bool) $registration, 'active' => $biodata && ! $registration, 'failed' => false],
-            ['name' => 'Verifikasi Data', 'completed' => $isVerified || $isAccepted, 'active' => $registration && ! $isVerified && ! $isRejected, 'failed' => $isRejected],
-            ['name' => 'Daftar Ulang', 'completed' => false, 'active' => $isAccepted, 'failed' => false],
-            ['name' => 'Selesai', 'completed' => false, 'active' => false, 'failed' => false],
+            ['name' => 'Verifikasi Data', 'completed' => $isVerified || $isAccepted || $isEnrolled || $reregistrationCompleted, 'active' => $registration && ! $isVerified && ! $isRejected, 'failed' => $isRejected],
+            ['name' => 'Daftar Ulang', 'completed' => $isEnrolled || $reregistrationCompleted, 'active' => $reregistrationInProgress, 'failed' => false],
+            ['name' => 'Selesai', 'completed' => $isEnrolled, 'active' => false, 'failed' => false],
         ];
 
         return Inertia::render('student/Dashboard', [

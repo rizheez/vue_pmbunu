@@ -12,6 +12,7 @@ class ProgramStudi extends Model
         'fakultas_id',
         'name',
         'code',
+        'nim_code',
         'jenjang',
         'description',
         'quota',

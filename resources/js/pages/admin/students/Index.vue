@@ -69,10 +69,13 @@ watch([status, period, perPage], () => applyFilters());
 const getStatusBadge = (regStatus: string | undefined) => {
     const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
         draft: { variant: 'secondary', label: 'Draft' },
-        submitted: { variant: 'outline', label: 'Terdaftar' },
+        submitted: { variant: 'outline', label: 'Terdaftar (Menunggu hasil verifikasi)' },
         verified: { variant: 'default', label: 'Terverifikasi' },
         accepted: { variant: 'default', label: 'Diterima' },
         rejected: { variant: 'destructive', label: 'Ditolak' },
+        re_registration_pending: { variant: 'outline', label: 'Daftar Ulang Pending' },
+        re_registration_verified: { variant: 'default', label: 'Daftar Ulang Terverifikasi' },
+        enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
     };
     return map[regStatus || ''] || { variant: 'secondary', label: 'Unknown' };
 };

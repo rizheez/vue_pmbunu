@@ -6,6 +6,7 @@ use App\Models\DocumentVerification;
 use App\Models\Fakultas;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
+use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\StudentBiodata;
@@ -41,9 +42,10 @@ class DevelopmentStudentSeeder extends Seeder
         $periodId = RegistrationPeriod::where('is_active', true)->value('id');
         $regTypeId = RegistrationType::value('id');
         $prodiIds = ProgramStudi::pluck('id')->toArray();
+        $pathIds = RegistrationPath::pluck('id')->toArray();
 
         // Use DB transaction for better performance
-        DB::transaction(function () use ($faker, $now, $passwordHash, $periodId, $regTypeId, $prodiIds) {
+        DB::transaction(function () use ($faker, $now, $passwordHash, $periodId, $regTypeId, $prodiIds, $pathIds) {
             $this->command->info('Seeding SUBMITTED students...');
             $this->seedGroup(
                 total: 20,
@@ -54,7 +56,8 @@ class DevelopmentStudentSeeder extends Seeder
                 passwordHash: $passwordHash,
                 periodId: $periodId,
                 regTypeId: $regTypeId,
-                prodiIds: $prodiIds
+                prodiIds: $prodiIds,
+                pathIds: $pathIds
             );
 
             $this->command->info('Seeding VERIFIED students...');
@@ -67,7 +70,8 @@ class DevelopmentStudentSeeder extends Seeder
                 passwordHash: $passwordHash,
                 periodId: $periodId,
                 regTypeId: $regTypeId,
-                prodiIds: $prodiIds
+                prodiIds: $prodiIds,
+                pathIds: $pathIds
             );
         });
 
@@ -83,7 +87,8 @@ class DevelopmentStudentSeeder extends Seeder
         string $passwordHash,
         int $periodId,
         int $regTypeId,
-        array $prodiIds
+        array $prodiIds,
+        array $pathIds
     ): void {
         $users = [];
         $biodata = [];
@@ -161,7 +166,7 @@ class DevelopmentStudentSeeder extends Seeder
                 'status' => $status,
                 'choice_1' => $prodiIds[$idx % $prodiCount], // Use modulo for speed
                 'choice_2' => $prodiIds[($idx + 1) % $prodiCount],
-                'registration_path' => 'Umum',
+                'registration_path_id' => $pathIds[array_rand($pathIds)],
                 'referral_source' => $referralSource,
                 'referral_detail' => $referralDetail,
                 'created_at' => $randomCreatedAt,
@@ -245,6 +250,13 @@ class DevelopmentStudentSeeder extends Seeder
                     'name' => 'Informatika',
                     'jenjang' => 'S1',
                 ],
+            ]);
+        }
+
+        if (RegistrationPath::count() === 0) {
+            RegistrationPath::insert([
+                ['name' => 'Umum', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Kelas Karyawan', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
             ]);
         }
     }

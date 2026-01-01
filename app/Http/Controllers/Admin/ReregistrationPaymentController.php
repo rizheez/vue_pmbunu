@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentRejectedMail;
+use App\Mail\PaymentVerifiedMail;
+use App\Models\Registration;
 use App\Models\ReregistrationPayment;
 use App\Models\StudentBiodata;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -64,8 +68,17 @@ class ReregistrationPaymentController extends Controller
             $biodata->update(['reregistration_status' => 'completed']);
         }
 
+        // Update Registration status to re_registration_verified
+        $registration = Registration::where('user_id', $payment->user_id)->first();
+        if ($registration && $registration->status === 're_registration_pending') {
+            $registration->update(['status' => 're_registration_verified']);
+        }
+
+        // Send email notification
+        Mail::to($payment->user)->send(new PaymentVerifiedMail($payment->user, $payment));
+
         return redirect()->back()
-            ->with('success', 'Pembayaran berhasil diverifikasi.');
+            ->with('success', 'Pembayaran berhasil diverifikasi. Status pendaftaran diupdate ke "Daftar Ulang Terverifikasi".');
     }
 
     /**
@@ -91,6 +104,9 @@ class ReregistrationPaymentController extends Controller
         if ($biodata) {
             $biodata->update(['reregistration_status' => 'form_completed']);
         }
+
+        // Send email notification
+        Mail::to($payment->user)->send(new PaymentRejectedMail($payment->user, $payment, $request->notes));
 
         return redirect()->back()
             ->with('success', 'Pembayaran ditolak. Mahasiswa akan diminta mengunggah ulang.');

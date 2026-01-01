@@ -16,6 +16,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { formatDate } from '@/composables/useFormat';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Registration, StudentBiodata } from '@/types/pmb';
@@ -111,12 +112,16 @@ const reject = () => {
 };
 
 const getStatusBadge = (status: string | undefined) => {
-    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive'; label: string }> = {
+    const map: Record<string, { variant: 'default' | 'outline' | 'secondary' | 'destructive'; label: string }> = {
         draft: { variant: 'secondary', label: 'Draft' },
-        submitted: { variant: 'secondary', label: 'Terdaftar' },
+        submitted: { variant: 'outline', label: 'Terdaftar (Menunggu hasil verifikasi)' },
         verified: { variant: 'default', label: 'Terverifikasi' },
         accepted: { variant: 'default', label: 'Diterima' },
         rejected: { variant: 'destructive', label: 'Ditolak' },
+        re_registration_pending: { variant: 'outline', label: 'Daftar Ulang Pending' },
+        re_registration_verified: { variant: 'default', label: 'Daftar Ulang Terverifikasi' },
+        enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
+
     };
     return map[status || ''] || { variant: 'secondary', label: 'Unknown' };
 };
@@ -327,7 +332,7 @@ const isPdf = (url: string | null) => {
                                 <span class="text-gray-500">TTL</span>
                                 <span class="font-medium">
                                     {{ props.student.student_biodata.birth_place }},
-                                    {{ props.student.student_biodata.birth_date }}
+                                    {{ formatDate(props.student.student_biodata.birth_date, {month: 'long'}) }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">

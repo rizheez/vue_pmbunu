@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -79,6 +89,7 @@ const statusFilter = ref(props.filters.status);
 // Dialog states
 const showPreviewDialog = ref(false);
 const showRejectDialog = ref(false);
+const showVerifyDialog = ref(false);
 const selectedPayment = ref<Payment | null>(null);
 const previewUrl = ref('');
 
@@ -128,9 +139,18 @@ const openPreview = (payment: Payment) => {
     }
 };
 
-const verifyPayment = (payment: Payment) => {
-    if (confirm('Apakah Anda yakin ingin memverifikasi pembayaran ini?')) {
-        router.post(`/admin/reregistration-payments/${payment.id}/verify`, {});
+const openVerifyDialog = (payment: Payment) => {
+    selectedPayment.value = payment;
+    showVerifyDialog.value = true;
+};
+
+const confirmVerify = () => {
+    if (selectedPayment.value) {
+        router.post(`/admin/reregistration-payments/${selectedPayment.value.id}/verify`, {}, {
+            onSuccess: () => {
+                showVerifyDialog.value = false;
+            },
+        });
     }
 };
 
@@ -309,7 +329,7 @@ const getStatusLabel = (status: string) => {
                                                     variant="default"
                                                     class="bg-green-600 hover:bg-green-700"
                                                     @click="
-                                                        verifyPayment(payment)
+                                                        openVerifyDialog(payment)
                                                     "
                                                 >
                                                     <Check class="size-4" />
@@ -451,5 +471,28 @@ const getStatusLabel = (status: string) => {
                 </form>
             </DialogContent>
         </Dialog>
+
+        <!-- Verify Confirmation Dialog -->
+        <AlertDialog v-model:open="showVerifyDialog">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Konfirmasi Verifikasi</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Apakah Anda yakin ingin memverifikasi pembayaran dari
+                        <strong>{{ selectedPayment?.user.student_biodata?.name || selectedPayment?.user.name }}</strong>?
+                        Tindakan ini akan mengubah status pembayaran menjadi terverifikasi.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction
+                        class="bg-green-600 hover:bg-green-700"
+                        @click="confirmVerify"
+                    >
+                        Ya, Verifikasi
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </AppLayout>
 </template>

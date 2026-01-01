@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,19 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Update status enum to include extended statuses
-        DB::statement("ALTER TABLE registrations MODIFY COLUMN status ENUM(
-            'draft',
-            'submitted',
-            'verified',
-            'accepted',
-            'rejected',
-            're_registration_pending',
-            're_registration_verified',
-            'enrolled'
-        ) DEFAULT 'draft'");
-
-        // Add audit trail columns
+        // Add audit trail columns (status is already a flexible string column)
         Schema::table('registrations', function (Blueprint $table) {
             $table->timestamp('accepted_at')->nullable()->after('status');
             $table->foreignId('accepted_by')->nullable()->constrained('users')->after('accepted_at');
@@ -53,14 +40,5 @@ return new class extends Migration
                 'rejection_reason',
             ]);
         });
-
-        // Revert to original enum
-        DB::statement("ALTER TABLE registrations MODIFY COLUMN status ENUM(
-            'draft',
-            'submitted',
-            'verified',
-            'accepted',
-            'rejected'
-        ) DEFAULT 'draft'");
     }
 };
