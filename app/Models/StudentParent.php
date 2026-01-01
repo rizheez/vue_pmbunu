@@ -22,6 +22,12 @@ class StudentParent extends Model
         'address',
     ];
 
+    protected $appends = [
+        'type_label',
+        'education_label',
+        'income_label',
+    ];
+
     /**
      * @return array<string, string>
      */

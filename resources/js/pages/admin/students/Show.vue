@@ -19,20 +19,41 @@ import {
 import { formatDate } from '@/composables/useFormat';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Registration, StudentBiodata } from '@/types/pmb';
+import type { Registration, StudentBiodata, StudentParent, StudentSpecialNeed } from '@/types/pmb';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
     AlertCircle,
     CheckCircle,
+    CreditCard,
     Eye,
     FileText,
     GraduationCap,
+    MapPin,
     Pencil,
     Printer,
     User,
+    Users,
     XCircle,
+    Accessibility,
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+
+interface ReregistrationPayment {
+    id: number;
+    amount: number | string;
+    payment_proof_path: string | null;
+    payment_proof_url: string | null;
+    status: string;
+    verified_at: string | null;
+    verified_by: number | null;
+    notes: string | null;
+    created_at: string;
+    formatted_amount: string;
+    verifier?: {
+        id: number;
+        name: string;
+    };
+}
 
 interface StudentUser {
     id: number;
@@ -41,6 +62,27 @@ interface StudentUser {
     phone: string | null;
     student_biodata: StudentBiodata | null;
     registration: Registration | null;
+    reregistration_payment: ReregistrationPayment | null;
+    special_needs?: {
+        id: number;
+        type: string;
+        description: string;
+        assistance_needed: string;
+    }[];
+    parents?: {
+        id: number;
+        type: string;
+        type_label: string;
+        name: string;
+        phone: string;
+        occupation: string;
+        income:string;
+        income_label: string;
+        education: string;
+        education_label: string;
+        nik: string;
+        is_alive: boolean;
+    }[];
 }
 
 interface Props {
@@ -114,11 +156,11 @@ const reject = () => {
 const getStatusBadge = (status: string | undefined) => {
     const map: Record<string, { variant: 'default' | 'outline' | 'secondary' | 'destructive'; label: string }> = {
         draft: { variant: 'secondary', label: 'Draft' },
-        submitted: { variant: 'outline', label: 'Terdaftar (Menunggu hasil verifikasi)' },
+        submitted: { variant: 'secondary', label: 'Terdaftar (Menunggu hasil verifikasi)' },
         verified: { variant: 'default', label: 'Terverifikasi' },
         accepted: { variant: 'default', label: 'Diterima' },
         rejected: { variant: 'destructive', label: 'Ditolak' },
-        re_registration_pending: { variant: 'outline', label: 'Daftar Ulang Pending' },
+        re_registration_pending: { variant: 'secondary', label: 'Daftar Ulang Pending' },
         re_registration_verified: { variant: 'default', label: 'Daftar Ulang Terverifikasi' },
         enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
 
@@ -306,8 +348,81 @@ const isPdf = (url: string | null) => {
                     </CardContent>
                 </Card>
 
+                <!-- Re-registration Payment Info -->
+                <Card v-if="props.student.reregistration_payment">
+                    <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <CreditCard class="size-5" />
+                            Informasi Daftar Ulang
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent class="space-y-4">
+                        <div class="grid gap-3 text-sm">
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Jumlah Pembayaran</span>
+                                <span class="font-medium">
+                                    {{ props.student.reregistration_payment.formatted_amount }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Status Pembayaran</span>
+                                <Badge
+                                    :variant="props.student.reregistration_payment.status === 'verified' ? 'default' :
+                                              props.student.reregistration_payment.status === 'rejected' ? 'destructive' : 'outline'"
+                                >
+                                    {{ props.student.reregistration_payment.status === 'verified' ? 'Terverifikasi' :
+                                       props.student.reregistration_payment.status === 'rejected' ? 'Ditolak' : 'Pending' }}
+                                </Badge>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Tanggal Submit</span>
+                                <span class="font-medium">
+                                    {{ formatDate(props.student.reregistration_payment.created_at) }}
+                                </span>
+                            </div>
+                            <div v-if="props.student.reregistration_payment.verified_at" class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Tanggal Verifikasi</span>
+                                <span class="font-medium">
+                                    {{ formatDate(props.student.reregistration_payment.verified_at) }}
+                                </span>
+                            </div>
+                            <div v-if="props.student.reregistration_payment.verifier" class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Diverifikasi Oleh</span>
+                                <span class="font-medium">
+                                    {{ props.student.reregistration_payment.verifier.name }}
+                                </span>
+                            </div>
+                            <div v-if="props.student.reregistration_payment.notes" class="flex justify-between">
+                                <span class="text-gray-500">Catatan</span>
+                                <span class="font-medium text-right">
+                                    {{ props.student.reregistration_payment.notes }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Proof Preview -->
+                        <div v-if="props.student.reregistration_payment.payment_proof_url" class="mt-4">
+                            <p class="mb-2 text-sm font-medium">Bukti Pembayaran</p>
+                            <div
+                                class="relative cursor-pointer rounded-lg border p-2"
+                                @click="openPreview(props.student.reregistration_payment.payment_proof_url, 'Bukti Pembayaran')"
+                            >
+                                <div v-if="isPdf(props.student.reregistration_payment.payment_proof_url)" class="flex items-center gap-2 py-2">
+                                    <FileText class="size-6 text-red-500" />
+                                    <span class="text-sm">PDF Document - Klik untuk melihat</span>
+                                </div>
+                                <img
+                                    v-else
+                                    :src="props.student.reregistration_payment.payment_proof_url"
+                                    class="max-h-48 w-full rounded object-contain"
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <!-- Biodata -->
-                <Card>
+                <Card class="lg:col-span-2">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <User class="size-5" />
@@ -363,6 +478,161 @@ const isPdf = (url: string | null) => {
                     </CardContent>
                     <CardContent v-else>
                         <p class="text-gray-500">Biodata belum diisi</p>
+                    </CardContent>
+                </Card>
+
+                <!-- Address Info (Re-registration) -->
+                <Card v-if="props.student.student_biodata?.provinsi" class="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <MapPin class="size-5" />
+                            Alamat Lengkap & Kontak
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent class="grid gap-6 md:grid-cols-2">
+                         <div class="space-y-4">
+                            <h4 class="font-medium text-gray-900">Alamat Domisili</h4>
+                            <div class="grid gap-3 text-sm">
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Provinsi</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.provinsi }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Kabupaten/Kota</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.kabupaten }}</span>
+                                </div>
+                                 <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Kecamatan</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.kecamatan }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Kelurahan/Desa</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.kelurahan }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Dusun/Jalan</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.dusun || '-' }}</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 border-b pb-2">
+                                    <div>
+                                        <span class="text-gray-500 block text-xs">RT</span>
+                                        <span class="font-medium">{{ props.student.student_biodata.rt || '-' }}</span>
+                                    </div>
+                                    <div>
+                                         <span class="text-gray-500 block text-xs">RW</span>
+                                        <span class="font-medium">{{ props.student.student_biodata.rw || '-' }}</span>
+                                    </div>
+                                     <div>
+                                         <span class="text-gray-500 block text-xs">Kode Pos</span>
+                                        <span class="font-medium">{{ props.student.student_biodata.kode_pos || '-' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                             <h4 class="font-medium text-gray-900">Kontak & Lainnya</h4>
+                             <div class="grid gap-3 text-sm">
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">No. HP</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.phone }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Email Utama</span>
+                                    <span class="font-medium">{{ props.student.email }}</span>
+                                </div>
+                                 <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">NPWP</span>
+                                    <span class="font-medium">{{ props.student.student_biodata.npwp || '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Jenis Tinggal</span>
+                                    <span class="font-medium capitalize">{{ props.student.student_biodata.residence_type?.replace(/_/g, ' ') || '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Transportasi</span>
+                                    <span class="font-medium capitalize">{{ props.student.student_biodata.transportation?.replace(/_/g, ' ') || '-' }}</span>
+                                </div>
+                                 <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500">Penerima KPS</span>
+                                    <span class="font-medium">
+                                        {{ props.student.student_biodata.kps_recipient ? 'Ya' : 'Tidak' }}
+                                        <span v-if="props.student.student_biodata.kps_recipient" class="text-gray-500 text-xs block">
+                                            No: {{ props.student.student_biodata.kps_number }}
+                                        </span>
+                                    </span>
+                                </div>
+                             </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Parents Info -->
+                <Card v-if="props.student.student_biodata?.parents?.length" class="lg:col-span-2">
+                     <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <Users class="size-5" />
+                            Data Orang Tua / Wali
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <div v-for="parent in props.student.student_biodata.parents" :key="parent.id" class="rounded-lg border p-4">
+                            <h4 class="font-bold text-gray-900 border-b pb-2 mb-3 capitalize flex items-center gap-2">
+                                {{ parent.type_label }}
+                                <span v-if="!parent.is_alive" class="text-xs font-normal text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Alm.</span>
+                            </h4>
+                            <div class="grid gap-2 text-sm">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">Nama</span>
+                                    <span class="font-medium col-span-2">{{ parent.name }}</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">NIK</span>
+                                    <span class="font-medium col-span-2">{{ parent.nik }}</span>
+                                </div>
+                                <div v-if="parent.phone" class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">HP</span>
+                                    <span class="font-medium col-span-2">{{ parent.phone }}</span>
+                                </div>
+                                 <div v-if="parent.education" class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">Pendidikan</span>
+                                    <span class="font-medium col-span-2">{{ parent.education_label }}</span>
+                                </div>
+                                <div v-if="parent.occupation" class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">Pekerjaan</span>
+                                    <span class="font-medium col-span-2">{{ parent.occupation }}</span>
+                                </div>
+                                <div v-if="parent.income" class="grid grid-cols-3 gap-2">
+                                    <span class="text-gray-500 col-span-1">Penghasilan</span>
+                                    <span class="font-medium col-span-2">{{ parent.income_label }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Special Needs -->
+                <Card v-if="props.student.student_biodata?.special_needs?.length && props.student.student_biodata.special_needs[0].type !== 'tidak_ada'" class="lg:col-span-2">
+                     <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <Accessibility class="size-5" />
+                            Kebutuhan Khusus
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <div v-for="need in props.student.student_biodata.special_needs" :key="need.id" class="grid gap-4 md:grid-cols-3 text-sm">
+                            <div class="space-y-1">
+                                <span class="text-gray-500">Jenis Kebutuhan</span>
+                                <p class="font-medium capitalize">{{ need.type.replace(/_/g, ' ') }}</p>
+                            </div>
+                             <div class="space-y-1">
+                                <span class="text-gray-500">Deskripsi</span>
+                                <p class="font-medium">{{ need.description || '-' }}</p>
+                            </div>
+                             <div class="space-y-1">
+                                <span class="text-gray-500">Bantuan yang dibutuhkan</span>
+                                <p class="font-medium">{{ need.assistance_needed || '-' }}</p>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
 

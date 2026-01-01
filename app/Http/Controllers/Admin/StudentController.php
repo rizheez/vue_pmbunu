@@ -232,6 +232,8 @@ class StudentController extends Controller
     {
         $student = User::with([
             'studentBiodata.verifications',
+            'studentBiodata.parents',
+            'studentBiodata.specialNeeds',
             'registration.registrationPeriod',
             'registration.registrationType',
             'registration.registrationPath',
@@ -239,6 +241,7 @@ class StudentController extends Controller
             'registration.programStudiChoice2.fakultas',
             'registration.programStudiChoice3.fakultas',
             'registration.acceptedProgramStudi.fakultas',
+            'reregistrationPayment.verifier',
         ])
             ->where('role', 'student')
             ->findOrFail($id);

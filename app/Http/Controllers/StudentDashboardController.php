@@ -44,9 +44,9 @@ class StudentDashboardController extends Controller
                 ->get()
             : collect();
 
-        $isVerified = $registration && in_array($registration->status, ['verified', 'accepted', 'enrolled']);
+        $isVerified = $registration && in_array($registration->status, ['verified', 'accepted', 're_registration_pending', 're_registration_verified', 'enrolled']);
         $isRejected = $registration && $registration->status === 'rejected';
-        $isAccepted = $registration && $registration->status === 'accepted';
+        $isAccepted = $registration && in_array($registration->status, ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled']);
         $isEnrolled = $registration && $registration->status === 'enrolled';
 
         // Check reregistration status
@@ -57,7 +57,7 @@ class StudentDashboardController extends Controller
             ['name' => 'Registrasi Akun', 'completed' => true, 'active' => false, 'failed' => false],
             ['name' => 'Lengkapi Biodata', 'completed' => (bool) $biodata, 'active' => ! $biodata, 'failed' => false],
             ['name' => 'Pilih Program Studi', 'completed' => (bool) $registration, 'active' => $biodata && ! $registration, 'failed' => false],
-            ['name' => 'Verifikasi Data', 'completed' => $isVerified || $isAccepted || $isEnrolled || $reregistrationCompleted, 'active' => $registration && ! $isVerified && ! $isRejected, 'failed' => $isRejected],
+            ['name' => 'Verifikasi Data', 'completed' => $isVerified || $isAccepted || $isEnrolled || $reregistrationInProgress, 'active' => $registration && ! $isVerified && ! $isRejected, 'failed' => $isRejected],
             ['name' => 'Daftar Ulang', 'completed' => $isEnrolled || $reregistrationCompleted, 'active' => $reregistrationInProgress, 'failed' => false],
             ['name' => 'Selesai', 'completed' => $isEnrolled, 'active' => false, 'failed' => false],
         ];

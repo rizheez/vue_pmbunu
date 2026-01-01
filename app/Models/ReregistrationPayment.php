@@ -22,6 +22,11 @@ class ReregistrationPayment extends Model
         'verified_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'payment_proof_url',
+        'formatted_amount',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
