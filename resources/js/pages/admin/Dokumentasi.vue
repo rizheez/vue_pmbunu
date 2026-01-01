@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { UserPlus, Calendar, FileCheck, Lightbulb, Info, AlertTriangle, CheckCircle, XCircle, HelpCircle } from 'lucide-vue-next';
+import { UserPlus, Calendar, FileCheck, Lightbulb, Info, AlertTriangle, CheckCircle, XCircle, HelpCircle, CreditCard, GraduationCap, Settings, ClipboardEdit } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface BreadcrumbItem {
@@ -32,6 +32,16 @@ const faqs = ref([
     {
         question: 'Apa yang harus dilakukan jika email tidak terkirim?',
         answer: 'Pastikan email yang diinput benar. Jika masih bermasalah, cek spam folder atau hubungi IT support untuk cek konfigurasi email server.',
+        open: false,
+    },
+    {
+        question: 'Kapan NIM bisa digenerate?',
+        answer: 'NIM hanya bisa digenerate setelah status mahasiswa "Daftar Ulang Terverifikasi" (pembayaran sudah diverifikasi). Pastikan prodi sudah memiliki kode NIM.',
+        open: false,
+    },
+    {
+        question: 'Apa bedanya Transfer Bank dan Virtual Account?',
+        answer: 'Transfer Bank menampilkan format "Transfer ke: Bank XXX: XXXX", sedangkan VA menampilkan format "Nomor Pembayaran / VA: Virtual Account XXX: XXXX".',
         open: false,
     },
 ]);
@@ -68,6 +78,34 @@ const faqs = ref([
                     <div>
                         <p class="text-sm text-gray-500">Verifikasi</p>
                         <p class="font-semibold text-gray-900">Dokumen</p>
+                    </div>
+                </a>
+                <a href="#daftar-ulang-manual" class="bg-white rounded-lg shadow p-5 hover:shadow-md hover:bg-gray-50 transition flex items-center gap-4">
+                    <ClipboardEdit class="size-6 text-orange-600" />
+                    <div>
+                        <p class="text-sm text-gray-500">Daftar Ulang</p>
+                        <p class="font-semibold text-gray-900">Manual</p>
+                    </div>
+                </a>
+                <a href="#pembayaran" class="bg-white rounded-lg shadow p-5 hover:shadow-md hover:bg-gray-50 transition flex items-center gap-4">
+                    <CreditCard class="size-6 text-purple-600" />
+                    <div>
+                        <p class="text-sm text-gray-500">Verifikasi</p>
+                        <p class="font-semibold text-gray-900">Pembayaran</p>
+                    </div>
+                </a>
+                <a href="#nim" class="bg-white rounded-lg shadow p-5 hover:shadow-md hover:bg-gray-50 transition flex items-center gap-4">
+                    <GraduationCap class="size-6 text-indigo-600" />
+                    <div>
+                        <p class="text-sm text-gray-500">Generate</p>
+                        <p class="font-semibold text-gray-900">NIM</p>
+                    </div>
+                </a>
+                <a href="#pengaturan" class="bg-white rounded-lg shadow p-5 hover:shadow-md hover:bg-gray-50 transition flex items-center gap-4">
+                    <Settings class="size-6 text-gray-600" />
+                    <div>
+                        <p class="text-sm text-gray-500">Pengaturan</p>
+                        <p class="font-semibold text-gray-900">Pembayaran</p>
                     </div>
                 </a>
                 <a href="#tips" class="bg-white rounded-lg shadow p-5 hover:shadow-md hover:bg-gray-50 transition flex items-center gap-4">
@@ -199,10 +237,161 @@ const faqs = ref([
 
                 <hr />
 
-                <!-- 4. Tips & Trik -->
+                <!-- 4. Daftar Ulang Manual -->
+                <div id="daftar-ulang-manual">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+                        <span class="bg-orange-100 text-orange-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
+                        Daftar Ulang Manual
+                    </h3>
+                    <p class="text-gray-600 mb-4">Fitur ini digunakan untuk memproses daftar ulang mahasiswa yang sudah diterima tetapi kesulitan melakukan proses secara online.</p>
+
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-4 flex items-start gap-3">
+                        <AlertTriangle class="size-5 text-amber-500 shrink-0" />
+                        <p class="text-sm text-amber-700"><strong>Syarat:</strong> Mahasiswa harus sudah berstatus "Diterima" untuk bisa diproses daftar ulang manual.</p>
+                    </div>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Langkah-langkah:</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Buka menu <strong>"Daftar Ulang Manual"</strong> di sidebar</li>
+                        <li>Cari mahasiswa yang sudah diterima menggunakan filter atau search</li>
+                        <li>Klik tombol <strong>"Daftar Ulang"</strong> pada mahasiswa yang dipilih</li>
+                        <li>Isi data daftar ulang jika diperlukan:
+                            <ul class="list-disc list-inside ml-6 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Catatan:</strong> Tambahkan catatan jika diperlukan (opsional)</li>
+                            </ul>
+                        </li>
+                        <li>Klik <strong>"Simpan"</strong> untuk menyimpan data daftar ulang</li>
+                    </ol>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
+                        <Info class="size-5 text-blue-500 shrink-0" />
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Setelah disimpan, status mahasiswa akan berubah ke "Daftar Ulang Pending". Admin masih perlu memverifikasi pembayaran secara terpisah jika mahasiswa membayar secara offline.</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- 5. Verifikasi Pembayaran Daftar Ulang -->
+                <div id="pembayaran">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+                        <span class="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
+                        Verifikasi Pembayaran Daftar Ulang
+                    </h3>
+                    <p class="text-gray-600 mb-4">Proses verifikasi bukti pembayaran daftar ulang dari mahasiswa yang sudah diterima.</p>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Langkah-langkah:</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Buka menu <strong>"Verifikasi Pembayaran"</strong> di sidebar</li>
+                        <li>Filter berdasarkan status: Pending, Terverifikasi, atau Ditolak</li>
+                        <li>Klik tombol <strong>mata (👁)</strong> untuk preview bukti pembayaran</li>
+                        <li>Periksa bukti pembayaran:
+                            <ul class="list-disc list-inside ml-6 mt-2 space-y-1 text-gray-600">
+                                <li>Nominal sesuai dengan biaya daftar ulang</li>
+                                <li>Rekening tujuan benar</li>
+                                <li>Bukti transfer jelas dan valid</li>
+                            </ul>
+                        </li>
+                        <li>Pilih aksi:
+                            <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                                <li><CheckCircle class="inline size-4 text-green-600" /> <span class="text-green-600 font-semibold">Verifikasi</span> - Jika pembayaran valid</li>
+                                <li><XCircle class="inline size-4 text-red-600" /> <span class="text-red-600 font-semibold">Tolak</span> - Jika ada masalah (wajib isi alasan)</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
+                        <Info class="size-5 text-blue-500 shrink-0" />
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Setelah diverifikasi, status mahasiswa berubah ke "Daftar Ulang Terverifikasi" dan siap untuk generate NIM. Email notifikasi otomatis dikirim ke mahasiswa.</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- 6. Generate NIM -->
+                <div id="nim">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">6</span>
+                        Generate NIM (Nomor Induk Mahasiswa)
+                    </h3>
+                    <p class="text-gray-600 mb-4">Proses generate NIM untuk mahasiswa yang sudah menyelesaikan daftar ulang.</p>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Syarat Generate NIM:</h4>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                        <li>Status mahasiswa: <strong>"Daftar Ulang Terverifikasi"</strong></li>
+                        <li>Program Studi sudah memiliki <strong>Kode NIM</strong></li>
+                        <li>Mahasiswa <strong>belum memiliki NIM</strong></li>
+                    </ul>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Format NIM:</h4>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4 font-mono text-center text-lg">
+                        <span class="text-blue-600">23</span><span class="text-green-600">0201</span><span class="text-purple-600">001</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center text-sm mb-4">
+                        <div><span class="text-blue-600 font-bold">23</span><br>Tahun Masuk</div>
+                        <div><span class="text-green-600 font-bold">0201</span><br>Kode Prodi</div>
+                        <div><span class="text-purple-600 font-bold">001</span><br>Nomor Urut</div>
+                    </div>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Langkah-langkah:</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Buka menu <strong>"Generate NIM"</strong> di sidebar</li>
+                        <li>Centang mahasiswa yang ingin digenerate NIM-nya (bisa pilih lebih dari satu)</li>
+                        <li>Klik tombol <strong>"Generate NIM untuk X Mahasiswa"</strong></li>
+                        <li>Sistem akan otomatis:
+                            <ul class="list-disc list-inside ml-6 mt-2 space-y-1 text-gray-600">
+                                <li>Generate NIM berdasarkan format</li>
+                                <li>Update status ke "Enrolled"</li>
+                                <li>Kirim email berisi NIM ke mahasiswa</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 flex items-start gap-3">
+                        <AlertTriangle class="size-5 text-amber-500 shrink-0" />
+                        <p class="text-sm text-amber-700"><strong>Penting:</strong> Pastikan Kode NIM sudah diset di menu Program Studi sebelum generate NIM. Jika belum ada, akan muncul error.</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- 6. Pengaturan Pembayaran -->
+                <div id="pengaturan">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+                        <span class="bg-gray-200 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">7</span>
+                        Pengaturan Pembayaran
+                    </h3>
+                    <p class="text-gray-600 mb-4">Kelola informasi rekening bank untuk pembayaran daftar ulang.</p>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Pengaturan yang tersedia:</h4>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                        <li><strong>Tipe Pembayaran:</strong> Transfer Bank atau Virtual Account (VA)</li>
+                        <li><strong>Nama Bank:</strong> Nama bank tujuan (contoh: BRI, BNI, Mandiri)</li>
+                        <li><strong>Nomor Rekening/VA:</strong> Nomor rekening atau VA tujuan</li>
+                        <li><strong>Nama Pemilik:</strong> Nama pemilik rekening</li>
+                        <li><strong>Jumlah Pembayaran:</strong> Nominal biaya daftar ulang</li>
+                        <li><strong>Instruksi:</strong> Pesan tambahan untuk mahasiswa (opsional)</li>
+                    </ul>
+
+                    <h4 class="font-semibold text-gray-900 mb-3">Langkah-langkah:</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Buka menu <strong>"Pengaturan Pembayaran"</strong> di sidebar</li>
+                        <li>Isi atau ubah informasi pembayaran sesuai kebutuhan</li>
+                        <li>Pilih <strong>Tipe Pembayaran</strong> (Transfer Bank atau VA)</li>
+                        <li>Klik <strong>"Simpan Pengaturan"</strong></li>
+                    </ol>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
+                        <Info class="size-5 text-blue-500 shrink-0" />
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Perubahan akan langsung tampil di halaman pembayaran mahasiswa. Pastikan informasi akurat sebelum disimpan.</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- 8. Tips & Trik -->
                 <div id="tips">
                     <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
-                        <span class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
+                        <span class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">8</span>
                         Tips & Trik
                     </h3>
 
@@ -229,7 +418,8 @@ const faqs = ref([
                     <ul class="list-disc list-inside space-y-2 text-gray-700">
                         <li>Selalu cek periode aktif sebelum mendaftarkan mahasiswa manual</li>
                         <li>Verifikasi dokumen sesegera mungkin agar mahasiswa tidak menunggu lama</li>
-                        <li>Berikan alasan yang jelas saat menolak dokumen</li>
+                        <li>Berikan alasan yang jelas saat menolak dokumen atau pembayaran</li>
+                        <li>Generate NIM secara batch untuk efisiensi</li>
                         <li>Backup data secara berkala dengan export Excel</li>
                         <li>Koordinasi dengan tim untuk memastikan hanya 1 periode yang aktif</li>
                     </ul>
@@ -256,3 +446,5 @@ const faqs = ref([
         </div>
     </AppLayout>
 </template>
+
+
