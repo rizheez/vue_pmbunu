@@ -50,14 +50,7 @@ const props = withDefaults(defineProps<Props>(), {
     settings: () => ({}),
 });
 
-const page = usePage();
-const user = computed(() => page.props.auth?.user);
-
-const truncateWords = (text?: string, words = 20) => {
-    if (!text) return '';
-    const arr = text.split(' ');
-    return arr.length > words ? arr.slice(0, words).join(' ') + '...' : text;
-};
+const BASE_URL = 'https://pmb.unukaltim.ac.id';
 
 // Get setting value helper
 const getSetting = (
@@ -66,6 +59,92 @@ const getSetting = (
     defaultVal = '',
 ): string => {
     return props.settings?.[group]?.[key] || defaultVal;
+};
+
+const pageTitle = computed(() =>
+    getSetting('hero', 'hero_title', 'PMB UNU Kaltim'),
+);
+const pageDescription = computed(() =>
+    getSetting(
+        'hero',
+        'hero_description',
+        'Pendaftaran Mahasiswa Baru Universitas Nahdlatul Ulama Kalimantan Timur',
+    ),
+);
+
+const ogImage = computed(() => {
+    const img = getSetting('hero', 'hero_background_image_desktop');
+    return img ? `${BASE_URL}${img}` : `${BASE_URL}/assets/images/logo_unu.png`;
+});
+
+const jsonLd = computed(() => {
+    const contactPoints = [];
+    for (let i = 1; i <= 3; i++) {
+        const phone = getSetting('contact', `contact_phone_${i}`);
+        if (phone) {
+            contactPoints.push({
+                '@type': 'ContactPoint',
+                telephone: phone,
+                contactType: 'customer service',
+                areaServed: 'ID',
+                availableLanguage: 'Indonesian',
+            });
+        }
+    }
+
+    const sameAs = [
+        getSetting('social_media', 'social_media_facebook'),
+        getSetting('social_media', 'social_media_instagram'),
+        getSetting('social_media', 'social_media_website'),
+    ].filter(Boolean);
+
+    return {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'WebSite',
+                name: pageTitle.value,
+                description: pageDescription.value,
+                url: BASE_URL,
+                potentialAction: {
+                    '@type': 'SearchAction',
+                    target: `${BASE_URL}/search?q={search_term_string}`,
+                    'query-input': 'required name=search_term_string',
+                },
+            },
+            {
+                '@type': 'EducationalOrganization',
+                name: 'Universitas Nahdlatul Ulama Kalimantan Timur',
+                url: BASE_URL,
+                logo: {
+                    '@type': 'ImageObject',
+                    url:
+                        getSetting('contact', 'university_logo') ||
+                        `${BASE_URL}/assets/images/logo_unu.png`,
+                },
+                contactPoint: contactPoints,
+                sameAs: sameAs,
+                address: {
+                    '@type': 'PostalAddress',
+                    streetAddress: getSetting(
+                        'contact',
+                        'contact_address',
+                        'Samarinda, Kalimantan Timur',
+                    ),
+                    addressCountry: 'ID',
+                },
+            },
+        ],
+    };
+});
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+
+const truncateWords = (text?: string, words = 20) => {
+    if (!text) return '';
+    const arr = text.split(' ');
+    return arr.length > words ? arr.slice(0, words).join(' ') + '...' : text;
 };
 
 // Map icon names to components
@@ -159,18 +238,9 @@ const heroTypedStrings = [
 </script>
 
 <template>
-    <Head :title="getSetting('hero', 'hero_title', 'PMB UNU Kaltim')">
+    <Head :title="pageTitle">
         <!-- Primary Meta Tags -->
-        <meta
-            name="description"
-            :content="
-                getSetting(
-                    'hero',
-                    'hero_description',
-                    'Pendaftaran Mahasiswa Baru Universitas Nahdlatul Ulama Kalimantan Timur',
-                )
-            "
-        />
+        <meta name="description" :content="pageDescription" />
         <meta
             name="keywords"
             content="PMB, Pendaftaran Mahasiswa Baru, UNU Kaltim, Universitas Nahdlatul Ulama, Kalimantan Timur, Kuliah, Perguruan Tinggi, Samarinda"
@@ -180,64 +250,33 @@ const heroTypedStrings = [
             content="Universitas Nahdlatul Ulama Kalimantan Timur"
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://pmb.unukaltim.ac.id/" />
+        <link rel="canonical" :href="BASE_URL" />
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://pmb.unukaltim.ac.id/" />
-        <meta
-            property="og:title"
-            :content="getSetting('hero', 'hero_title', 'PMB UNU Kaltim')"
-        />
-        <meta
-            property="og:description"
-            :content="
-                getSetting(
-                    'hero',
-                    'hero_description',
-                    'Pendaftaran Mahasiswa Baru Universitas Nahdlatul Ulama Kalimantan Timur',
-                )
-            "
-        />
-        <meta
-            property="og:image"
-            :content="
-                getSetting('hero', 'hero_background_image_desktop') ||
-                '/assets/images/logo_unu.png'
-            "
-        />
+        <meta property="og:url" :content="BASE_URL" />
+        <meta property="og:title" :content="pageTitle" />
+        <meta property="og:description" :content="pageDescription" />
+        <meta property="og:image" :content="ogImage" />
         <meta property="og:locale" content="id_ID" />
         <meta property="og:site_name" content="PMB UNU Kaltim" />
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://pmb.unukaltim.ac.id/" />
-        <meta
-            name="twitter:title"
-            :content="getSetting('hero', 'hero_title', 'PMB UNU Kaltim')"
-        />
-        <meta
-            name="twitter:description"
-            :content="
-                getSetting(
-                    'hero',
-                    'hero_description',
-                    'Pendaftaran Mahasiswa Baru Universitas Nahdlatul Ulama Kalimantan Timur',
-                )
-            "
-        />
-        <meta
-            name="twitter:image"
-            :content="
-                getSetting('hero', 'hero_background_image_desktop') ||
-                '/assets/images/logo_unu.png'
-            "
-        />
+        <meta name="twitter:url" :content="BASE_URL" />
+        <meta name="twitter:title" :content="pageTitle" />
+        <meta name="twitter:description" :content="pageDescription" />
+        <meta name="twitter:image" :content="ogImage" />
 
         <!-- Additional SEO -->
         <meta name="geo.region" content="ID-KI" />
         <meta name="geo.placename" content="Samarinda" />
         <meta name="theme-color" content="#0d9488" />
+
+        <!-- Structured Data (JSON-LD) -->
+        <component is="script" type="application/ld+json">
+            {{ JSON.stringify(jsonLd) }}
+        </component>
     </Head>
 
     <div class="min-h-screen bg-white">
@@ -448,7 +487,7 @@ const heroTypedStrings = [
                         {{ getSetting('hero', 'hero_subtitle', '') }}
                     </p>
                     <div
-                        class="mx-auto max-w-3xl min-h-[3rem] text-sm text-white/80 sm:text-base md:text-lg lg:text-xl"
+                        class="mx-auto min-h-[3rem] max-w-3xl text-sm text-white/80 sm:text-base md:text-lg lg:text-xl"
                     >
                         <TypeWriter
                             :strings="heroTypedStrings"
