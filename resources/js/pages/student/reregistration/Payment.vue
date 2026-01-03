@@ -14,12 +14,7 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { StudentBiodata } from '@/types/pmb';
 import { Head, useForm } from '@inertiajs/vue3';
-import {
-    AlertCircle,
-    CheckCircle,
-    CreditCard,
-    Upload,
-} from 'lucide-vue-next';
+import { AlertCircle, CheckCircle, CreditCard, Upload } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Payment {
@@ -148,31 +143,53 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                 <CardContent class="space-y-6">
                     <!-- Payment Info -->
                     <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
-                        <h4 class="mb-2 font-medium text-blue-800 dark:text-blue-300">
+                        <h4
+                            class="mb-2 font-medium text-blue-800 dark:text-blue-300"
+                        >
                             Informasi Pembayaran
                         </h4>
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-blue-700 dark:text-blue-400">Biaya Daftar Ulang:</span>
-                                <span class="font-bold text-blue-900 dark:text-blue-200">
+                                <span class="text-blue-700 dark:text-blue-400"
+                                    >Biaya Daftar Ulang:</span
+                                >
+                                <span
+                                    class="font-bold text-blue-900 dark:text-blue-200"
+                                >
                                     {{ formatCurrency(paymentInfo.amount) }}
                                 </span>
                             </div>
                             <div class="pt-2 text-blue-600 dark:text-blue-400">
                                 <!-- VA Format -->
                                 <template v-if="isVA">
-                                    <p class="font-medium">Nomor Pembayaran / VA:</p>
-                                    <p>Virtual Account {{ paymentInfo.bank_name }}: <span class="font-mono font-bold">{{ paymentInfo.account_number }}</span></p>
+                                    <p class="font-medium">
+                                        Nomor Pembayaran / VA:
+                                    </p>
+                                    <p>
+                                        Virtual Account
+                                        {{ paymentInfo.bank_name }}:
+                                        <span class="font-mono font-bold">{{
+                                            paymentInfo.account_number
+                                        }}</span>
+                                    </p>
                                     <p>a.n. {{ paymentInfo.account_name }}</p>
                                 </template>
                                 <!-- Bank Transfer Format -->
                                 <template v-else>
                                     <p class="font-medium">Transfer ke:</p>
-                                    <p>Bank {{ paymentInfo.bank_name }}: <span class="font-mono font-bold">{{ paymentInfo.account_number }}</span></p>
+                                    <p>
+                                        Bank {{ paymentInfo.bank_name }}:
+                                        <span class="font-mono font-bold">{{
+                                            paymentInfo.account_number
+                                        }}</span>
+                                    </p>
                                     <p>a.n. {{ paymentInfo.account_name }}</p>
                                 </template>
                             </div>
-                            <p v-if="paymentInfo.instructions" class="pt-2 text-blue-600 dark:text-blue-400 italic">
+                            <p
+                                v-if="paymentInfo.instructions"
+                                class="pt-2 text-blue-600 italic dark:text-blue-400"
+                            >
                                 {{ paymentInfo.instructions }}
                             </p>
                         </div>
@@ -187,8 +204,11 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                         <AlertTitle class="text-green-800 dark:text-green-300">
                             Pembayaran Terverifikasi
                         </AlertTitle>
-                        <AlertDescription class="text-green-700 dark:text-green-400">
-                            Pembayaran Anda telah diverifikasi. Proses daftar ulang telah selesai.
+                        <AlertDescription
+                            class="text-green-700 dark:text-green-400"
+                        >
+                            Pembayaran Anda telah diverifikasi. Proses daftar
+                            ulang telah selesai.
                         </AlertDescription>
                     </Alert>
 
@@ -197,11 +217,16 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                         class="border-yellow-500 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30"
                     >
                         <AlertCircle class="size-4 text-yellow-600" />
-                        <AlertTitle class="text-yellow-800 dark:text-yellow-300">
+                        <AlertTitle
+                            class="text-yellow-800 dark:text-yellow-300"
+                        >
                             Menunggu Verifikasi
                         </AlertTitle>
-                        <AlertDescription class="text-yellow-700 dark:text-yellow-400">
-                            Bukti pembayaran Anda sedang diverifikasi oleh admin. Harap tunggu.
+                        <AlertDescription
+                            class="text-yellow-700 dark:text-yellow-400"
+                        >
+                            Bukti pembayaran Anda sedang diverifikasi oleh
+                            admin. Harap tunggu.
                         </AlertDescription>
                     </Alert>
 
@@ -212,7 +237,10 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                         <AlertCircle class="size-4" />
                         <AlertTitle>Pembayaran Ditolak</AlertTitle>
                         <AlertDescription>
-                            {{ payment?.notes || 'Bukti pembayaran tidak valid. Silakan upload ulang.' }}
+                            {{
+                                payment?.notes ||
+                                'Bukti pembayaran tidak valid. Silakan upload ulang.'
+                            }}
                         </AlertDescription>
                     </Alert>
 
@@ -221,7 +249,11 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                         <Label>Bukti Pembayaran Terupload</Label>
                         <div class="rounded-lg border p-4">
                             <img
-                                v-if="payment.payment_proof_path?.match(/\.(jpg|jpeg|png)$/i)"
+                                v-if="
+                                    payment.payment_proof_path?.match(
+                                        /\.(jpg|jpeg|png)$/i,
+                                    )
+                                "
                                 :src="payment.payment_proof_url"
                                 alt="Bukti Pembayaran"
                                 class="max-h-64 rounded-lg object-contain"
@@ -245,15 +277,24 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                     >
                         <div class="space-y-2">
                             <Label>
-                                {{ payment ? 'Upload Ulang Bukti Pembayaran' : 'Upload Bukti Pembayaran' }}
+                                {{
+                                    payment
+                                        ? 'Upload Ulang Bukti Pembayaran'
+                                        : 'Upload Bukti Pembayaran'
+                                }}
                             </Label>
                             <div class="flex items-center gap-4">
                                 <label
                                     class="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed px-6 py-4 transition-colors hover:border-primary hover:bg-muted/50"
                                 >
-                                    <Upload class="size-5 text-muted-foreground" />
+                                    <Upload
+                                        class="size-5 text-muted-foreground"
+                                    />
                                     <span class="text-sm text-muted-foreground">
-                                        {{ paymentForm.payment_proof?.name || 'Pilih file...' }}
+                                        {{
+                                            paymentForm.payment_proof?.name ||
+                                            'Pilih file...'
+                                        }}
                                     </span>
                                     <Input
                                         type="file"
@@ -276,10 +317,19 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
 
                         <Button
                             type="submit"
-                            :disabled="!paymentForm.payment_proof || paymentForm.processing"
+                            :disabled="
+                                !paymentForm.payment_proof ||
+                                paymentForm.processing
+                            "
                         >
                             <Upload class="mr-2 size-4" />
-                            {{ paymentForm.processing ? 'Mengupload...' : 'Upload Bukti Pembayaran' }}
+                            {{
+                                paymentForm.processing
+                                    ? 'Mengupload...'
+                                    : payment?.payment_proof_url
+                                      ? 'Upload ulang Bukti Pembayaran'
+                                      : 'Upload Bukti Pembayaran'
+                            }}
                         </Button>
                     </form>
                 </CardContent>
