@@ -221,6 +221,7 @@ export interface LandingPageSetting {
 // Extended User type with PMB relationships
 export interface PmbUser {
     id: number;
+    hashed_id: string;
     name: string;
     email: string;
     phone?: string;

@@ -9,15 +9,20 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Registration, RegistrationPeriod, StudentBiodata } from '@/types/pmb';
+import type {
+    Registration,
+    RegistrationPeriod,
+    StudentBiodata,
+} from '@/types/pmb';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Download, Eye, Printer, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
-import { formatDate } from '@/composables/useFormat';
 
 interface Student {
     id: number;
+    hashed_id: string;
     name: string;
     email: string;
     phone: string | null;
@@ -60,21 +65,36 @@ const applyFilters = () => {
             period: period.value !== 'all' ? period.value : undefined,
             per_page: perPage.value,
         },
-        { preserveState: true }
+        { preserveState: true },
     );
 };
 
 watch([status, period, perPage], () => applyFilters());
 
 const getStatusBadge = (regStatus: string | undefined) => {
-    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+    const map: Record<
+        string,
+        {
+            variant: 'default' | 'secondary' | 'destructive' | 'outline';
+            label: string;
+        }
+    > = {
         draft: { variant: 'secondary', label: 'Draft' },
-        submitted: { variant: 'outline', label: 'Terdaftar (Menunggu hasil verifikasi)' },
+        submitted: {
+            variant: 'outline',
+            label: 'Terdaftar (Menunggu hasil verifikasi)',
+        },
         verified: { variant: 'default', label: 'Terverifikasi' },
         accepted: { variant: 'default', label: 'Diterima' },
         rejected: { variant: 'destructive', label: 'Ditolak' },
-        re_registration_pending: { variant: 'outline', label: 'Daftar Ulang Pending' },
-        re_registration_verified: { variant: 'default', label: 'Daftar Ulang Terverifikasi' },
+        re_registration_pending: {
+            variant: 'outline',
+            label: 'Daftar Ulang Pending',
+        },
+        re_registration_verified: {
+            variant: 'default',
+            label: 'Daftar Ulang Terverifikasi',
+        },
         enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
     };
     return map[regStatus || ''] || { variant: 'secondary', label: 'Unknown' };
@@ -95,7 +115,6 @@ const exportUrl = computed(() => {
 </script>
 
 <template>
-
     <Head title="Manajemen Calon Mahasiswa" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -106,31 +125,44 @@ const exportUrl = computed(() => {
                         <div>
                             <CardTitle>Manajemen Calon Mahasiswa</CardTitle>
                             <CardDescription>
-                                Total: {{ props.students.total }} calon mahasiswa
+                                Total: {{ props.students.total }} calon
+                                mahasiswa
                             </CardDescription>
                         </div>
-                        <Button as-child class="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
+                        <Button
+                            as-child
+                            class="gap-2 bg-emerald-600 text-white hover:bg-emerald-700"
+                        >
                             <a :href="exportUrl" download>
                                 <Download class="size-4" />
                                 Export Excel
                             </a>
                         </Button>
-
                     </div>
                 </CardHeader>
                 <CardContent>
                     <!-- Filters -->
                     <div class="mb-6 flex flex-wrap gap-4">
                         <div class="flex items-center gap-2">
-                            <Input v-model="search" placeholder="Cari nama, email, no. pendaftaran..." class="w-64"
-                                @keyup.enter="applyFilters" />
-                            <Button size="icon" variant="outline" @click="applyFilters">
+                            <Input
+                                v-model="search"
+                                placeholder="Cari nama, email, no. pendaftaran..."
+                                class="w-64"
+                                @keyup.enter="applyFilters"
+                            />
+                            <Button
+                                size="icon"
+                                variant="outline"
+                                @click="applyFilters"
+                            >
                                 <Search class="size-4" />
                             </Button>
                         </div>
 
-                        <select v-model="status"
-                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+                        <select
+                            v-model="status"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                        >
                             <option value="all">Semua Status</option>
                             <option value="draft">Draft</option>
                             <option value="submitted">Terdaftar</option>
@@ -139,16 +171,24 @@ const exportUrl = computed(() => {
                             <option value="rejected">Ditolak</option>
                         </select>
 
-                        <select v-model="period"
-                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+                        <select
+                            v-model="period"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                        >
                             <option value="all">Semua Periode</option>
-                            <option v-for="p in props.periods" :key="p.id" :value="p.id">
+                            <option
+                                v-for="p in props.periods"
+                                :key="p.id"
+                                :value="p.id"
+                            >
                                 {{ p.name }}
                             </option>
                         </select>
 
-                        <select v-model="perPage"
-                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+                        <select
+                            v-model="perPage"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                        >
                             <option :value="10">10 per halaman</option>
                             <option :value="25">25 per halaman</option>
                             <option :value="50">50 per halaman</option>
@@ -161,22 +201,34 @@ const exportUrl = computed(() => {
                         <table class="w-full text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="min-w-[140px] px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="min-w-[140px] px-4 py-3 text-left font-medium"
+                                    >
                                         No. Pendaftaran
                                     </th>
-                                    <th class="min-w-[200px] px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="min-w-[200px] px-4 py-3 text-left font-medium"
+                                    >
                                         Nama
                                     </th>
-                                    <th class="min-w-[200px] px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="min-w-[200px] px-4 py-3 text-left font-medium"
+                                    >
                                         Email
                                     </th>
-                                    <th class="min-w-[200px] px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="min-w-[200px] px-4 py-3 text-left font-medium"
+                                    >
                                         Sumber Informasi
                                     </th>
-                                    <th class="min-w-[180px] px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="min-w-[180px] px-4 py-3 text-left font-medium"
+                                    >
                                         Prodi Pilihan 1
                                     </th>
-                                    <th class="whitespace-nowrap px-4 py-3 text-left font-medium">
+                                    <th
+                                        class="px-4 py-3 text-left font-medium whitespace-nowrap"
+                                    >
                                         Tanggal Daftar
                                     </th>
                                     <th class="px-4 py-3 text-left font-medium">
@@ -188,7 +240,11 @@ const exportUrl = computed(() => {
                                 </tr>
                             </thead>
                             <tbody class="divide-y">
-                                <tr v-for="student in props.students.data" :key="student.id" class="hover:bg-gray-50">
+                                <tr
+                                    v-for="student in props.students.data"
+                                    :key="student.id"
+                                    class="hover:bg-gray-50"
+                                >
                                     <td class="px-4 py-3 font-mono text-xs">
                                         {{
                                             student.registration
@@ -207,52 +263,84 @@ const exportUrl = computed(() => {
                                     <td class="px-4 py-3">
                                         <div class="flex flex-col">
                                             <span class="font-medium">
-                                                {{ student.registration?.referral_source || '-' }}
+                                                {{
+                                                    student.registration
+                                                        ?.referral_source || '-'
+                                                }}
                                             </span>
-                                            <span v-if="student.registration?.referral_detail"
-                                                class="text-xs text-gray-500">
-                                                {{ student.registration.referral_detail }}
+                                            <span
+                                                v-if="
+                                                    student.registration
+                                                        ?.referral_detail
+                                                "
+                                                class="text-xs text-gray-500"
+                                            >
+                                                {{
+                                                    student.registration
+                                                        .referral_detail
+                                                }}
                                             </span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         {{
                                             student.registration
-                                                ?.program_studi_choice1
-                                                ?.name || '-'
+                                                ?.program_studi_choice1?.name ||
+                                            '-'
                                         }}
                                     </td>
                                     <td class="px-4 py-3 text-gray-500">
                                         {{
                                             student.registration?.created_at
-                                                ? formatDate(student.registration.created_at)
+                                                ? formatDate(
+                                                      student.registration
+                                                          .created_at,
+                                                  )
                                                 : '-'
                                         }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        <Badge :variant="getStatusBadge(
-                                            student.registration?.status
-                                        ).variant
-                                            ">
+                                        <Badge
+                                            :variant="
+                                                getStatusBadge(
+                                                    student.registration
+                                                        ?.status,
+                                                ).variant
+                                            "
+                                        >
                                             {{
                                                 getStatusBadge(
-                                                    student.registration?.status
+                                                    student.registration
+                                                        ?.status,
                                                 ).label
                                             }}
                                         </Badge>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex gap-1">
-                                            <Button as-child variant="ghost" size="sm">
-                                                <Link :href="`/admin/students/${student.id}`">
+                                            <Button
+                                                as-child
+                                                variant="ghost"
+                                                size="sm"
+                                            >
+                                                <Link
+                                                    :href="`/admin/students/${student.hashed_id}`"
+                                                >
                                                     <Eye class="mr-1 size-4" />
                                                     Detail
                                                 </Link>
                                             </Button>
-                                            <Button v-if="student.registration" as-child variant="ghost" size="icon"
-                                                title="Cetak Kartu Peserta">
-                                                <a :href="`/admin/students/${student.id}/registration-card`"
-                                                    target="_blank">
+                                            <Button
+                                                v-if="student.registration"
+                                                as-child
+                                                variant="ghost"
+                                                size="icon"
+                                                title="Cetak Kartu Peserta"
+                                            >
+                                                <a
+                                                    :href="`/admin/students/${student.hashed_id}/registration-card`"
+                                                    target="_blank"
+                                                >
                                                     <Printer class="size-4" />
                                                 </a>
                                             </Button>
@@ -260,7 +348,10 @@ const exportUrl = computed(() => {
                                     </td>
                                 </tr>
                                 <tr v-if="props.students.data.length === 0">
-                                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                                    <td
+                                        colspan="8"
+                                        class="px-4 py-8 text-center text-gray-500"
+                                    >
                                         Tidak ada data mahasiswa
                                     </td>
                                 </tr>
@@ -269,17 +360,29 @@ const exportUrl = computed(() => {
                     </div>
 
                     <!-- Pagination -->
-                    <div v-if="props.students.last_page > 1" class="mt-4 flex items-center justify-between">
+                    <div
+                        v-if="props.students.last_page > 1"
+                        class="mt-4 flex items-center justify-between"
+                    >
                         <p class="text-sm text-gray-500">
                             Halaman {{ props.students.current_page }} dari
                             {{ props.students.last_page }}
                         </p>
                         <div class="flex gap-1">
-                            <template v-for="link in props.students.links" :key="link.label">
-                                <Button v-if="link.url" as-child variant="outline" size="sm" :class="{
-                                    'bg-primary text-primary-foreground':
-                                        link.active,
-                                }">
+                            <template
+                                v-for="link in props.students.links"
+                                :key="link.label"
+                            >
+                                <Button
+                                    v-if="link.url"
+                                    as-child
+                                    variant="outline"
+                                    size="sm"
+                                    :class="{
+                                        'bg-primary text-primary-foreground':
+                                            link.active,
+                                    }"
+                                >
                                     <Link :href="link.url">
                                         <span v-html="link.label" />
                                     </Link>

@@ -86,20 +86,26 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
-    Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
-    Route::put('/students/{id}', [StudentController::class, 'update'])->name('students.update');
-    Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
-    Route::post('/students/{id}/verify', [StudentController::class, 'verify'])->name('students.verify');
-    Route::post('/students/{id}/accept', [StudentController::class, 'accept'])->name('students.accept');
-    Route::post('/students/{id}/reject', [StudentController::class, 'reject'])->name('students.reject');
-    Route::get('/students/{id}/registration-card', [RegistrationCardController::class, 'show'])->name('students.registration-card');
     Route::get('/students-export', [StudentController::class, 'export'])->name('students.export');
 
-    // Document Verification
-    Route::get('/students/{id}/documents', [DocumentVerificationController::class, 'show'])->name('students.documents');
+    // Student routes with hashed ID
+    Route::middleware('hashid')->group(function () {
+        Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
+        Route::put('/students/{id}', [StudentController::class, 'update'])->name('students.update');
+        Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
+        Route::post('/students/{id}/verify', [StudentController::class, 'verify'])->name('students.verify');
+        Route::post('/students/{id}/accept', [StudentController::class, 'accept'])->name('students.accept');
+        Route::post('/students/{id}/reject', [StudentController::class, 'reject'])->name('students.reject');
+        Route::get('/students/{id}/registration-card', [RegistrationCardController::class, 'show'])->name('students.registration-card');
+
+        // Document Verification
+        Route::get('/students/{id}/documents', [DocumentVerificationController::class, 'show'])->name('students.documents');
+        Route::post('/students/{id}/documents/bulk-verify', [DocumentVerificationController::class, 'bulkVerify'])->name('students.documents.bulkVerify');
+    });
+
+    // Document approval/rejection (uses document ID, not student ID)
     Route::post('/documents/{id}/approve', [DocumentVerificationController::class, 'approve'])->name('documents.approve');
     Route::post('/documents/{id}/reject', [DocumentVerificationController::class, 'reject'])->name('documents.reject');
-    Route::post('/students/{id}/documents/bulk-verify', [DocumentVerificationController::class, 'bulkVerify'])->name('students.documents.bulkVerify');
 
     // Periods
     Route::get('/periods', [PeriodController::class, 'index'])->name('periods.index');
@@ -145,8 +151,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // User Management
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
-    Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::middleware('hashid')->group(function () {
+        Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    });
 
     // Dokumentasi
     Route::get('/dokumentasi', fn () => \Inertia\Inertia::render('admin/Dokumentasi'))->name('dokumentasi');
@@ -162,8 +170,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Admin Reregistration (Manual)
     Route::get('/reregistration', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'index'])->name('reregistration.index');
-    Route::get('/reregistration/{id}/edit', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'edit'])->name('reregistration.edit');
-    Route::put('/reregistration/{id}', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'update'])->name('reregistration.update');
+    Route::middleware('hashid')->group(function () {
+        Route::get('/reregistration/{id}/edit', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'edit'])->name('reregistration.edit');
+        Route::put('/reregistration/{id}', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'update'])->name('reregistration.update');
+    });
 
     // Enrolled Students
     Route::get('/enrolled-students', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'index'])->name('enrolled-students.index');

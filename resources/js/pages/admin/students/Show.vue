@@ -52,6 +52,7 @@ interface ReregistrationPayment {
 
 interface StudentUser {
     id: number;
+    hashed_id: string;
     name: string;
     email: string;
     phone: string | null;
@@ -124,7 +125,7 @@ const accept = () => {
     if (!selectedProdi.value) return;
     processing.value = true;
     router.post(
-        `/admin/students/${props.student.id}/accept`,
+        `/admin/students/${props.student.hashed_id}/accept`,
         {
             program_studi_id: selectedProdi.value,
             notes: acceptNotes.value,
@@ -142,7 +143,7 @@ const reject = () => {
     if (!rejectReason.value) return;
     processing.value = true;
     router.post(
-        `/admin/students/${props.student.id}/reject`,
+        `/admin/students/${props.student.hashed_id}/reject`,
         { reason: rejectReason.value },
         {
             onFinish: () => {
@@ -222,7 +223,7 @@ const isPdf = (url: string | null) => {
                 <div class="flex gap-2">
                     <Button variant="outline" as-child>
                         <Link
-                            :href="`/admin/students/${props.student.id}/edit`"
+                            :href="`/admin/students/${props.student.hashed_id}/edit`"
                         >
                             <Pencil class="mr-2 size-4" />
                             Edit
@@ -234,7 +235,7 @@ const isPdf = (url: string | null) => {
                         as-child
                     >
                         <a
-                            :href="`/admin/students/${props.student.id}/registration-card`"
+                            :href="`/admin/students/${props.student.hashed_id}/registration-card`"
                             target="_blank"
                         >
                             <Printer class="mr-2 size-4" />
@@ -1031,7 +1032,7 @@ const isPdf = (url: string | null) => {
                                 as-child
                             >
                                 <a
-                                    :href="`/admin/students/${props.student.id}/documents`"
+                                    :href="`/admin/students/${props.student.hashed_id}/documents`"
                                 >
                                     Verifikasi Dokumen
                                 </a>

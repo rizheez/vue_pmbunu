@@ -145,7 +145,7 @@ const submit = () => {
         }
     });
 
-    router.post(`/admin/students/${props.student.id}`, formData, {
+    router.post(`/admin/students/${props.student.hashed_id}`, formData, {
         onError: (errs) => {
             errors.value = errs;
         },
@@ -181,7 +181,7 @@ const breadcrumbs = [
     { title: 'Calon Mahasiswa', href: '/admin/students' },
     {
         title: 'Edit Mahasiswa',
-        href: `/admin/students/${props.student.id}/edit`,
+        href: `/admin/students/${props.student.hashed_id}/edit`,
     },
 ];
 </script>
@@ -194,7 +194,9 @@ const breadcrumbs = [
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <Button variant="ghost" size="sm" as-child>
-                        <Link :href="`/admin/students/${props.student.id}`">
+                        <Link
+                            :href="`/admin/students/${props.student.hashed_id}`"
+                        >
                             <ArrowLeft class="mr-2 size-4" />
                             Kembali
                         </Link>
@@ -860,7 +862,8 @@ const breadcrumbs = [
 
                 <div class="flex justify-end gap-3">
                     <Button type="button" variant="outline" as-child>
-                        <Link :href="`/admin/students/${props.student.id}`"
+                        <Link
+                            :href="`/admin/students/${props.student.hashed_id}`"
                             >Batal</Link
                         >
                     </Button>

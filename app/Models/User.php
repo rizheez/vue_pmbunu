@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashedId;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -12,7 +13,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasHashedId, Notifiable, TwoFactorAuthenticatable;
+
+    protected $appends = ['hashed_id'];
 
     /**
      * The attributes that are mass assignable.

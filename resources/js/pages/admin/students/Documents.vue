@@ -15,7 +15,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { DocumentVerification, StudentBiodata, Registration } from '@/types/pmb';
+import type {
+    DocumentVerification,
+    Registration,
+    StudentBiodata,
+} from '@/types/pmb';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
     AlertCircle,
@@ -33,9 +37,11 @@ interface StudentUser {
     id: number;
     name: string;
     email: string;
-    student_biodata: (StudentBiodata & {
-        verifications: DocumentVerification[];
-    }) | null;
+    student_biodata:
+        | (StudentBiodata & {
+              verifications: DocumentVerification[];
+          })
+        | null;
     registration: Registration | null;
 }
 
@@ -46,7 +52,9 @@ interface Props {
 const props = defineProps<Props>();
 const page = usePage();
 
-const flash = computed(() => page.props.flash as { success?: string; error?: string });
+const flash = computed(
+    () => page.props.flash as { success?: string; error?: string },
+);
 
 const processing = ref(false);
 const showRejectDialog = ref(false);
@@ -57,7 +65,12 @@ const activeDocId = ref<number | null>(null);
 const rejectNotes = ref('');
 
 // Track verification statuses for bulk verify
-const verificationStatuses = ref<Record<number, { status: 'approved' | 'rejected' | 'pending'; notes: string }>>({});
+const verificationStatuses = ref<
+    Record<
+        number,
+        { status: 'approved' | 'rejected' | 'pending'; notes: string }
+    >
+>({});
 
 // Initialize status from existing verifications
 const initializeStatuses = () => {
@@ -75,7 +88,10 @@ initializeStatuses();
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
     { title: 'Calon Mahasiswa', href: '/admin/students' },
-    { title: props.student.student_biodata?.name || props.student.name, href: `/admin/students/${props.student.id}` },
+    {
+        title: props.student.student_biodata?.name || props.student.name,
+        href: `/admin/students/${props.student.hashed_id}`,
+    },
     { title: 'Verifikasi Dokumen', href: '#' },
 ];
 
@@ -101,9 +117,24 @@ const getDocumentUrl = (type: string): string | null => {
 };
 
 const getStatusBadge = (status: string) => {
-    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string; class: string }> = {
-        pending: { variant: 'outline', label: 'Pending', class: 'text-yellow-600 border-yellow-300' },
-        approved: { variant: 'default', label: 'Disetujui', class: 'bg-green-600' },
+    const map: Record<
+        string,
+        {
+            variant: 'default' | 'secondary' | 'destructive' | 'outline';
+            label: string;
+            class: string;
+        }
+    > = {
+        pending: {
+            variant: 'outline',
+            label: 'Pending',
+            class: 'text-yellow-600 border-yellow-300',
+        },
+        approved: {
+            variant: 'default',
+            label: 'Disetujui',
+            class: 'bg-green-600',
+        },
         rejected: { variant: 'destructive', label: 'Ditolak', class: '' },
     };
     return map[status] || { variant: 'secondary', label: 'Unknown', class: '' };
@@ -165,16 +196,21 @@ const submitBulkVerify = () => {
             onFinish: () => {
                 processing.value = false;
             },
-        }
+        },
     );
 };
 
 const isPdf = (url: string) => {
-    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+    return (
+        url.toLowerCase().endsWith('.pdf') ||
+        url.startsWith('data:application/pdf')
+    );
 };
 
 const hasChanges = computed(() => {
-    return Object.values(verificationStatuses.value).some(v => v.status !== 'pending');
+    return Object.values(verificationStatuses.value).some(
+        (v) => v.status !== 'pending',
+    );
 });
 </script>
 
@@ -187,7 +223,9 @@ const hasChanges = computed(() => {
             <Alert v-if="flash?.success" class="border-green-500 bg-green-50">
                 <CheckCircle class="size-4 text-green-600" />
                 <AlertTitle class="text-green-800">Berhasil</AlertTitle>
-                <AlertDescription class="text-green-700">{{ flash.success }}</AlertDescription>
+                <AlertDescription class="text-green-700">{{
+                    flash.success
+                }}</AlertDescription>
             </Alert>
 
             <Alert v-if="flash?.error" variant="destructive">
@@ -200,14 +238,21 @@ const hasChanges = computed(() => {
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <Button variant="ghost" size="sm" as-child>
-                        <Link :href="`/admin/students/${props.student.id}`">
+                        <Link
+                            :href="`/admin/students/${props.student.hashed_id}`"
+                        >
                             <ArrowLeft class="mr-2 size-4" />
                             Kembali
                         </Link>
                     </Button>
                     <div>
                         <h1 class="text-2xl font-bold">Verifikasi Dokumen</h1>
-                        <p class="text-sm text-gray-500">{{ props.student.student_biodata?.name || props.student.name }}</p>
+                        <p class="text-sm text-gray-500">
+                            {{
+                                props.student.student_biodata?.name ||
+                                props.student.name
+                            }}
+                        </p>
                     </div>
                 </div>
                 <Button
@@ -222,18 +267,43 @@ const hasChanges = computed(() => {
 
             <!-- Documents Grid -->
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <Card v-for="verification in props.student.student_biodata?.verifications" :key="verification.id">
+                <Card
+                    v-for="verification in props.student.student_biodata
+                        ?.verifications"
+                    :key="verification.id"
+                >
                     <CardHeader class="pb-3">
                         <div class="flex items-center justify-between">
-                            <CardTitle class="flex items-center gap-2 text-base">
+                            <CardTitle
+                                class="flex items-center gap-2 text-base"
+                            >
                                 <FileImage class="size-4" />
-                                {{ documentLabels[verification.document_type] || verification.document_type }}
+                                {{
+                                    documentLabels[
+                                        verification.document_type
+                                    ] || verification.document_type
+                                }}
                             </CardTitle>
                             <Badge
-                                :variant="getStatusBadge(verificationStatuses[verification.id]?.status || verification.status).variant"
-                                :class="getStatusBadge(verificationStatuses[verification.id]?.status || verification.status).class"
+                                :variant="
+                                    getStatusBadge(
+                                        verificationStatuses[verification.id]
+                                            ?.status || verification.status,
+                                    ).variant
+                                "
+                                :class="
+                                    getStatusBadge(
+                                        verificationStatuses[verification.id]
+                                            ?.status || verification.status,
+                                    ).class
+                                "
                             >
-                                {{ getStatusBadge(verificationStatuses[verification.id]?.status || verification.status).label }}
+                                {{
+                                    getStatusBadge(
+                                        verificationStatuses[verification.id]
+                                            ?.status || verification.status,
+                                    ).label
+                                }}
                             </Badge>
                         </div>
                     </CardHeader>
@@ -243,69 +313,151 @@ const hasChanges = computed(() => {
                             v-if="verification.document_type === 'biodata'"
                             class="rounded-lg border bg-gray-50 p-4 text-sm"
                         >
-                             <div class="grid gap-3">
-                                 <div>
-                                     <span class="text-xs text-gray-500">Nama Lengkap</span>
-                                     <p class="font-medium">{{ props.student.student_biodata?.name }}</p>
-                                 </div>
-                                 <div class="grid grid-cols-2 gap-2">
-                                     <div>
-                                         <span class="text-xs text-gray-500">NIK</span>
-                                         <p class="font-medium font-mono">{{ props.student.student_biodata?.nik }}</p>
-                                     </div>
-                                     <div>
-                                         <span class="text-xs text-gray-500">NISN</span>
-                                         <p class="font-medium font-mono">{{ props.student.student_biodata?.nisn || '-' }}</p>
-                                     </div>
-                                 </div>
-                                 <div class="grid grid-cols-2 gap-2">
-                                     <div>
-                                         <span class="text-xs text-gray-500">Tempat, Tgl Lahir</span>
-                                         <p class="font-medium">{{ props.student.student_biodata?.birth_place }}, {{ formatDate(props.student.student_biodata?.birth_date) }}</p>
-                                     </div>
-                                     <div>
-                                         <span class="text-xs text-gray-500">Agama</span>
-                                         <p class="font-medium">{{ props.student.student_biodata?.religion }}</p>
-                                     </div>
-                                 </div>
-                                 <div>
-                                     <span class="text-xs text-gray-500">Asal Sekolah</span>
-                                     <p class="font-medium">{{ props.student.student_biodata?.school_origin }}</p>
-                                 </div>
-                             </div>
+                            <div class="grid gap-3">
+                                <div>
+                                    <span class="text-xs text-gray-500"
+                                        >Nama Lengkap</span
+                                    >
+                                    <p class="font-medium">
+                                        {{
+                                            props.student.student_biodata?.name
+                                        }}
+                                    </p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <span class="text-xs text-gray-500"
+                                            >NIK</span
+                                        >
+                                        <p class="font-mono font-medium">
+                                            {{
+                                                props.student.student_biodata
+                                                    ?.nik
+                                            }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500"
+                                            >NISN</span
+                                        >
+                                        <p class="font-mono font-medium">
+                                            {{
+                                                props.student.student_biodata
+                                                    ?.nisn || '-'
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <span class="text-xs text-gray-500"
+                                            >Tempat, Tgl Lahir</span
+                                        >
+                                        <p class="font-medium">
+                                            {{
+                                                props.student.student_biodata
+                                                    ?.birth_place
+                                            }},
+                                            {{
+                                                formatDate(
+                                                    props.student
+                                                        .student_biodata
+                                                        ?.birth_date,
+                                                )
+                                            }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500"
+                                            >Agama</span
+                                        >
+                                        <p class="font-medium">
+                                            {{
+                                                props.student.student_biodata
+                                                    ?.religion
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-500"
+                                        >Asal Sekolah</span
+                                    >
+                                    <p class="font-medium">
+                                        {{
+                                            props.student.student_biodata
+                                                ?.school_origin
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Document Preview -->
                         <div
-                            v-else-if="getDocumentUrl(verification.document_type)"
+                            v-else-if="
+                                getDocumentUrl(verification.document_type)
+                            "
                             class="relative aspect-video cursor-pointer overflow-hidden rounded-lg border bg-gray-100"
-                            @click="openPreview(getDocumentUrl(verification.document_type)!, documentLabels[verification.document_type])"
+                            @click="
+                                openPreview(
+                                    getDocumentUrl(verification.document_type)!,
+                                    documentLabels[verification.document_type],
+                                )
+                            "
                         >
-                            <div v-if="isPdf(getDocumentUrl(verification.document_type)!)" class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 transition hover:bg-gray-100">
+                            <div
+                                v-if="
+                                    isPdf(
+                                        getDocumentUrl(
+                                            verification.document_type,
+                                        )!,
+                                    )
+                                "
+                                class="flex size-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-500 transition hover:bg-gray-100"
+                            >
                                 <FileText class="size-12 text-red-500" />
-                                <span class="text-xs font-medium">Dokumen PDF</span>
+                                <span class="text-xs font-medium"
+                                    >Dokumen PDF</span
+                                >
                             </div>
                             <img
                                 v-else
-                                :src="getDocumentUrl(verification.document_type)!"
-                                :alt="documentLabels[verification.document_type]"
+                                :src="
+                                    getDocumentUrl(verification.document_type)!
+                                "
+                                :alt="
+                                    documentLabels[verification.document_type]
+                                "
                                 class="size-full object-cover transition hover:scale-105"
                             />
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                            <div
+                                class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100"
+                            >
                                 <Eye class="size-8 text-white" />
                             </div>
                         </div>
-                        <div v-else class="flex aspect-video items-center justify-center rounded-lg border bg-gray-50">
+                        <div
+                            v-else
+                            class="flex aspect-video items-center justify-center rounded-lg border bg-gray-50"
+                        >
                             <p class="text-sm text-gray-400">Tidak ada file</p>
                         </div>
 
                         <!-- Notes if rejected -->
                         <div
-                            v-if="verificationStatuses[verification.id]?.status === 'rejected' && verificationStatuses[verification.id]?.notes"
+                            v-if="
+                                verificationStatuses[verification.id]
+                                    ?.status === 'rejected' &&
+                                verificationStatuses[verification.id]?.notes
+                            "
                             class="rounded-md border border-red-200 bg-red-50 p-2"
                         >
                             <p class="text-xs text-red-600">
-                                <strong>Catatan:</strong> {{ verificationStatuses[verification.id].notes }}
+                                <strong>Catatan:</strong>
+                                {{
+                                    verificationStatuses[verification.id].notes
+                                }}
                             </p>
                         </div>
 
@@ -316,7 +468,10 @@ const hasChanges = computed(() => {
                                 variant="outline"
                                 class="flex-1 border-green-300 text-green-600 hover:bg-green-50"
                                 @click="setApproved(verification.id)"
-                                :disabled="verificationStatuses[verification.id]?.status === 'approved'"
+                                :disabled="
+                                    verificationStatuses[verification.id]
+                                        ?.status === 'approved'
+                                "
                             >
                                 <CheckCircle class="mr-1 size-4" />
                                 Setuju
@@ -339,18 +494,24 @@ const hasChanges = computed(() => {
             <Card v-if="!props.student.student_biodata?.verifications?.length">
                 <CardContent class="py-12 text-center">
                     <FileText class="mx-auto size-12 text-gray-300" />
-                    <p class="mt-4 text-gray-500">Belum ada dokumen yang perlu diverifikasi</p>
+                    <p class="mt-4 text-gray-500">
+                        Belum ada dokumen yang perlu diverifikasi
+                    </p>
                 </CardContent>
             </Card>
         </div>
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="min-w-[80vw] max-w-4xl h-[85vh] flex flex-col">
+            <DialogContent
+                class="flex h-[85vh] max-w-4xl min-w-[80vw] flex-col"
+            >
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>
-                <div class="flex-1 max-w-full overflow-hidden rounded-lg bg-gray-100 mt-2">
+                <div
+                    class="mt-2 max-w-full flex-1 overflow-hidden rounded-lg bg-gray-100"
+                >
                     <iframe
                         v-if="isPdf(previewImage)"
                         :src="previewImage"
@@ -387,8 +548,14 @@ const hasChanges = computed(() => {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" @click="showRejectDialog = false">Batal</Button>
-                    <Button variant="destructive" @click="confirmReject" :disabled="!rejectNotes">
+                    <Button variant="outline" @click="showRejectDialog = false"
+                        >Batal</Button
+                    >
+                    <Button
+                        variant="destructive"
+                        @click="confirmReject"
+                        :disabled="!rejectNotes"
+                    >
                         Tolak
                     </Button>
                 </DialogFooter>
