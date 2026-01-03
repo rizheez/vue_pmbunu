@@ -822,7 +822,7 @@ const heroTypedStrings = [
                 </div>
 
                 <!-- Kelas Karyawan Banner -->
-                <div
+                <!-- <div
                     class="mb-16 rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 p-8 text-white shadow-xl md:p-12"
                 >
                     <div
@@ -876,7 +876,7 @@ const heroTypedStrings = [
                             </Button>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div v-for="fak in props.fakultas" :key="fak.id" class="mb-12">
                     <h3
