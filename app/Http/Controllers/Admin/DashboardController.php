@@ -48,7 +48,6 @@ class DashboardController extends Controller
             ->with('programStudiChoice1')
             ->groupBy('choice_1')
             ->orderByDesc('total')
-            ->limit(5)
             ->get();
 
         // Pending verifications

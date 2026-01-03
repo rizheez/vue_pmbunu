@@ -9,9 +9,14 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Registration, RegistrationPeriod, ProgramStudi } from '@/types/pmb';
+import type {
+    ProgramStudi,
+    Registration,
+    RegistrationPeriod,
+} from '@/types/pmb';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
+    BookOpen,
     CheckCircle,
     Clock,
     FileCheck,
@@ -55,7 +60,11 @@ const props = defineProps<Props>();
 const breadcrumbs = [{ title: 'Admin Dashboard', href: '/admin/dashboard' }];
 
 const filterByPeriod = (periodId: number | string) => {
-    router.get('/admin/dashboard', { period_id: periodId }, { preserveState: true });
+    router.get(
+        '/admin/dashboard',
+        { period_id: periodId },
+        { preserveState: true },
+    );
 };
 
 const getStatusLabel = (status: string) => {
@@ -84,7 +93,11 @@ const getStatusLabel = (status: string) => {
                 <select
                     class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                     :value="props.selectedPeriod?.id || ''"
-                    @change="filterByPeriod(($event.target as HTMLSelectElement).value)"
+                    @change="
+                        filterByPeriod(
+                            ($event.target as HTMLSelectElement).value,
+                        )
+                    "
                 >
                     <option value="">Semua Periode</option>
                     <option
@@ -101,7 +114,9 @@ const getStatusLabel = (status: string) => {
             <!-- Stats Grid -->
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between pb-2">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
                         <CardTitle class="text-sm font-medium">
                             Total Pendaftar
                         </CardTitle>
@@ -112,14 +127,16 @@ const getStatusLabel = (status: string) => {
                             {{ props.totalStudents }}
                         </div>
                         <p class="text-xs text-muted-foreground">
-                            Hari ini: {{ props.todayRegistrations }} |
-                            Minggu ini: {{ props.weekRegistrations }}
+                            Hari ini: {{ props.todayRegistrations }} | Minggu
+                            ini: {{ props.weekRegistrations }}
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between pb-2">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
                         <CardTitle class="text-sm font-medium">
                             Menunggu Verifikasi
                         </CardTitle>
@@ -136,8 +153,12 @@ const getStatusLabel = (status: string) => {
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between pb-2">
-                        <CardTitle class="text-sm font-medium">Diterima</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Diterima</CardTitle
+                        >
                         <CheckCircle class="size-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
@@ -151,8 +172,12 @@ const getStatusLabel = (status: string) => {
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between pb-2">
-                        <CardTitle class="text-sm font-medium">Ditolak</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Ditolak</CardTitle
+                        >
                         <XCircle class="size-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
@@ -190,6 +215,12 @@ const getStatusLabel = (status: string) => {
                             Kelola Pengumuman
                         </Link>
                     </Button>
+                    <Button as-child variant="outline" class="flex-1">
+                        <Link href="/admin/dokumentasi">
+                            <BookOpen class="mr-2 size-4" />
+                            Dokumentasi / Panduan Admin
+                        </Link>
+                    </Button>
                 </CardContent>
             </Card>
 
@@ -203,7 +234,9 @@ const getStatusLabel = (status: string) => {
                 </CardHeader>
                 <CardContent>
                     <div class="grid gap-4 md:grid-cols-5">
-                        <div class="flex items-center gap-3 rounded-lg border p-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border p-4"
+                        >
                             <FileCheck class="size-8 text-gray-400" />
                             <div>
                                 <p class="text-2xl font-bold">
@@ -212,7 +245,9 @@ const getStatusLabel = (status: string) => {
                                 <p class="text-sm text-gray-500">Draft</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-lg border p-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border p-4"
+                        >
                             <Clock class="size-8 text-blue-500" />
                             <div>
                                 <p class="text-2xl font-bold">
@@ -221,16 +256,22 @@ const getStatusLabel = (status: string) => {
                                 <p class="text-sm text-gray-500">Terdaftar</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-lg border p-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border p-4"
+                        >
                             <FileCheck class="size-8 text-teal-500" />
                             <div>
                                 <p class="text-2xl font-bold">
                                     {{ props.statusStats.verified }}
                                 </p>
-                                <p class="text-sm text-gray-500">Terverifikasi</p>
+                                <p class="text-sm text-gray-500">
+                                    Terverifikasi
+                                </p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-lg border p-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border p-4"
+                        >
                             <CheckCircle class="size-8 text-green-500" />
                             <div>
                                 <p class="text-2xl font-bold">
@@ -239,7 +280,9 @@ const getStatusLabel = (status: string) => {
                                 <p class="text-sm text-gray-500">Diterima</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-lg border p-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border p-4"
+                        >
                             <FileX class="size-8 text-red-500" />
                             <div>
                                 <p class="text-2xl font-bold">
@@ -262,7 +305,10 @@ const getStatusLabel = (status: string) => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div v-if="props.programStats.length > 0" class="space-y-4">
+                        <div
+                            v-if="props.programStats.length > 0"
+                            class="space-y-4"
+                        >
                             <div
                                 v-for="(stat, index) in props.programStats"
                                 :key="stat.choice_1"

@@ -719,34 +719,11 @@ const breadcrumbs = [
                                             v-for="pa in props.paths"
                                             :key="pa.id"
                                             :value="String(pa.id)"
-                                            :disabled="
-                                                pa.name === 'Kelas Karyawan'
-                                            "
                                         >
                                             {{ pa.name }}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <p class="mt-1 text-xs text-muted-foreground">
-                                    Untuk pendaftaran Kelas Karyawan, silakan
-                                    kunjungi
-                                    <a
-                                        href="https://edunitas.com/kampus/unu-kaltim/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="text-blue-600 hover:text-blue-800 hover:underline"
-                                    >
-                                        edunitas.com
-                                    </a>
-                                    atau hubungi (WA)
-                                    <a
-                                        href="https://wa.me/6285216013229"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="text-blue-600 hover:text-blue-800 hover:underline"
-                                        >+62 852-1601-3229</a
-                                    >.
-                                </p>
                                 <p
                                     v-if="errors.path_id"
                                     class="text-sm text-red-500"
