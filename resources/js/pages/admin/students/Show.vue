@@ -2,12 +2,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -16,12 +11,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { formatDate } from '@/composables/useFormat';
 import { Label } from '@/components/ui/label';
+import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Registration, StudentBiodata, StudentParent, StudentSpecialNeed } from '@/types/pmb';
+import type { Registration, StudentBiodata } from '@/types/pmb';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
+    Accessibility,
     AlertCircle,
     CheckCircle,
     CreditCard,
@@ -34,7 +30,6 @@ import {
     User,
     Users,
     XCircle,
-    Accessibility,
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -76,7 +71,7 @@ interface StudentUser {
         name: string;
         phone: string;
         occupation: string;
-        income:string;
+        income: string;
         income_label: string;
         education: string;
         education_label: string;
@@ -93,7 +88,7 @@ const props = defineProps<Props>();
 const page = usePage();
 
 const flash = computed(
-    () => page.props.flash as { success?: string; error?: string }
+    () => page.props.flash as { success?: string; error?: string },
 );
 
 const showAcceptDialog = ref(false);
@@ -115,10 +110,15 @@ const openPreview = (url: string, title: string) => {
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
     { title: 'Calon Mahasiswa', href: '/admin/students' },
-    { title: props.student.student_biodata?.name || props.student.name, href: '#' },
+    {
+        title: props.student.student_biodata?.name || props.student.name,
+        href: '#',
+    },
 ];
 
-const canAcceptReject = computed(() => props.student.registration?.status === 'verified');
+const canAcceptReject = computed(
+    () => props.student.registration?.status === 'verified',
+);
 
 const accept = () => {
     if (!selectedProdi.value) return;
@@ -134,7 +134,7 @@ const accept = () => {
                 processing.value = false;
                 showAcceptDialog.value = false;
             },
-        }
+        },
     );
 };
 
@@ -149,28 +149,45 @@ const reject = () => {
                 processing.value = false;
                 showRejectDialog.value = false;
             },
-        }
+        },
     );
 };
 
 const getStatusBadge = (status: string | undefined) => {
-    const map: Record<string, { variant: 'default' | 'outline' | 'secondary' | 'destructive'; label: string }> = {
+    const map: Record<
+        string,
+        {
+            variant: 'default' | 'outline' | 'secondary' | 'destructive';
+            label: string;
+        }
+    > = {
         draft: { variant: 'secondary', label: 'Draft' },
-        submitted: { variant: 'secondary', label: 'Terdaftar (Menunggu hasil verifikasi)' },
+        submitted: {
+            variant: 'secondary',
+            label: 'Terdaftar (Menunggu hasil verifikasi)',
+        },
         verified: { variant: 'default', label: 'Terverifikasi' },
         accepted: { variant: 'default', label: 'Diterima' },
         rejected: { variant: 'destructive', label: 'Ditolak' },
-        re_registration_pending: { variant: 'secondary', label: 'Daftar Ulang Pending' },
-        re_registration_verified: { variant: 'default', label: 'Daftar Ulang Terverifikasi' },
+        re_registration_pending: {
+            variant: 'secondary',
+            label: 'Daftar Ulang Pending',
+        },
+        re_registration_verified: {
+            variant: 'default',
+            label: 'Daftar Ulang Terverifikasi',
+        },
         enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
-
     };
     return map[status || ''] || { variant: 'secondary', label: 'Unknown' };
 };
 
 const isPdf = (url: string | null) => {
     if (!url) return false;
-    return url.toLowerCase().endsWith('.pdf') || url.startsWith('data:application/pdf');
+    return (
+        url.toLowerCase().endsWith('.pdf') ||
+        url.startsWith('data:application/pdf')
+    );
 };
 </script>
 
@@ -197,11 +214,16 @@ const isPdf = (url: string | null) => {
             <!-- Action Buttons -->
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold">
-                    {{ props.student.student_biodata?.name || props.student.name }}
+                    {{
+                        props.student.student_biodata?.name ||
+                        props.student.name
+                    }}
                 </h1>
                 <div class="flex gap-2">
                     <Button variant="outline" as-child>
-                        <Link :href="`/admin/students/${props.student.id}/edit`">
+                        <Link
+                            :href="`/admin/students/${props.student.id}/edit`"
+                        >
                             <Pencil class="mr-2 size-4" />
                             Edit
                         </Link>
@@ -247,50 +269,89 @@ const isPdf = (url: string | null) => {
                             Informasi Pendaftaran
                         </CardTitle>
                     </CardHeader>
-                    <CardContent v-if="props.student.registration" class="space-y-4">
+                    <CardContent
+                        v-if="props.student.registration"
+                        class="space-y-4"
+                    >
                         <div class="grid gap-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">No. Pendaftaran</span>
+                                <span class="text-gray-500"
+                                    >No. Pendaftaran</span
+                                >
                                 <span class="font-mono font-medium">
-                                    {{ props.student.registration.registration_number }}
+                                    {{
+                                        props.student.registration
+                                            .registration_number
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Status</span>
                                 <Badge
                                     :variant="
-                                        getStatusBadge(props.student.registration.status).variant
+                                        getStatusBadge(
+                                            props.student.registration.status,
+                                        ).variant
                                     "
                                 >
-                                    {{ getStatusBadge(props.student.registration.status).label }}
+                                    {{
+                                        getStatusBadge(
+                                            props.student.registration.status,
+                                        ).label
+                                    }}
                                 </Badge>
                             </div>
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Jenis Pendaftaran</span>
+                                <span class="text-gray-500"
+                                    >Jenis Pendaftaran</span
+                                >
                                 <span class="font-medium">
-                                    {{ props.student.registration.registration_type?.name || '-' }}
+                                    {{
+                                        props.student.registration
+                                            .registration_type?.name || '-'
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Jalur</span>
                                 <span class="font-medium">
-                                    {{ props.student.registration.registration_path?.name || '-' }}
+                                    {{
+                                        props.student.registration
+                                            .registration_path?.name || '-'
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Periode</span>
                                 <span class="font-medium">
-                                    {{ props.student.registration.registration_period?.name || '-' }}
+                                    {{
+                                        props.student.registration
+                                            .registration_period?.name || '-'
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Sumber Informasi</span>
+                                <span class="text-gray-500"
+                                    >Sumber Informasi</span
+                                >
                                 <div class="text-right">
                                     <span class="block font-medium">
-                                        {{ props.student.registration.referral_source || '-' }}
+                                        {{
+                                            props.student.registration
+                                                .referral_source || '-'
+                                        }}
                                     </span>
-                                    <span v-if="props.student.registration.referral_detail" class="text-xs text-gray-500">
-                                        {{ props.student.registration.referral_detail }}
+                                    <span
+                                        v-if="
+                                            props.student.registration
+                                                .referral_detail
+                                        "
+                                        class="text-xs text-gray-500"
+                                    >
+                                        {{
+                                            props.student.registration
+                                                .referral_detail
+                                        }}
                                     </span>
                                 </div>
                             </div>
@@ -302,44 +363,98 @@ const isPdf = (url: string | null) => {
                             <div class="rounded-lg border p-3">
                                 <p class="text-sm">
                                     <strong>1.</strong>
-                                    {{ props.student.registration.program_studi_choice1?.name || '-' }}
-                                    <span v-if="props.student.registration.program_studi_choice1?.fakultas" class="text-gray-500">
-                                        ({{ props.student.registration.program_studi_choice1.fakultas.name }})
+                                    {{
+                                        props.student.registration
+                                            .program_studi_choice1?.name || '-'
+                                    }}
+                                    <span
+                                        v-if="
+                                            props.student.registration
+                                                .program_studi_choice1?.fakultas
+                                        "
+                                        class="text-gray-500"
+                                    >
+                                        ({{
+                                            props.student.registration
+                                                .program_studi_choice1.fakultas
+                                                .name
+                                        }})
                                     </span>
                                 </p>
-                                <p v-if="props.student.registration.program_studi_choice2" class="mt-1 text-sm">
+                                <p
+                                    v-if="
+                                        props.student.registration
+                                            .program_studi_choice2
+                                    "
+                                    class="mt-1 text-sm"
+                                >
                                     <strong>2.</strong>
-                                    {{ props.student.registration.program_studi_choice2?.name || '-' }}
-                                    <span v-if="props.student.registration.program_studi_choice2?.fakultas" class="text-gray-500">
-                                        ({{ props.student.registration.program_studi_choice2.fakultas.name }})
+                                    {{
+                                        props.student.registration
+                                            .program_studi_choice2?.name || '-'
+                                    }}
+                                    <span
+                                        v-if="
+                                            props.student.registration
+                                                .program_studi_choice2?.fakultas
+                                        "
+                                        class="text-gray-500"
+                                    >
+                                        ({{
+                                            props.student.registration
+                                                .program_studi_choice2.fakultas
+                                                .name
+                                        }})
                                     </span>
                                 </p>
-                                <p v-if="props.student.registration.program_studi_choice3" class="mt-1 text-sm">
+                                <p
+                                    v-if="
+                                        props.student.registration
+                                            .program_studi_choice3
+                                    "
+                                    class="mt-1 text-sm"
+                                >
                                     <strong>3.</strong>
-                                    {{ props.student.registration.program_studi_choice3?.name || '-' }}
+                                    {{
+                                        props.student.registration
+                                            .program_studi_choice3?.name || '-'
+                                    }}
                                 </p>
                             </div>
                         </div>
 
                         <!-- Accepted Info -->
                         <div
-                            v-if="props.student.registration.status === 'accepted'"
+                            v-if="
+                                props.student.registration.status === 'accepted'
+                            "
                             class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
                         >
-                            <p class="font-medium text-green-800">Diterima di:</p>
+                            <p class="font-medium text-green-800">
+                                Diterima di:
+                            </p>
                             <p class="text-lg font-bold text-green-900">
-                                {{ props.student.registration.accepted_program_studi?.name }}
+                                {{
+                                    props.student.registration
+                                        .accepted_program_studi?.name
+                                }}
                             </p>
                         </div>
 
                         <!-- Rejected Info -->
                         <div
-                            v-if="props.student.registration.status === 'rejected'"
+                            v-if="
+                                props.student.registration.status === 'rejected'
+                            "
                             class="mt-4 rounded-lg border border-red-200 bg-red-50 p-4"
                         >
-                            <p class="font-medium text-red-800">Alasan Penolakan:</p>
+                            <p class="font-medium text-red-800">
+                                Alasan Penolakan:
+                            </p>
                             <p class="text-red-900">
-                                {{ props.student.registration.rejection_reason }}
+                                {{
+                                    props.student.registration.rejection_reason
+                                }}
                             </p>
                         </div>
                     </CardContent>
@@ -359,61 +474,150 @@ const isPdf = (url: string | null) => {
                     <CardContent class="space-y-4">
                         <div class="grid gap-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Jumlah Pembayaran</span>
+                                <span class="text-gray-500"
+                                    >Jumlah Pembayaran</span
+                                >
                                 <span class="font-medium">
-                                    {{ props.student.reregistration_payment.formatted_amount }}
+                                    {{
+                                        props.student.reregistration_payment
+                                            .formatted_amount
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Status Pembayaran</span>
-                                <Badge
-                                    :variant="props.student.reregistration_payment.status === 'verified' ? 'default' :
-                                              props.student.reregistration_payment.status === 'rejected' ? 'destructive' : 'outline'"
+                                <span class="text-gray-500"
+                                    >Status Pembayaran</span
                                 >
-                                    {{ props.student.reregistration_payment.status === 'verified' ? 'Terverifikasi' :
-                                       props.student.reregistration_payment.status === 'rejected' ? 'Ditolak' : 'Pending' }}
+                                <Badge
+                                    :variant="
+                                        props.student.reregistration_payment
+                                            .status === 'verified'
+                                            ? 'default'
+                                            : props.student
+                                                    .reregistration_payment
+                                                    .status === 'rejected'
+                                              ? 'destructive'
+                                              : 'outline'
+                                    "
+                                >
+                                    {{
+                                        props.student.reregistration_payment
+                                            .status === 'verified'
+                                            ? 'Terverifikasi'
+                                            : props.student
+                                                    .reregistration_payment
+                                                    .status === 'rejected'
+                                              ? 'Ditolak'
+                                              : 'Pending'
+                                    }}
                                 </Badge>
                             </div>
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Tanggal Submit</span>
+                                <span class="text-gray-500"
+                                    >Tanggal Submit</span
+                                >
                                 <span class="font-medium">
-                                    {{ formatDate(props.student.reregistration_payment.created_at) }}
+                                    {{
+                                        formatDate(
+                                            props.student.reregistration_payment
+                                                .created_at,
+                                        )
+                                    }}
                                 </span>
                             </div>
-                            <div v-if="props.student.reregistration_payment.verified_at" class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Tanggal Verifikasi</span>
+                            <div
+                                v-if="
+                                    props.student.reregistration_payment
+                                        .verified_at
+                                "
+                                class="flex justify-between border-b pb-2"
+                            >
+                                <span class="text-gray-500"
+                                    >Tanggal Verifikasi</span
+                                >
                                 <span class="font-medium">
-                                    {{ formatDate(props.student.reregistration_payment.verified_at) }}
+                                    {{
+                                        formatDate(
+                                            props.student.reregistration_payment
+                                                .verified_at,
+                                        )
+                                    }}
                                 </span>
                             </div>
-                            <div v-if="props.student.reregistration_payment.verifier" class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Diverifikasi Oleh</span>
+                            <div
+                                v-if="
+                                    props.student.reregistration_payment
+                                        .verifier
+                                "
+                                class="flex justify-between border-b pb-2"
+                            >
+                                <span class="text-gray-500"
+                                    >Diverifikasi Oleh</span
+                                >
                                 <span class="font-medium">
-                                    {{ props.student.reregistration_payment.verifier.name }}
+                                    {{
+                                        props.student.reregistration_payment
+                                            .verifier.name
+                                    }}
                                 </span>
                             </div>
-                            <div v-if="props.student.reregistration_payment.notes" class="flex justify-between">
+                            <div
+                                v-if="
+                                    props.student.reregistration_payment.notes
+                                "
+                                class="flex justify-between"
+                            >
                                 <span class="text-gray-500">Catatan</span>
-                                <span class="font-medium text-right">
-                                    {{ props.student.reregistration_payment.notes }}
+                                <span class="text-right font-medium">
+                                    {{
+                                        props.student.reregistration_payment
+                                            .notes
+                                    }}
                                 </span>
                             </div>
                         </div>
 
                         <!-- Payment Proof Preview -->
-                        <div v-if="props.student.reregistration_payment.payment_proof_url" class="mt-4">
-                            <p class="mb-2 text-sm font-medium">Bukti Pembayaran</p>
+                        <div
+                            v-if="
+                                props.student.reregistration_payment
+                                    .payment_proof_url
+                            "
+                            class="mt-4"
+                        >
+                            <p class="mb-2 text-sm font-medium">
+                                Bukti Pembayaran
+                            </p>
                             <div
                                 class="relative cursor-pointer rounded-lg border p-2"
-                                @click="openPreview(props.student.reregistration_payment.payment_proof_url, 'Bukti Pembayaran')"
+                                @click="
+                                    openPreview(
+                                        props.student.reregistration_payment
+                                            .payment_proof_url,
+                                        'Bukti Pembayaran',
+                                    )
+                                "
                             >
-                                <div v-if="isPdf(props.student.reregistration_payment.payment_proof_url)" class="flex items-center gap-2 py-2">
+                                <div
+                                    v-if="
+                                        isPdf(
+                                            props.student.reregistration_payment
+                                                .payment_proof_url,
+                                        )
+                                    "
+                                    class="flex items-center gap-2 py-2"
+                                >
                                     <FileText class="size-6 text-red-500" />
-                                    <span class="text-sm">PDF Document - Klik untuk melihat</span>
+                                    <span class="text-sm"
+                                        >PDF Document - Klik untuk melihat</span
+                                    >
                                 </div>
                                 <img
                                     v-else
-                                    :src="props.student.reregistration_payment.payment_proof_url"
+                                    :src="
+                                        props.student.reregistration_payment
+                                            .payment_proof_url
+                                    "
                                     class="max-h-48 w-full rounded object-contain"
                                 />
                             </div>
@@ -429,7 +633,10 @@ const isPdf = (url: string | null) => {
                             Data Pribadi
                         </CardTitle>
                     </CardHeader>
-                    <CardContent v-if="props.student.student_biodata" class="space-y-4">
+                    <CardContent
+                        v-if="props.student.student_biodata"
+                        class="space-y-4"
+                    >
                         <div class="grid gap-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">NIK</span>
@@ -440,14 +647,26 @@ const isPdf = (url: string | null) => {
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">NISN</span>
                                 <span class="font-medium">
-                                    {{ props.student.student_biodata.nisn || '-' }}
+                                    {{
+                                        props.student.student_biodata.nisn ||
+                                        '-'
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">TTL</span>
                                 <span class="font-medium">
-                                    {{ props.student.student_biodata.birth_place }},
-                                    {{ formatDate(props.student.student_biodata.birth_date, {month: 'long'}) }}
+                                    {{
+                                        props.student.student_biodata
+                                            .birth_place
+                                    }},
+                                    {{
+                                        formatDate(
+                                            props.student.student_biodata
+                                                .birth_date,
+                                            { month: 'long' },
+                                        )
+                                    }}
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
@@ -471,7 +690,10 @@ const isPdf = (url: string | null) => {
                             <div class="flex justify-between">
                                 <span class="text-gray-500">Asal Sekolah</span>
                                 <span class="font-medium">
-                                    {{ props.student.student_biodata.school_origin }}
+                                    {{
+                                        props.student.student_biodata
+                                            .school_origin
+                                    }}
                                 </span>
                             </div>
                         </div>
@@ -482,7 +704,10 @@ const isPdf = (url: string | null) => {
                 </Card>
 
                 <!-- Address Info (Re-registration) -->
-                <Card v-if="props.student.student_biodata?.provinsi" class="lg:col-span-2">
+                <Card
+                    v-if="props.student.student_biodata?.provinsi"
+                    class="lg:col-span-2"
+                >
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <MapPin class="size-5" />
@@ -490,120 +715,253 @@ const isPdf = (url: string | null) => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent class="grid gap-6 md:grid-cols-2">
-                         <div class="space-y-4">
-                            <h4 class="font-medium text-gray-900">Alamat Domisili</h4>
+                        <div class="space-y-4">
+                            <h4 class="font-medium text-gray-900">
+                                Alamat Domisili
+                            </h4>
                             <div class="grid gap-3 text-sm">
                                 <div class="flex justify-between border-b pb-2">
                                     <span class="text-gray-500">Provinsi</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.provinsi }}</span>
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.provinsi
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Kabupaten/Kota</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.kabupaten }}</span>
+                                    <span class="text-gray-500"
+                                        >Kabupaten/Kota</span
+                                    >
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.kabupaten
+                                    }}</span>
                                 </div>
-                                 <div class="flex justify-between border-b pb-2">
+                                <div class="flex justify-between border-b pb-2">
                                     <span class="text-gray-500">Kecamatan</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.kecamatan }}</span>
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.kecamatan
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Kelurahan/Desa</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.kelurahan }}</span>
+                                    <span class="text-gray-500"
+                                        >Kelurahan/Desa</span
+                                    >
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.kelurahan
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Dusun/Jalan</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.dusun || '-' }}</span>
+                                    <span class="text-gray-500"
+                                        >Dusun/Jalan</span
+                                    >
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.dusun ||
+                                        '-'
+                                    }}</span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-2 border-b pb-2">
+                                <div
+                                    class="grid grid-cols-3 gap-2 border-b pb-2"
+                                >
                                     <div>
-                                        <span class="text-gray-500 block text-xs">RT</span>
-                                        <span class="font-medium">{{ props.student.student_biodata.rt || '-' }}</span>
+                                        <span
+                                            class="block text-xs text-gray-500"
+                                            >RT</span
+                                        >
+                                        <span class="font-medium">{{
+                                            props.student.student_biodata.rt ||
+                                            '-'
+                                        }}</span>
                                     </div>
                                     <div>
-                                         <span class="text-gray-500 block text-xs">RW</span>
-                                        <span class="font-medium">{{ props.student.student_biodata.rw || '-' }}</span>
+                                        <span
+                                            class="block text-xs text-gray-500"
+                                            >RW</span
+                                        >
+                                        <span class="font-medium">{{
+                                            props.student.student_biodata.rw ||
+                                            '-'
+                                        }}</span>
                                     </div>
-                                     <div>
-                                         <span class="text-gray-500 block text-xs">Kode Pos</span>
-                                        <span class="font-medium">{{ props.student.student_biodata.kode_pos || '-' }}</span>
+                                    <div>
+                                        <span
+                                            class="block text-xs text-gray-500"
+                                            >Kode Pos</span
+                                        >
+                                        <span class="font-medium">{{
+                                            props.student.student_biodata
+                                                .kode_pos || '-'
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-4">
-                             <h4 class="font-medium text-gray-900">Kontak & Lainnya</h4>
-                             <div class="grid gap-3 text-sm">
+                            <h4 class="font-medium text-gray-900">
+                                Kontak & Lainnya
+                            </h4>
+                            <div class="grid gap-3 text-sm">
                                 <div class="flex justify-between border-b pb-2">
                                     <span class="text-gray-500">No. HP</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.phone }}</span>
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.phone
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Email Utama</span>
-                                    <span class="font-medium">{{ props.student.email }}</span>
+                                    <span class="text-gray-500"
+                                        >Email Utama</span
+                                    >
+                                    <span class="font-medium">{{
+                                        props.student.email
+                                    }}</span>
                                 </div>
-                                 <div class="flex justify-between border-b pb-2">
+                                <div class="flex justify-between border-b pb-2">
                                     <span class="text-gray-500">NPWP</span>
-                                    <span class="font-medium">{{ props.student.student_biodata.npwp || '-' }}</span>
+                                    <span class="font-medium">{{
+                                        props.student.student_biodata.npwp ||
+                                        '-'
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Jenis Tinggal</span>
-                                    <span class="font-medium capitalize">{{ props.student.student_biodata.residence_type?.replace(/_/g, ' ') || '-' }}</span>
+                                    <span class="text-gray-500"
+                                        >Jenis Tinggal</span
+                                    >
+                                    <span class="font-medium capitalize">{{
+                                        props.student.student_biodata.residence_type?.replace(
+                                            /_/g,
+                                            ' ',
+                                        ) || '-'
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Transportasi</span>
-                                    <span class="font-medium capitalize">{{ props.student.student_biodata.transportation?.replace(/_/g, ' ') || '-' }}</span>
+                                    <span class="text-gray-500"
+                                        >Transportasi</span
+                                    >
+                                    <span class="font-medium capitalize">{{
+                                        props.student.student_biodata.transportation?.replace(
+                                            /_/g,
+                                            ' ',
+                                        ) || '-'
+                                    }}</span>
                                 </div>
-                                 <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">Penerima KPS</span>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-500"
+                                        >Penerima KPS</span
+                                    >
                                     <span class="font-medium">
-                                        {{ props.student.student_biodata.kps_recipient ? 'Ya' : 'Tidak' }}
-                                        <span v-if="props.student.student_biodata.kps_recipient" class="text-gray-500 text-xs block">
-                                            No: {{ props.student.student_biodata.kps_number }}
+                                        {{
+                                            props.student.student_biodata
+                                                .kps_recipient
+                                                ? 'Ya'
+                                                : 'Tidak'
+                                        }}
+                                        <span
+                                            v-if="
+                                                props.student.student_biodata
+                                                    .kps_recipient
+                                            "
+                                            class="block text-xs text-gray-500"
+                                        >
+                                            No:
+                                            {{
+                                                props.student.student_biodata
+                                                    .kps_number
+                                            }}
                                         </span>
                                     </span>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <!-- Parents Info -->
-                <Card v-if="props.student.student_biodata?.parents?.length" class="lg:col-span-2">
-                     <CardHeader>
+                <Card
+                    v-if="props.student.student_biodata?.parents?.length"
+                    class="lg:col-span-2"
+                >
+                    <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <Users class="size-5" />
                             Data Orang Tua / Wali
                         </CardTitle>
                     </CardHeader>
-                    <CardContent class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        <div v-for="parent in props.student.student_biodata.parents" :key="parent.id" class="rounded-lg border p-4">
-                            <h4 class="font-bold text-gray-900 border-b pb-2 mb-3 capitalize flex items-center gap-2">
+                    <CardContent
+                        class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            v-for="parent in props.student.student_biodata
+                                .parents"
+                            :key="parent.id"
+                            class="rounded-lg border p-4"
+                        >
+                            <h4
+                                class="mb-3 flex items-center gap-2 border-b pb-2 font-bold text-gray-900 capitalize"
+                            >
                                 {{ parent.type_label }}
-                                <span v-if="!parent.is_alive" class="text-xs font-normal text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Alm.</span>
+                                <span
+                                    v-if="!parent.is_alive"
+                                    class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-normal text-red-600"
+                                    >Alm.</span
+                                >
                             </h4>
                             <div class="grid gap-2 text-sm">
                                 <div class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">Nama</span>
-                                    <span class="font-medium col-span-2">{{ parent.name }}</span>
+                                    <span class="col-span-1 text-gray-500"
+                                        >Nama</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.name
+                                    }}</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">NIK</span>
-                                    <span class="font-medium col-span-2">{{ parent.nik }}</span>
+                                    <span class="col-span-1 text-gray-500"
+                                        >NIK</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.nik
+                                    }}</span>
                                 </div>
-                                <div v-if="parent.phone" class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">HP</span>
-                                    <span class="font-medium col-span-2">{{ parent.phone }}</span>
+                                <div
+                                    v-if="parent.phone"
+                                    class="grid grid-cols-3 gap-2"
+                                >
+                                    <span class="col-span-1 text-gray-500"
+                                        >HP</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.phone
+                                    }}</span>
                                 </div>
-                                 <div v-if="parent.education" class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">Pendidikan</span>
-                                    <span class="font-medium col-span-2">{{ parent.education_label }}</span>
+                                <div
+                                    v-if="parent.education"
+                                    class="grid grid-cols-3 gap-2"
+                                >
+                                    <span class="col-span-1 text-gray-500"
+                                        >Pendidikan</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.education_label
+                                    }}</span>
                                 </div>
-                                <div v-if="parent.occupation" class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">Pekerjaan</span>
-                                    <span class="font-medium col-span-2">{{ parent.occupation }}</span>
+                                <div
+                                    v-if="parent.occupation"
+                                    class="grid grid-cols-3 gap-2"
+                                >
+                                    <span class="col-span-1 text-gray-500"
+                                        >Pekerjaan</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.occupation
+                                    }}</span>
                                 </div>
-                                <div v-if="parent.income" class="grid grid-cols-3 gap-2">
-                                    <span class="text-gray-500 col-span-1">Penghasilan</span>
-                                    <span class="font-medium col-span-2">{{ parent.income_label }}</span>
+                                <div
+                                    v-if="parent.income"
+                                    class="grid grid-cols-3 gap-2"
+                                >
+                                    <span class="col-span-1 text-gray-500"
+                                        >Penghasilan</span
+                                    >
+                                    <span class="col-span-2 font-medium">{{
+                                        parent.income_label
+                                    }}</span>
                                 </div>
                             </div>
                         </div>
@@ -611,26 +969,48 @@ const isPdf = (url: string | null) => {
                 </Card>
 
                 <!-- Special Needs -->
-                <Card v-if="props.student.student_biodata?.special_needs?.length && props.student.student_biodata.special_needs[0].type !== 'tidak_ada'" class="lg:col-span-2">
-                     <CardHeader>
+                <Card
+                    v-if="
+                        props.student.student_biodata?.special_needs?.length &&
+                        props.student.student_biodata.special_needs[0].type !==
+                            'tidak_ada'
+                    "
+                    class="lg:col-span-2"
+                >
+                    <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <Accessibility class="size-5" />
                             Kebutuhan Khusus
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                         <div v-for="need in props.student.student_biodata.special_needs" :key="need.id" class="grid gap-4 md:grid-cols-3 text-sm">
+                        <div
+                            v-for="need in props.student.student_biodata
+                                .special_needs"
+                            :key="need.id"
+                            class="grid gap-4 text-sm md:grid-cols-3"
+                        >
                             <div class="space-y-1">
-                                <span class="text-gray-500">Jenis Kebutuhan</span>
-                                <p class="font-medium capitalize">{{ need.type.replace(/_/g, ' ') }}</p>
+                                <span class="text-gray-500"
+                                    >Jenis Kebutuhan</span
+                                >
+                                <p class="font-medium capitalize">
+                                    {{ need.type.replace(/_/g, ' ') }}
+                                </p>
                             </div>
-                             <div class="space-y-1">
+                            <div class="space-y-1">
                                 <span class="text-gray-500">Deskripsi</span>
-                                <p class="font-medium">{{ need.description || '-' }}</p>
+                                <p class="font-medium">
+                                    {{ need.description || '-' }}
+                                </p>
                             </div>
-                             <div class="space-y-1">
-                                <span class="text-gray-500">Bantuan yang dibutuhkan</span>
-                                <p class="font-medium">{{ need.assistance_needed || '-' }}</p>
+                            <div class="space-y-1">
+                                <span class="text-gray-500"
+                                    >Bantuan yang dibutuhkan</span
+                                >
+                                <p class="font-medium">
+                                    {{ need.assistance_needed || '-' }}
+                                </p>
                             </div>
                         </div>
                     </CardContent>
@@ -644,8 +1024,15 @@ const isPdf = (url: string | null) => {
                                 <FileText class="size-5" />
                                 Dokumen
                             </CardTitle>
-                            <Button variant="outline" size="sm" as-child>
-                                <a :href="`/admin/students/${props.student.id}/documents`">
+                            <Button
+                                variant="outline"
+                                class="border-1 border-teal-500"
+                                size="sm"
+                                as-child
+                            >
+                                <a
+                                    :href="`/admin/students/${props.student.id}/documents`"
+                                >
                                     Verifikasi Dokumen
                                 </a>
                             </Button>
@@ -656,85 +1043,171 @@ const isPdf = (url: string | null) => {
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">Pas Foto</p>
                                 <div
-                                    v-if="props.student.student_biodata.photo_url"
+                                    v-if="
+                                        props.student.student_biodata.photo_url
+                                    "
                                     class="relative cursor-pointer"
-                                    @click="openPreview(props.student.student_biodata.photo_url, 'Pas Foto')"
+                                    @click="
+                                        openPreview(
+                                            props.student.student_biodata
+                                                .photo_url,
+                                            'Pas Foto',
+                                        )
+                                    "
                                 >
                                     <img
-                                        :src="props.student.student_biodata.photo_url"
+                                        :src="
+                                            props.student.student_biodata
+                                                .photo_url
+                                        "
                                         class="aspect-square rounded-lg object-cover"
                                     />
-                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100"
+                                    >
                                         <Eye class="size-6 text-white" />
                                     </div>
                                 </div>
-                                <p v-else class="text-sm text-gray-400">Belum upload</p>
+                                <p v-else class="text-sm text-gray-400">
+                                    Belum upload
+                                </p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KTP</p>
                                 <div
                                     v-if="props.student.student_biodata.ktp_url"
                                     class="relative cursor-pointer"
-                                    @click="openPreview(props.student.student_biodata.ktp_url, 'KTP')"
+                                    @click="
+                                        openPreview(
+                                            props.student.student_biodata
+                                                .ktp_url,
+                                            'KTP',
+                                        )
+                                    "
                                 >
-                                    <div v-if="isPdf(props.student.student_biodata.ktp_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                    <div
+                                        v-if="
+                                            isPdf(
+                                                props.student.student_biodata
+                                                    .ktp_url,
+                                            )
+                                        "
+                                        class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100"
+                                    >
                                         <FileText class="size-8 text-red-500" />
-                                        <span class="text-xs">PDF Document</span>
+                                        <span class="text-xs"
+                                            >PDF Document</span
+                                        >
                                     </div>
                                     <img
                                         v-else
-                                        :src="props.student.student_biodata.ktp_url"
+                                        :src="
+                                            props.student.student_biodata
+                                                .ktp_url
+                                        "
                                         class="aspect-video rounded-lg object-cover"
                                     />
-                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100"
+                                    >
                                         <Eye class="size-6 text-white" />
                                     </div>
                                 </div>
-                                <p v-else class="text-sm text-gray-400">Belum upload</p>
+                                <p v-else class="text-sm text-gray-400">
+                                    Belum upload
+                                </p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">KK</p>
                                 <div
                                     v-if="props.student.student_biodata.kk_url"
                                     class="relative cursor-pointer"
-                                    @click="openPreview(props.student.student_biodata.kk_url, 'Kartu Keluarga')"
+                                    @click="
+                                        openPreview(
+                                            props.student.student_biodata
+                                                .kk_url,
+                                            'Kartu Keluarga',
+                                        )
+                                    "
                                 >
-                                    <div v-if="isPdf(props.student.student_biodata.kk_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                    <div
+                                        v-if="
+                                            isPdf(
+                                                props.student.student_biodata
+                                                    .kk_url,
+                                            )
+                                        "
+                                        class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100"
+                                    >
                                         <FileText class="size-8 text-red-500" />
-                                        <span class="text-xs">PDF Document</span>
+                                        <span class="text-xs"
+                                            >PDF Document</span
+                                        >
                                     </div>
                                     <img
                                         v-else
-                                        :src="props.student.student_biodata.kk_url"
+                                        :src="
+                                            props.student.student_biodata.kk_url
+                                        "
                                         class="aspect-video rounded-lg object-cover"
                                     />
-                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100"
+                                    >
                                         <Eye class="size-6 text-white" />
                                     </div>
                                 </div>
-                                <p v-else class="text-sm text-gray-400">Belum upload</p>
+                                <p v-else class="text-sm text-gray-400">
+                                    Belum upload
+                                </p>
                             </div>
                             <div class="rounded-lg border p-3">
                                 <p class="mb-2 text-sm font-medium">Ijazah</p>
                                 <div
-                                    v-if="props.student.student_biodata.certificate_url"
+                                    v-if="
+                                        props.student.student_biodata
+                                            .certificate_url
+                                    "
                                     class="relative cursor-pointer"
-                                    @click="openPreview(props.student.student_biodata.certificate_url, 'Ijazah')"
+                                    @click="
+                                        openPreview(
+                                            props.student.student_biodata
+                                                .certificate_url,
+                                            'Ijazah',
+                                        )
+                                    "
                                 >
-                                    <div v-if="isPdf(props.student.student_biodata.certificate_url)" class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100">
+                                    <div
+                                        v-if="
+                                            isPdf(
+                                                props.student.student_biodata
+                                                    .certificate_url,
+                                            )
+                                        "
+                                        class="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100"
+                                    >
                                         <FileText class="size-8 text-red-500" />
-                                        <span class="text-xs">PDF Document</span>
+                                        <span class="text-xs"
+                                            >PDF Document</span
+                                        >
                                     </div>
                                     <img
                                         v-else
-                                        :src="props.student.student_biodata.certificate_url"
+                                        :src="
+                                            props.student.student_biodata
+                                                .certificate_url
+                                        "
                                         class="aspect-video rounded-lg object-cover"
                                     />
-                                    <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100">
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition hover:opacity-100"
+                                    >
                                         <Eye class="size-6 text-white" />
                                     </div>
                                 </div>
-                                <p v-else class="text-sm text-gray-400">Belum upload</p>
+                                <p v-else class="text-sm text-gray-400">
+                                    Belum upload
+                                </p>
                             </div>
                         </div>
                     </CardContent>
@@ -764,7 +1237,10 @@ const isPdf = (url: string | null) => {
                                     :value="props.student.registration.choice_1"
                                     v-model="selectedProdi"
                                 />
-                                {{ props.student.registration.program_studi_choice1?.name }}
+                                {{
+                                    props.student.registration
+                                        .program_studi_choice1?.name
+                                }}
                             </label>
                             <label
                                 v-if="props.student.registration?.choice_2"
@@ -775,7 +1251,10 @@ const isPdf = (url: string | null) => {
                                     :value="props.student.registration.choice_2"
                                     v-model="selectedProdi"
                                 />
-                                {{ props.student.registration.program_studi_choice2?.name }}
+                                {{
+                                    props.student.registration
+                                        .program_studi_choice2?.name
+                                }}
                             </label>
                         </div>
                     </div>
@@ -840,22 +1319,26 @@ const isPdf = (url: string | null) => {
 
         <!-- Preview Dialog -->
         <Dialog v-model:open="showPreviewDialog">
-            <DialogContent class="min-w-[80vw] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col p-4">
+            <DialogContent
+                class="flex h-[80vh] max-w-4xl min-w-[80vw] flex-col p-4 sm:h-[85vh]"
+            >
                 <DialogHeader>
                     <DialogTitle>{{ previewTitle }}</DialogTitle>
                 </DialogHeader>
-                <div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100 mt-2">
+                <div
+                    class="mt-2 min-h-0 flex-1 overflow-auto rounded-lg bg-gray-100"
+                >
                     <iframe
                         v-if="isPdf(previewImage)"
                         :src="previewImage"
-                        class="w-full h-full min-h-[60vh]"
+                        class="h-full min-h-[60vh] w-full"
                         frameborder="0"
                     ></iframe>
                     <img
                         v-else
                         :src="previewImage"
                         :alt="previewTitle"
-                        class="w-full h-auto max-h-full object-contain"
+                        class="h-auto max-h-full w-full object-contain"
                     />
                 </div>
             </DialogContent>
