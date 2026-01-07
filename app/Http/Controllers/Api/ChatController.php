@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatLog;
 use App\Services\ChatService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
@@ -55,10 +57,25 @@ PROMPT;
             'history.*.content' => ['required_with:history', 'string'],
         ]);
 
+        $startTime = microtime(true);
+
         $result = $this->chatService->chat(
             message: $request->input('message'),
             history: $request->input('history', []),
             systemPrompt: self::SYSTEM_PROMPT,
+        );
+
+        $responseTimeMs = (int) ((microtime(true) - $startTime) * 1000);
+
+        // Log the chat interaction
+        $this->logChat(
+            $request,
+            $request->input('message'),
+            $result['message'],
+            $result['provider'] ?? 'openrouter',
+            $result['success'],
+            $responseTimeMs,
+            $result['error'] ?? null
         );
 
         if ($result['success']) {
@@ -73,12 +90,46 @@ PROMPT;
             'message' => $result['message'],
         ], 500);
     }
+
+    /**
+     * Log chat interaction to database
+     */
+    private function logChat(
+        Request $request,
+        string $userInput,
+        string $aiResponse,
+        string $provider,
+        bool $isSuccessful,
+        int $responseTimeMs,
+        ?string $errorMessage = null
+    ): void {
+        try {
+            ChatLog::create([
+                'user_id' => Auth::id(),
+                'user_input' => $userInput,
+                'ai_response' => $aiResponse,
+                'provider' => $provider,
+                'session_id' => $request->session()->getId(),
+                'ip_address' => $request->ip(),
+                'response_time_ms' => $responseTimeMs,
+                'is_successful' => $isSuccessful,
+                'error_message' => $errorMessage,
+            ]);
+        } catch (\Exception $e) {
+            // Log error but don't break the chat response
+            \Illuminate\Support\Facades\Log::error('Failed to log chat interaction', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     /**
      * Return all chatbot training data.
      */
     public function trainingData(): \Illuminate\Http\JsonResponse
     {
         $data = $this->chatService->getAllTrainingData();
+
         return response()->json([
             'success' => true,
             'data' => $data,

@@ -181,6 +181,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // Payment Settings
     Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('payment-settings.index');
     Route::post('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('payment-settings.update');
+
+    // Chat Logs
+    Route::get('/chat-logs', [\App\Http\Controllers\Admin\ChatLogController::class, 'index'])->name('chat-logs.index');
+    Route::delete('/chat-logs/{chatLog}', [\App\Http\Controllers\Admin\ChatLogController::class, 'destroy'])->name('chat-logs.destroy');
+    Route::delete('/chat-logs', [\App\Http\Controllers\Admin\ChatLogController::class, 'destroyAll'])->name('chat-logs.destroy-all');
 });
 
 // Chat API

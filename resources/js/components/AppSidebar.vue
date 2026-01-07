@@ -24,6 +24,7 @@ import {
     GraduationCap,
     Home,
     LayoutGrid,
+    MessageSquare,
     Route,
     Settings,
     Sparkles,
@@ -61,7 +62,12 @@ const studentNavItems = computed<NavItem[]>(() => {
     ];
 
     // Only show Daftar Ulang if registration is accepted
-    if (!['submitted', 'rejected', 'draft', 'verified'].includes(user.value?.registration_status) && user.value?.registration_status !== null) {
+    if (
+        !['submitted', 'rejected', 'draft', 'verified'].includes(
+            user.value?.registration_status,
+        ) &&
+        user.value?.registration_status !== null
+    ) {
         items.push({
             title: 'Daftar Ulang',
             href: '/student/reregistration',
@@ -142,7 +148,7 @@ const adminAkademik: NavItem[] = [
 ];
 
 const adminPengaturan: NavItem[] = [
-     {
+    {
         title: 'Periode Pendaftaran',
         href: '/admin/periods',
         icon: CalendarDays,
@@ -182,6 +188,11 @@ const adminSistem: NavItem[] = [
         title: 'Manajemen Pengguna',
         href: '/admin/users',
         icon: Settings,
+    },
+    {
+        title: 'Log Chat AI',
+        href: '/admin/chat-logs',
+        icon: MessageSquare,
     },
     {
         title: 'Dokumentasi',
