@@ -120,7 +120,7 @@ class GenerateChatContext extends Command
         $biayaInfo .= "3. BIAYA UKT (Uang Kuliah Tunggal) PER SEMESTER:\n";
         $biayaInfo .= "   - Reguler Non-Farmasi: Rp 5.000.000\n";
         $biayaInfo .= "   - Reguler Farmasi: Rp 7.000.000\n";
-        $biayaInfo .= "   - Kelas Karyawan: Kunjungi https://edunitas.com/kampus/unu-kaltim untuk simulasi cicilan.\n";
+        $biayaInfo .= "   - Kelas Karyawan: Hubungi Panitia PMB untuk informasi lebih lanjut\n";
 
         // Website Features Info
         $websiteInfo = "FITUR WEBSITE PMB:\n";
@@ -149,6 +149,6 @@ class GenerateChatContext extends Command
         // Clear cached context so next request gets fresh data
         \Illuminate\Support\Facades\Cache::forget('chat_context');
 
-        $this->info('Chat context generated successfully at '.storage_path('app/chat_context.txt'));
+        $this->info('Chat context generated successfully at ' . storage_path('app/chat_context.txt'));
     }
 }
