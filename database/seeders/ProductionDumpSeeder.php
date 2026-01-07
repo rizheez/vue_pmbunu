@@ -86,6 +86,12 @@ class ProductionDumpSeeder extends Seeder
                     continue;
                 }
 
+                // Convert INSERT INTO to INSERT IGNORE INTO for tables that may have existing data
+                // This prevents duplicate entry errors
+                if (str_starts_with($upper, 'INSERT INTO')) {
+                    $statement = preg_replace('/^INSERT INTO/i', 'INSERT IGNORE INTO', $statement);
+                }
+
                 // Modifikasi statement untuk registrations tabel
                 if (str_contains($upper, 'INSERT INTO `REGISTRATIONS`') || str_contains($upper, 'INSERT INTO REGISTRATIONS')) {
                     // 1. Remove `registration_path` from column list
@@ -114,7 +120,7 @@ class ProductionDumpSeeder extends Seeder
                         $this->command->info("Executed {$count} statements...");
                     }
                 } catch (\Exception $e) {
-                    $this->command->warn('Error executing statement (length: '.strlen($statement).'): '.substr($statement, 0, 50).'...');
+                    $this->command->warn('Error executing statement (length: ' . strlen($statement) . '): ' . substr($statement, 0, 50) . '...');
                     $this->command->error($e->getMessage());
                 }
 
