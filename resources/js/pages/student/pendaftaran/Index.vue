@@ -349,13 +349,18 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                                         :placeholder="
                                             form.referral_source ===
-                                                'Lainnya' ||
-                                            form.referral_source ===
-                                                'Dosen/Panitia PMB UNU Kaltim'
-                                                ? 'Sebutkan Nama yang Merekomendasikan Anda. Contoh Gilang Suhendra, S.Pd'
-                                                : 'Sebutkan Nama Sekolah/Guru. Contoh: Ahmad Galih, S.Pd (SMA Negeri 1 Kaltim)'
+                                            'Dosen/Panitia PMB UNU Kaltim'
+                                                ? 'Dr. Ahmad Zulkifi, M.Pd (081234567890)'
+                                                : form.referral_source ===
+                                                    'Sekolah/Guru'
+                                                  ? 'Ahmad Galih, S.Pd - SMA Negeri 1 Kaltim (081234567890)'
+                                                  : 'Sebutkan sumber informasi lainnya'
                                         "
                                     />
+                                    <p class="text-xs text-muted-foreground">
+                                        Cantumkan nama lengkap dan nomor telepon
+                                        yang dapat dihubungi
+                                    </p>
                                 </div>
                             </div>
 

@@ -106,7 +106,11 @@ watch(
     (val) => {
         if (val === 'Dosen/Panitia PMB UNU Kaltim') {
             showReferralDetail.value = true;
-            referralDetailLabel.value = 'Nama Dosen/Panitia PMB';
+            referralDetailLabel.value =
+                'Nama Dosen/Panitia PMB (sertakan No. HP)';
+        } else if (val === 'Sekolah/Guru') {
+            showReferralDetail.value = true;
+            referralDetailLabel.value = 'Nama Sekolah/Guru (sertakan No. HP)';
         } else if (val === 'Lainnya') {
             showReferralDetail.value = true;
             referralDetailLabel.value = 'Sebutkan sumber informasi lainnya';
@@ -851,10 +855,17 @@ const breadcrumbs = [
                                     :placeholder="
                                         form.referral_source ===
                                         'Dosen/Panitia PMB UNU Kaltim'
-                                            ? 'Contoh: Dr. Ahmad Fauzi, M.Pd'
-                                            : 'Contoh: Radio, Iklan Google, dll'
+                                            ? 'Dr. Ahmad Zulkifi, M.Pd (081234567890)'
+                                            : form.referral_source ===
+                                                'Sekolah/Guru'
+                                              ? 'Ahmad Galih, S.Pd - SMA Negeri 1 Kaltim (081234567890)'
+                                              : 'Sebutkan sumber informasi lainnya'
                                     "
                                 />
+                                <p class="text-xs text-muted-foreground">
+                                    Cantumkan nama lengkap dan nomor telepon
+                                    yang dapat dihubungi
+                                </p>
                             </div>
                         </div>
                     </CardContent>
