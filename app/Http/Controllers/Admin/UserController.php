@@ -66,7 +66,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,'.$id,
             'phone' => 'nullable|string|max:20',
             'role' => 'required|in:admin,staff,student',
             'password' => ['nullable', 'confirmed', Password::defaults()],
@@ -91,10 +91,17 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri.');
         }
 
-        // For student users, only allow deletion if they have no biodata
+        // For student users, cascade delete biodata and registration
         if ($user->role === 'student') {
-            if ($user->studentBiodata()->exists()) {
-                return redirect()->back()->with('error', 'User student yang sudah memiliki biodata tidak dapat dihapus.');
+            // Delete document verifications first (if any)
+            if ($user->studentBiodata) {
+                $user->studentBiodata->verifications()->delete();
+                $user->studentBiodata->delete();
+            }
+
+            // Delete registration
+            if ($user->registration) {
+                $user->registration->delete();
             }
         }
 
