@@ -35,6 +35,7 @@ import { computed, ref } from 'vue';
 
 interface StudentUser {
     id: number;
+    hashed_id: string;
     name: string;
     email: string;
     student_biodata:
@@ -190,7 +191,7 @@ const submitBulkVerify = () => {
 
     processing.value = true;
     router.post(
-        `/admin/students/${props.student.id}/documents/bulk-verify`,
+        `/admin/students/${props.student.hashed_id}/documents/bulk-verify`,
         { verifications },
         {
             onFinish: () => {

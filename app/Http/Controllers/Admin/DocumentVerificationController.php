@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\DocumentRejectedMail;
 use App\Models\DocumentVerification;
-use App\Models\StudentBiodata;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
+use Vinkla\Hashids\Facades\Hashids;
 
 class DocumentVerificationController extends Controller
 {
@@ -133,6 +133,6 @@ class DocumentVerificationController extends Controller
             return redirect()->back()->with('success', 'Verifikasi dokumen selesai. Email notifikasi penolakan telah dikirim.');
         }
 
-        return redirect()->route('admin.students.show', $studentId)->with('success', 'Semua dokumen berhasil diverifikasi.');
+        return redirect()->route('admin.students.show', Hashids::encode($studentId))->with('success', 'Semua dokumen berhasil diverifikasi.');
     }
 }

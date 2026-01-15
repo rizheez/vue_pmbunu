@@ -6,28 +6,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import GuestLayout from '@/layouts/GuestLayout.vue';
+import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import { register } from '@/routes';
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { Mail, Phone, Info } from 'lucide-vue-next';
+import { Eye, EyeOff, Info, Mail, Phone } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
 }>();
+
+const showPassword = ref(false);
 </script>
 
 <template>
     <Head title="Login PMB" />
 
     <GuestLayout max-width="2xl">
-        <h2 class="text-xl font-bold text-center text-gray-800 mb-6">Login PMB</h2>
+        <h2 class="mb-6 text-center text-xl font-bold text-gray-800">
+            Login PMB
+        </h2>
 
         <div
             v-if="status"
-            class="mb-4 text-center text-sm font-medium text-green-600 bg-green-50 p-3 rounded-lg"
+            class="mb-4 rounded-lg bg-green-50 p-3 text-center text-sm font-medium text-green-600"
         >
             {{ status }}
         </div>
@@ -54,14 +59,25 @@ defineProps<{
 
             <div class="space-y-2">
                 <Label for="password">Password</Label>
-                <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    required
-                    autocomplete="current-password"
-                    placeholder="••••••••"
-                />
+                <div class="relative">
+                    <Input
+                        id="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        name="password"
+                        required
+                        autocomplete="current-password"
+                        placeholder="••••••••"
+                        class="pr-10"
+                    />
+                    <button
+                        type="button"
+                        @click="showPassword = !showPassword"
+                        class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <EyeOff v-if="showPassword" class="size-4" />
+                        <Eye v-else class="size-4" />
+                    </button>
+                </div>
                 <InputError :message="errors.password" />
             </div>
 
@@ -73,7 +89,7 @@ defineProps<{
                 <Link
                     v-if="canResetPassword"
                     :href="request()"
-                    class="text-sm text-teal-600 hover:text-teal-800 underline"
+                    class="text-sm text-teal-600 underline hover:text-teal-800"
                 >
                     Lupa Password?
                 </Link>
@@ -89,11 +105,7 @@ defineProps<{
                 >
                     <Link :href="register()">DAFTAR BARU</Link>
                 </Button>
-                <Button
-                    type="submit"
-                    class="flex-1"
-                    :disabled="processing"
-                >
+                <Button type="submit" class="flex-1" :disabled="processing">
                     <Spinner v-if="processing" class="mr-2" />
                     MASUK
                 </Button>
@@ -101,26 +113,41 @@ defineProps<{
         </Form>
 
         <template #footer>
-            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white/95 backdrop-blur-xl rounded-xl p-5 border border-white/10">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                        <Info class="size-5 mr-2 text-teal-600" />
+            <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+                <div
+                    class="rounded-xl border border-white/10 bg-white/95 p-5 backdrop-blur-xl"
+                >
+                    <h3
+                        class="mb-3 flex items-center text-sm font-semibold text-gray-700"
+                    >
+                        <Info class="mr-2 size-5 text-teal-600" />
                         Butuh Bantuan?
                     </h3>
                     <div class="space-y-2 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             <Phone class="size-4 text-teal-600" />
-                            <span>WhatsApp: <strong>0812-5317-738</strong></span>
+                            <span
+                                >WhatsApp: <strong>0812-5317-738</strong></span
+                            >
                         </div>
                         <div class="flex items-center gap-2">
                             <Mail class="size-4 text-teal-600" />
-                            <span>Email: <strong>pmb@unukaltim.ac.id</strong></span>
+                            <span
+                                >Email:
+                                <strong>pmb@unukaltim.ac.id</strong></span
+                            >
                         </div>
                     </div>
                 </div>
-                <div class="bg-white/95 backdrop-blur-xl rounded-xl p-5 border border-white/10">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">📋 Alur Pendaftaran:</h3>
-                    <ol class="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                <div
+                    class="rounded-xl border border-white/10 bg-white/95 p-5 backdrop-blur-xl"
+                >
+                    <h3 class="mb-2 text-sm font-semibold text-gray-700">
+                        📋 Alur Pendaftaran:
+                    </h3>
+                    <ol
+                        class="list-inside list-decimal space-y-1 text-xs text-gray-600"
+                    >
                         <li>Daftar akun baru (jika belum punya)</li>
                         <li>Login dan lengkapi biodata</li>
                         <li>Upload dokumen yang diperlukan</li>

@@ -8,14 +8,20 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { AlertTriangle } from 'lucide-vue-next';
+import { AlertTriangle, Eye, EyeOff } from 'lucide-vue-next';
+import { ref } from 'vue';
+
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
 </script>
 
 <template>
     <Head title="Register PMB" />
 
     <GuestLayout max-width="lg">
-        <h2 class="text-xl font-bold text-center text-gray-800 mb-6">Register Akun Baru</h2>
+        <h2 class="mb-6 text-center text-xl font-bold text-gray-800">
+            Register Akun Baru
+        </h2>
 
         <Form
             v-bind="store.form()"
@@ -64,42 +70,75 @@ import { AlertTriangle } from 'lucide-vue-next';
                 />
                 <InputError :message="errors.phone" />
 
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p class="text-xs text-amber-800 font-semibold flex items-center gap-1">
+                <div class="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                    <p
+                        class="flex items-center gap-1 text-xs font-semibold text-amber-800"
+                    >
                         <AlertTriangle class="size-4" />
                         Gunakan Nomor WhatsApp Aktif!
                     </p>
-                    <p class="text-xs text-amber-700 mt-1">
-                        Informasi penting seperti status pendaftaran, jadwal daftar ulang, dan pengumuman akan dikirim melalui WhatsApp.
+                    <p class="mt-1 text-xs text-amber-700">
+                        Informasi penting seperti status pendaftaran, jadwal
+                        daftar ulang, dan pengumuman akan dikirim melalui
+                        WhatsApp.
                     </p>
                 </div>
-                <p class="text-xs text-gray-500">Contoh: 08123456789 (tanpa spasi atau tanda hubung)</p>
+                <p class="text-xs text-gray-500">
+                    Contoh: 08123456789 (tanpa spasi atau tanda hubung)
+                </p>
             </div>
 
             <div class="space-y-2">
                 <Label for="password">Password</Label>
-                <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    required
-                    autocomplete="new-password"
-                    placeholder="••••••••"
-                />
+                <div class="relative">
+                    <Input
+                        id="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        name="password"
+                        required
+                        autocomplete="new-password"
+                        placeholder="••••••••"
+                        class="pr-10"
+                    />
+                    <button
+                        type="button"
+                        @click="showPassword = !showPassword"
+                        class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <EyeOff v-if="showPassword" class="size-4" />
+                        <Eye v-else class="size-4" />
+                    </button>
+                </div>
                 <InputError :message="errors.password" />
                 <p class="text-xs text-gray-500">Minimal 8 karakter</p>
             </div>
 
             <div class="space-y-2">
                 <Label for="password_confirmation">Konfirmasi Password</Label>
-                <Input
-                    id="password_confirmation"
-                    type="password"
-                    name="password_confirmation"
-                    required
-                    autocomplete="new-password"
-                    placeholder="••••••••"
-                />
+                <div class="relative">
+                    <Input
+                        id="password_confirmation"
+                        :type="showPasswordConfirmation ? 'text' : 'password'"
+                        name="password_confirmation"
+                        required
+                        autocomplete="new-password"
+                        placeholder="••••••••"
+                        class="pr-10"
+                    />
+                    <button
+                        type="button"
+                        @click="
+                            showPasswordConfirmation = !showPasswordConfirmation
+                        "
+                        class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <EyeOff
+                            v-if="showPasswordConfirmation"
+                            class="size-4"
+                        />
+                        <Eye v-else class="size-4" />
+                    </button>
+                </div>
                 <InputError :message="errors.password_confirmation" />
             </div>
 
@@ -112,11 +151,7 @@ import { AlertTriangle } from 'lucide-vue-next';
                 >
                     <Link :href="login()">SUDAH PUNYA AKUN</Link>
                 </Button>
-                <Button
-                    type="submit"
-                    class="flex-1"
-                    :disabled="processing"
-                >
+                <Button type="submit" class="flex-1" :disabled="processing">
                     <Spinner v-if="processing" class="mr-2" />
                     DAFTAR
                 </Button>
