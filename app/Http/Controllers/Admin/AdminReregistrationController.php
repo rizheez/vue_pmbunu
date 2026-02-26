@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaymentSetting;
 use App\Models\Registration;
 use App\Models\ReregistrationPayment;
 use App\Models\StudentBiodata;
@@ -81,7 +82,7 @@ class AdminReregistrationController extends Controller
             'specialNeeds' => $user->studentBiodata?->specialNeeds?->first(),
             'registration' => $user->registration,
             'payment' => $payment,
-            'paymentAmount' => 300000,
+            'paymentAmount' => (int) PaymentSetting::getValue('payment_amount', 300000),
             'options' => $this->getFormOptions(),
         ]);
     }
@@ -203,7 +204,7 @@ class AdminReregistrationController extends Controller
             ReregistrationPayment::updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'amount' => 300000,
+                    'amount' => (int) PaymentSetting::getValue('payment_amount', 300000),
                     'payment_proof_path' => $path,
                     'status' => ($validated['mark_as_verified'] ?? false) ? 'verified' : 'pending',
                     'verified_by' => ($validated['mark_as_verified'] ?? false) ? Auth::id() : null,

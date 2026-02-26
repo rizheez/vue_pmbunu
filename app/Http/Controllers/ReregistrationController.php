@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaymentSetting;
 use App\Models\RegistrationPeriod;
 use App\Models\ReregistrationPayment;
 use App\Models\StudentBiodata;
@@ -60,7 +61,7 @@ class ReregistrationController extends Controller
             'activePeriod' => $activePeriod,
             'options' => $this->getFormOptions(),
             'payment' => $payment,
-            'paymentAmount' => 300000,
+            'paymentAmount' => (int) PaymentSetting::getValue('payment_amount', 300000),
         ]);
     }
 
@@ -215,7 +216,7 @@ class ReregistrationController extends Controller
         $payment = ReregistrationPayment::updateOrCreate(
             ['user_id' => Auth::id()],
             [
-                'amount' => 300000,
+                'amount' => (int) PaymentSetting::getValue('payment_amount', 300000),
                 'payment_proof_path' => $path,
                 'status' => 'pending',
                 'verified_by' => null,
