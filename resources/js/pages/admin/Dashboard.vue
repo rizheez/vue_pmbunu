@@ -19,10 +19,13 @@ import {
     BookOpen,
     CheckCircle,
     Clock,
+    CreditCard,
     FileCheck,
     FileX,
     GraduationCap,
     Megaphone,
+    RefreshCw,
+    UserCheck,
     UserPlus,
     Users,
     XCircle,
@@ -44,9 +47,13 @@ interface Props {
         verified: number;
         accepted: number;
         rejected: number;
+        re_registration_pending: number;
+        re_registration_verified: number;
+        enrolled: number;
     };
     programStats: ProgramStat[];
     pendingVerifications: number;
+    pendingPaymentVerifications: number;
     recentRegistrations: Registration[];
     todayRegistrations: number;
     weekRegistrations: number;
@@ -111,7 +118,7 @@ const getStatusLabel = (status: string) => {
                 </select>
             </div>
 
-            <!-- Stats Grid -->
+            <!-- Stats Grid - Row 1: Pendaftaran -->
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader
@@ -147,7 +154,12 @@ const getStatusLabel = (status: string) => {
                             {{ props.pendingVerifications }}
                         </div>
                         <p class="text-xs text-muted-foreground">
-                            Perlu ditinjau segera
+                            <Link
+                                href="/admin/students?status=submitted"
+                                class="underline hover:text-teal-600"
+                            >
+                                Perlu ditinjau segera
+                            </Link>
                         </p>
                     </CardContent>
                 </Card>
@@ -188,6 +200,100 @@ const getStatusLabel = (status: string) => {
                 </Card>
             </div>
 
+            <!-- Stats Grid - Row 2: Daftar Ulang -->
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card class="border-purple-200 bg-purple-50/50">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium">
+                            Menunggu Daftar Ulang
+                        </CardTitle>
+                        <RefreshCw class="size-4 text-purple-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold text-purple-600">
+                            {{ props.statusStats.accepted }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            <Link
+                                href="/admin/reregistration"
+                                class="underline hover:text-purple-600"
+                            >
+                                Lihat daftar ulang
+                            </Link>
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card class="border-orange-200 bg-orange-50/50">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium">
+                            Menunggu Verifikasi Bayar
+                        </CardTitle>
+                        <CreditCard class="size-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold text-orange-600">
+                            {{ props.pendingPaymentVerifications }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            <Link
+                                href="/admin/reregistration-payments"
+                                class="underline hover:text-orange-600"
+                            >
+                                Verifikasi pembayaran
+                            </Link>
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card class="border-teal-200 bg-teal-50/50">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium">
+                            Daftar Ulang Terverifikasi
+                        </CardTitle>
+                        <UserCheck class="size-4 text-teal-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold text-teal-600">
+                            {{ props.statusStats.re_registration_verified }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Siap generate NIM
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card class="border-emerald-200 bg-emerald-50/50">
+                    <CardHeader
+                        class="flex flex-row items-center justify-between pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium">
+                            Mahasiswa Aktif
+                        </CardTitle>
+                        <GraduationCap class="size-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold text-emerald-600">
+                            {{ props.statusStats.enrolled }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            <Link
+                                href="/admin/enrolled-students"
+                                class="underline hover:text-emerald-600"
+                            >
+                                Lihat mahasiswa
+                            </Link>
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
             <!-- Quick Actions -->
             <Card>
                 <CardHeader>
@@ -196,7 +302,9 @@ const getStatusLabel = (status: string) => {
                         Aksi Cepat
                     </CardTitle>
                 </CardHeader>
-                <CardContent class="flex flex-col gap-4 sm:flex-row">
+                <CardContent
+                    class="flex flex-col gap-4 sm:flex-row sm:flex-wrap"
+                >
                     <Button as-child variant="outline" class="flex-1">
                         <Link href="/admin/students/create">
                             <UserPlus class="mr-2 size-4" />
@@ -204,9 +312,21 @@ const getStatusLabel = (status: string) => {
                         </Link>
                     </Button>
                     <Button as-child variant="outline" class="flex-1">
-                        <Link href="/admin/students">
+                        <Link href="/admin/students?status=submitted">
                             <FileCheck class="mr-2 size-4" />
                             Verifikasi Dokumen
+                        </Link>
+                    </Button>
+                    <Button as-child variant="outline" class="flex-1">
+                        <Link href="/admin/reregistration-payments">
+                            <CreditCard class="mr-2 size-4" />
+                            Verifikasi Pembayaran
+                        </Link>
+                    </Button>
+                    <Button as-child variant="outline" class="flex-1">
+                        <Link href="/admin/nim-generation">
+                            <GraduationCap class="mr-2 size-4" />
+                            Generate NIM
                         </Link>
                     </Button>
                     <Button as-child variant="outline" class="flex-1">
@@ -218,7 +338,7 @@ const getStatusLabel = (status: string) => {
                     <Button as-child variant="outline" class="flex-1">
                         <Link href="/admin/dokumentasi">
                             <BookOpen class="mr-2 size-4" />
-                            Dokumentasi / Panduan Admin
+                            Dokumentasi
                         </Link>
                     </Button>
                 </CardContent>
@@ -233,7 +353,7 @@ const getStatusLabel = (status: string) => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div class="grid gap-4 md:grid-cols-5">
+                    <div class="grid gap-4 md:grid-cols-4 lg:grid-cols-8">
                         <div
                             class="flex items-center gap-3 rounded-lg border p-4"
                         >
@@ -289,6 +409,47 @@ const getStatusLabel = (status: string) => {
                                     {{ props.statusStats.rejected }}
                                 </p>
                                 <p class="text-sm text-gray-500">Ditolak</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-purple-200 bg-purple-50/50 p-4"
+                        >
+                            <RefreshCw class="size-8 text-purple-500" />
+                            <div>
+                                <p class="text-2xl font-bold">
+                                    {{
+                                        props.statusStats
+                                            .re_registration_pending
+                                    }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Daftar Ulang
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50/50 p-4"
+                        >
+                            <UserCheck class="size-8 text-teal-500" />
+                            <div>
+                                <p class="text-2xl font-bold">
+                                    {{
+                                        props.statusStats
+                                            .re_registration_verified
+                                    }}
+                                </p>
+                                <p class="text-sm text-gray-500">DU Verified</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-4"
+                        >
+                            <GraduationCap class="size-8 text-emerald-500" />
+                            <div>
+                                <p class="text-2xl font-bold">
+                                    {{ props.statusStats.enrolled }}
+                                </p>
+                                <p class="text-sm text-gray-500">Enrolled</p>
                             </div>
                         </div>
                     </div>
@@ -369,7 +530,8 @@ const getStatusLabel = (status: string) => {
                                 </div>
                                 <Badge
                                     :variant="
-                                        reg.status === 'accepted'
+                                        reg.status === 'accepted' ||
+                                        reg.status === 'enrolled'
                                             ? 'default'
                                             : reg.status === 'rejected'
                                               ? 'destructive'

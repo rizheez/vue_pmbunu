@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\Registration;
 use App\Models\RegistrationPeriod;
+use App\Models\ReregistrationPayment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -37,14 +38,14 @@ class DashboardController extends Controller
 
         // Registration by status
         $statusStats = Registration::select('status', DB::raw('count(*) as total'))
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
         // Program stats (top 5)
         $programStats = Registration::select('choice_1', DB::raw('count(*) as total'))
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
             ->with('programStudiChoice1')
             ->groupBy('choice_1')
             ->orderByDesc('total')
@@ -52,12 +53,19 @@ class DashboardController extends Controller
 
         // Pending verifications
         $pendingVerifications = Registration::where('status', 'submitted')
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->count();
+
+        // Pending payment verifications
+        $pendingPaymentVerifications = ReregistrationPayment::where('status', 'pending')
+            ->when($filterPeriodId, function ($q) use ($filterPeriodId) {
+                $q->whereHas('user.registration', fn($r) => $r->where('registration_period_id', $filterPeriodId));
+            })
             ->count();
 
         // Recent registrations
         $recentRegistrations = Registration::with(['user.studentBiodata', 'programStudiChoice1'])
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
             ->where('created_at', '>=', now()->subDays(7))
             ->orderByDesc('created_at')
             ->limit(10)
@@ -65,11 +73,11 @@ class DashboardController extends Controller
 
         // Today/week stats
         $todayRegistrations = Registration::whereDate('created_at', today())
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
             ->count();
 
         $weekRegistrations = Registration::where('created_at', '>=', now()->startOfWeek())
-            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->when($filterPeriodId, fn($q) => $q->where('registration_period_id', $filterPeriodId))
             ->count();
 
         return Inertia::render('admin/Dashboard', [
@@ -81,9 +89,13 @@ class DashboardController extends Controller
                 'verified' => $statusStats['verified'] ?? 0,
                 'accepted' => $statusStats['accepted'] ?? 0,
                 'rejected' => $statusStats['rejected'] ?? 0,
+                're_registration_pending' => $statusStats['re_registration_pending'] ?? 0,
+                're_registration_verified' => $statusStats['re_registration_verified'] ?? 0,
+                'enrolled' => $statusStats['enrolled'] ?? 0,
             ],
             'programStats' => $programStats,
             'pendingVerifications' => $pendingVerifications,
+            'pendingPaymentVerifications' => $pendingPaymentVerifications,
             'recentRegistrations' => $recentRegistrations,
             'todayRegistrations' => $todayRegistrations,
             'weekRegistrations' => $weekRegistrations,

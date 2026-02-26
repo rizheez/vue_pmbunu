@@ -45,7 +45,7 @@ class ChatService
 
         // Inject dynamic context into system prompt
         $context = $this->getSystemPromptContext();
-        $enhancedSystemPrompt = $systemPrompt ? ($systemPrompt."\n\n".$context) : $context;
+        $enhancedSystemPrompt = $systemPrompt ? ($systemPrompt . "\n\n" . $context) : $context;
 
         // Fallback to OpenRouter (Gemini removed)
         return $this->chatWithOpenRouter($message, $history, $enhancedSystemPrompt);
@@ -75,7 +75,7 @@ class ChatService
 
             // Add current user message
             $messages[] = ['role' => 'user', 'content' => $message];
-
+            $model = 'arcee-ai/trinity-large-preview:free';
             $response = Http::timeout(60)
                 ->withHeaders([
                     'Authorization' => "Bearer {$apiKey}",
@@ -84,7 +84,7 @@ class ChatService
                     'X-Title' => config('app.name'),
                 ])
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => 'xiaomi/mimo-v2-flash:free',
+                    'model' => $model,
                     'messages' => $messages,
                     'reasoning' => ['enabled' => false],
                 ]);
@@ -95,6 +95,7 @@ class ChatService
                 return [
                     'success' => true,
                     'message' => $text,
+                    'model' => $model,
                     'provider' => 'openrouter',
                 ];
             }
@@ -163,7 +164,7 @@ class ChatService
         // Extract keywords from question (remove common words)
         $stopWords = ['apa', 'apakah', 'bagaimana', 'dimana', 'kapan', 'siapa', 'berapa', 'yang', 'di', 'ke', 'dari', 'untuk', 'dengan', 'adalah', 'ini', 'itu', 'dan', 'atau', 'saya', 'mau', 'ingin', 'bisa', 'ada', 'tidak', 'ya', 'juga', 'nya'];
         $words = preg_split('/\s+/', $question);
-        $keywords = array_filter($words, fn ($w) => strlen($w) > 2 && ! in_array($w, $stopWords));
+        $keywords = array_filter($words, fn($w) => strlen($w) > 2 && ! in_array($w, $stopWords));
 
         if (empty($keywords)) {
             return null;
@@ -231,7 +232,7 @@ class ChatService
     public function getSystemPromptContext(): string
     {
         // Cache context for 24 hours to reduce file reads
-        $cacheKey = 'chat_context_'.app()->environment();
+        $cacheKey = 'chat_context_' . app()->environment();
 
         return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600 * 24, function () {
             if (! \Illuminate\Support\Facades\Storage::disk('local')->exists('chat_context.txt')) {
