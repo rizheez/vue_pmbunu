@@ -33,9 +33,8 @@ import {
 } from 'lucide-vue-next';
 
 interface ProgramStat {
-    choice_1: number;
     total: number;
-    program_studi_choice1: ProgramStudi | null;
+    program_studi: ProgramStudi;
 }
 
 interface Props {
@@ -472,7 +471,7 @@ const getStatusLabel = (status: string) => {
                         >
                             <div
                                 v-for="(stat, index) in props.programStats"
-                                :key="stat.choice_1"
+                                :key="stat.program_studi.id"
                                 class="flex items-center justify-between"
                             >
                                 <div class="flex items-center gap-3">
@@ -482,10 +481,8 @@ const getStatusLabel = (status: string) => {
                                         {{ index + 1 }}
                                     </span>
                                     <span class="font-medium">
-                                        {{
-                                            stat.program_studi_choice1?.name ||
-                                            'Unknown'
-                                        }}
+                                        {{ stat.program_studi.jenjang }}
+                                        {{ stat.program_studi.name }}
                                     </span>
                                 </div>
                                 <Badge>{{ stat.total }} pendaftar</Badge>
