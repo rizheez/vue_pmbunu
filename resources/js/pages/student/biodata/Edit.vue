@@ -359,7 +359,7 @@ const breadcrumbs = [
                                                 >
                                                 <input
                                                     type="file"
-                                                    accept="image/*"
+                                                    accept=".jpg,.jpeg,.png"
                                                     class="hidden"
                                                     @change="
                                                         handleFileChange(

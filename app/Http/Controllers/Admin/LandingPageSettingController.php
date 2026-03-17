@@ -33,6 +33,10 @@ class LandingPageSettingController extends Controller
             if ($setting) {
                 // Handle file uploads
                 if ($request->hasFile($key)) {
+                    $request->validate([
+                        $key => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048', new \App\Rules\SafeFileName],
+                    ]);
+
                     // Delete old file if exists
                     if ($setting->value && str_starts_with($setting->value, '/storage/')) {
                         $oldPath = str_replace('/storage/', '', $setting->value);

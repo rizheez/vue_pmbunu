@@ -298,7 +298,7 @@ const isVA = computed(() => props.paymentInfo.payment_type === 'va');
                                     </span>
                                     <Input
                                         type="file"
-                                        accept="image/*,.pdf"
+                                        accept=".jpg,.jpeg,.png,.pdf"
                                         class="hidden"
                                         @change="handlePaymentUpload"
                                     />

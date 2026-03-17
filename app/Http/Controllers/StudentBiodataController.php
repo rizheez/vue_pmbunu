@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Rules\SafeFileName;
 
 class StudentBiodataController extends Controller
 {
@@ -67,10 +68,10 @@ class StudentBiodataController extends Controller
             'last_education' => 'nullable|string',
             'school_origin' => 'required|string',
             'major' => 'nullable|string',
-            'photo' => ($existingBiodata?->photo_path ? 'nullable' : 'required').'|image|max:1024',
-            'ktp' => ($existingBiodata?->ktp_path ? 'nullable' : 'required').'|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'kk' => ($existingBiodata?->kk_path ? 'nullable' : 'required').'|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'photo' => [($existingBiodata?->photo_path ? 'nullable' : 'required'), 'image', 'mimes:jpg,jpeg,png', 'max:1024', new SafeFileName],
+            'ktp' => [($existingBiodata?->ktp_path ? 'nullable' : 'required'), 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048', new SafeFileName],
+            'kk' => [($existingBiodata?->kk_path ? 'nullable' : 'required'), 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048', new SafeFileName],
+            'certificate' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048', new SafeFileName],
         ], [
             'required' => ':attribute wajib diisi.',
             'numeric' => ':attribute harus berupa angka.',

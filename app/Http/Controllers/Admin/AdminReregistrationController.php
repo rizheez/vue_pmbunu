@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Rules\SafeFileName;
 
 class AdminReregistrationController extends Controller
 {
@@ -141,7 +142,7 @@ class AdminReregistrationController extends Controller
             'special_need_assistance' => 'nullable|string',
 
             // Payment
-            'payment_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'payment_proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
 
             // Status update option
             'mark_as_verified' => 'boolean',
