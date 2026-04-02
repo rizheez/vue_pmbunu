@@ -37,6 +37,8 @@ export interface ProgramStudi {
     jenjang: string;
     description?: string;
     accreditation: string;
+    quota: number | null;
+    is_full?: boolean;
     is_active: boolean;
     created_at: string;
     updated_at: string;

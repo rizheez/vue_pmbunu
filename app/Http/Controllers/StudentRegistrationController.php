@@ -53,6 +53,25 @@ class StudentRegistrationController extends Controller
             ->orderBy('name')
             ->get();
 
+        $acceptedStatuses = ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled'];
+        
+        $prodiCounts = Registration::whereIn('status', $acceptedStatuses)
+            ->whereNotNull('accepted_program_studi_id')
+            ->select('accepted_program_studi_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->groupBy('accepted_program_studi_id')
+            ->pluck('count', 'accepted_program_studi_id');
+
+        foreach ($fakultas as $fak) {
+            foreach ($fak->programStudi as $prodi) {
+                if ($prodi->quota) {
+                    $accepted = $prodiCounts[$prodi->id] ?? 0;
+                    $prodi->is_full = $accepted >= $prodi->quota;
+                } else {
+                    $prodi->is_full = false;
+                }
+            }
+        }
+
         $programStudi = ProgramStudi::with('fakultas')
             ->where('is_active', true)
             ->orderBy('jenjang')

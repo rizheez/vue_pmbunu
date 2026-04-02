@@ -33,6 +33,13 @@ import {
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
+interface ProdiQuota {
+    quota: number | null;
+    accepted: number;
+    available: number | null;
+    is_full: boolean;
+}
+
 interface ReregistrationPayment {
     id: number;
     amount: number | string;
@@ -83,6 +90,7 @@ interface StudentUser {
 
 interface Props {
     student: StudentUser;
+    prodiQuotas: Record<number, ProdiQuota>;
 }
 
 const props = defineProps<Props>();
@@ -1228,34 +1236,102 @@ const isPdf = (url: string | null) => {
                 <div class="space-y-4 py-4">
                     <div class="space-y-2">
                         <Label>Program Studi</Label>
-                        <div class="space-y-2">
+                        <div class="space-y-3">
                             <label
                                 v-if="props.student.registration?.choice_1"
-                                class="flex items-center gap-2"
+                                class="flex items-center gap-3 rounded-lg border p-3 transition-colors"
+                                :class="{
+                                    'border-green-300 bg-green-50': selectedProdi === props.student.registration.choice_1,
+                                    'opacity-60': props.prodiQuotas[props.student.registration.choice_1]?.is_full,
+                                }"
                             >
                                 <input
                                     type="radio"
                                     :value="props.student.registration.choice_1"
                                     v-model="selectedProdi"
+                                    :disabled="props.prodiQuotas[props.student.registration.choice_1]?.is_full"
                                 />
-                                {{
-                                    props.student.registration
-                                        .program_studi_choice1?.name
-                                }}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium">
+                                            Pilihan 1:
+                                            {{ props.student.registration.program_studi_choice1?.name }}
+                                        </span>
+                                        <Badge
+                                            v-if="props.prodiQuotas[props.student.registration.choice_1]?.is_full"
+                                            variant="destructive"
+                                            class="text-xs"
+                                        >
+                                            PENUH
+                                        </Badge>
+                                    </div>
+                                    <p
+                                        v-if="props.prodiQuotas[props.student.registration.choice_1]"
+                                        class="mt-1 text-xs"
+                                        :class="
+                                            props.prodiQuotas[props.student.registration.choice_1]?.is_full
+                                                ? 'text-red-500'
+                                                : 'text-gray-500'
+                                        "
+                                    >
+                                        Terisi: {{ props.prodiQuotas[props.student.registration.choice_1].accepted }}
+                                        <template v-if="props.prodiQuotas[props.student.registration.choice_1].quota">
+                                            / {{ props.prodiQuotas[props.student.registration.choice_1].quota }}
+                                            (sisa {{ props.prodiQuotas[props.student.registration.choice_1].available }})
+                                        </template>
+                                        <template v-else>
+                                            (tanpa batas kuota)
+                                        </template>
+                                    </p>
+                                </div>
                             </label>
                             <label
                                 v-if="props.student.registration?.choice_2"
-                                class="flex items-center gap-2"
+                                class="flex items-center gap-3 rounded-lg border p-3 transition-colors"
+                                :class="{
+                                    'border-green-300 bg-green-50': selectedProdi === props.student.registration.choice_2,
+                                    'opacity-60': props.prodiQuotas[props.student.registration.choice_2]?.is_full,
+                                }"
                             >
                                 <input
                                     type="radio"
                                     :value="props.student.registration.choice_2"
                                     v-model="selectedProdi"
+                                    :disabled="props.prodiQuotas[props.student.registration.choice_2]?.is_full"
                                 />
-                                {{
-                                    props.student.registration
-                                        .program_studi_choice2?.name
-                                }}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium">
+                                            Pilihan 2:
+                                            {{ props.student.registration.program_studi_choice2?.name }}
+                                        </span>
+                                        <Badge
+                                            v-if="props.prodiQuotas[props.student.registration.choice_2]?.is_full"
+                                            variant="destructive"
+                                            class="text-xs"
+                                        >
+                                            PENUH
+                                        </Badge>
+                                    </div>
+                                    <p
+                                        v-if="props.prodiQuotas[props.student.registration.choice_2]"
+                                        class="mt-1 text-xs"
+                                        :class="
+                                            props.prodiQuotas[props.student.registration.choice_2]?.is_full
+                                                ? 'text-red-500'
+                                                : 'text-gray-500'
+                                        "
+                                    >
+                                        Terisi: {{ props.prodiQuotas[props.student.registration.choice_2].accepted }}
+                                        <template v-if="props.prodiQuotas[props.student.registration.choice_2].quota">
+                                            / {{ props.prodiQuotas[props.student.registration.choice_2].quota }}
+                                            (sisa {{ props.prodiQuotas[props.student.registration.choice_2].available }})
+                                        </template>
+                                        <template v-else>
+                                            (tanpa batas kuota)
+                                        </template>
+                                    </p>
+                                </div>
                             </label>
                         </div>
                     </div>

@@ -36,6 +36,7 @@ const form = useForm({
     nim_code: '',
     jenjang: 'S1',
     fakultas_id: '',
+    quota: null as number | null,
     is_active: true,
 });
 
@@ -54,6 +55,7 @@ const openEdit = (prodi: ProgramStudi) => {
     form.nim_code = prodi.nim_code || '';
     form.jenjang = prodi.jenjang;
     form.fakultas_id = String(prodi.fakultas_id);
+    form.quota = prodi.quota;
     form.is_active = prodi.is_active;
     showDialog.value = true;
 };
@@ -111,6 +113,7 @@ const breadcrumbs = [
                                     <th class="px-4 py-3 text-left">Nama</th>
                                     <th class="px-4 py-3 text-left">Jenjang</th>
                                     <th class="px-4 py-3 text-left">Fakultas</th>
+                                    <th class="px-4 py-3 text-right">Daya Tampung</th>
                                     <th class="px-4 py-3 text-left">Status</th>
                                     <th class="px-4 py-3 text-left">Aksi</th>
                                 </tr>
@@ -122,6 +125,9 @@ const breadcrumbs = [
                                     <td class="px-4 py-3 font-medium">{{ prodi.name }}</td>
                                     <td class="px-4 py-3">{{ prodi.jenjang }}</td>
                                     <td class="px-4 py-3">{{ prodi.fakultas?.name || '-' }}</td>
+                                    <td class="px-4 py-3 text-right font-medium">
+                                        {{ prodi.quota || '-' }}
+                                    </td>
                                     <td class="px-4 py-3">
                                         <Badge :variant="prodi.is_active ? 'default' : 'secondary'">
                                             {{ prodi.is_active ? 'Aktif' : 'Nonaktif' }}
@@ -185,6 +191,11 @@ const breadcrumbs = [
                                 {{ fak.name }}
                             </option>
                         </select>
+                    </div>
+                    <div class="space-y-2">
+                        <Label>Daya Tampung (Kuota)</Label>
+                        <Input v-model.number="form.quota" type="number" min="0" placeholder="Contoh: 40" />
+                        <p class="text-xs text-muted-foreground">Kosongkan jika tidak ada batas kuota</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="is_active" v-model="form.is_active" />

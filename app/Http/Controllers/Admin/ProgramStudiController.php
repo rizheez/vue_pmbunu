@@ -36,6 +36,7 @@ class ProgramStudiController extends Controller
             'nim_code' => 'nullable|string|size:4',
             'jenjang' => 'required|in:S1,S2,S3,D3,D4',
             'fakultas_id' => 'required|exists:fakultas,id',
+            'quota' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);
 
@@ -50,10 +51,11 @@ class ProgramStudiController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:20|unique:program_studi,code,'.$id,
+            'code' => 'required|string|max:20|unique:program_studi,code,' . $id,
             'nim_code' => 'nullable|string|size:4',
             'jenjang' => 'required|in:S1,S2,S3,D3,D4',
             'fakultas_id' => 'required|exists:fakultas,id',
+            'quota' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);
 

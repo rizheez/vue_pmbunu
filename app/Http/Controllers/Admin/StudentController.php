@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
-use Inertia\Inertia;
-use Inertia\Response;
+use App\Exports\StudentsExport;
+use App\Http\Controllers\Controller;
+use App\Mail\ManualRegistrationCredentials;
+use App\Mail\StudentAcceptedMail;
+use App\Mail\StudentRejectedMail;
 use App\Models\Fakultas;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
-use Illuminate\Http\Request;
-use App\Models\StudentBiodata;
-use App\Exports\StudentsExport;
 use App\Models\RegistrationPath;
-use App\Models\RegistrationType;
-use App\Mail\StudentAcceptedMail;
-use App\Mail\StudentRejectedMail;
 use App\Models\RegistrationPeriod;
+use App\Models\RegistrationType;
+use App\Models\StudentBiodata;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
-use App\Mail\ManualRegistrationCredentials;
+use Inertia\Inertia;
+use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentController extends Controller
@@ -37,7 +37,7 @@ class StudentController extends Controller
         }
 
         $fakultas = Fakultas::where('is_active', true)
-            ->with(['programStudi' => fn($q) => $q->where('is_active', true)->orderBy('name')])
+            ->with(['programStudi' => fn ($q) => $q->where('is_active', true)->orderBy('name')])
             ->orderBy('name')
             ->get();
         $types = RegistrationType::where('is_active', true)->get();
@@ -194,12 +194,12 @@ class StudentController extends Controller
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'all') {
-            $query->whereHas('registration', fn($q) => $q->where('status', $request->status));
+            $query->whereHas('registration', fn ($q) => $q->where('status', $request->status));
         }
 
         // Filter by period
         if ($request->filled('period') && $request->period !== 'all') {
-            $query->whereHas('registration', fn($q) => $q->where('registration_period_id', $request->period));
+            $query->whereHas('registration', fn ($q) => $q->where('registration_period_id', $request->period));
         }
 
         // Search
@@ -208,8 +208,8 @@ class StudentController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('users.name', 'like', "%{$search}%")
                     ->orWhere('users.email', 'like', "%{$search}%")
-                    ->orWhereHas('studentBiodata', fn($bq) => $bq->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('registration', fn($rq) => $rq->where('registration_number', 'like', "%{$search}%"));
+                    ->orWhereHas('studentBiodata', fn ($bq) => $bq->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('registration', fn ($rq) => $rq->where('registration_number', 'like', "%{$search}%"));
             });
         }
 
@@ -247,8 +247,37 @@ class StudentController extends Controller
             ->where('role', 'student')
             ->findOrFail($id);
 
+        // Get quota info for prodi choices
+        $prodiQuotas = [];
+        $acceptedStatuses = ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled'];
+
+        if ($student->registration) {
+            $choiceIds = array_filter([
+                $student->registration->choice_1,
+                $student->registration->choice_2,
+                $student->registration->choice_3,
+            ]);
+
+            foreach ($choiceIds as $prodiId) {
+                $prodi = ProgramStudi::find($prodiId);
+                if ($prodi) {
+                    $acceptedCount = Registration::where('accepted_program_studi_id', $prodiId)
+                        ->whereIn('status', $acceptedStatuses)
+                        ->count();
+
+                    $prodiQuotas[$prodiId] = [
+                        'quota' => $prodi->quota,
+                        'accepted' => $acceptedCount,
+                        'available' => $prodi->quota ? $prodi->quota - $acceptedCount : null,
+                        'is_full' => $prodi->quota ? $acceptedCount >= $prodi->quota : false,
+                    ];
+                }
+            }
+        }
+
         return Inertia::render('admin/students/Show', [
             'student' => $student,
+            'prodiQuotas' => $prodiQuotas,
         ]);
     }
 
@@ -262,7 +291,7 @@ class StudentController extends Controller
             ->findOrFail($id);
 
         $fakultas = Fakultas::where('is_active', true)
-            ->with(['programStudi' => fn($q) => $q->where('is_active', true)->orderBy('name')])
+            ->with(['programStudi' => fn ($q) => $q->where('is_active', true)->orderBy('name')])
             ->orderBy('name')
             ->get();
 
@@ -287,7 +316,7 @@ class StudentController extends Controller
 
         $validated = $request->validate([
             // Account
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'phone' => ['required', 'string', 'regex:/^(\+62|62|0)8[1-9][0-9]{7,10}$/'],
             // Personal
             'name' => 'required|string|max:255',
@@ -435,7 +464,19 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'Status tidak valid untuk penerimaan.');
         }
 
-        $prodi = ProgramStudi::find($request->program_studi_id);
+        $prodi = ProgramStudi::findOrFail($request->program_studi_id);
+
+        // Check quota
+        if ($prodi->quota) {
+            $acceptedStatuses = ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled'];
+            $acceptedCount = Registration::where('accepted_program_studi_id', $prodi->id)
+                ->whereIn('status', $acceptedStatuses)
+                ->count();
+
+            if ($acceptedCount >= $prodi->quota) {
+                return redirect()->back()->with('error', "Kuota {$prodi->jenjang} {$prodi->name} sudah penuh ({$acceptedCount}/{$prodi->quota}). Tidak dapat menerima mahasiswa lagi.");
+            }
+        }
 
         $student->registration->update([
             'status' => 'accepted',
@@ -446,7 +487,7 @@ class StudentController extends Controller
         ]);
 
         // Send acceptance email
-        $prodiName = $prodi->jenjang . ' ' . $prodi->name;
+        $prodiName = $prodi->jenjang.' '.$prodi->name;
         Mail::to($student->email)->send(new StudentAcceptedMail($student, $student->registration, $prodiName));
 
         return redirect()->back()->with('success', "Mahasiswa diterima di {$prodi->name} dan email notifikasi telah dikirim.");
@@ -479,7 +520,7 @@ class StudentController extends Controller
 
     public function export(Request $request): BinaryFileResponse
     {
-        $filename = 'mahasiswa-' . now()->format('Y-m-d-His') . '.xlsx';
+        $filename = 'mahasiswa-'.now()->format('Y-m-d-His').'.xlsx';
 
         return Excel::download(new StudentsExport($request), $filename);
     }

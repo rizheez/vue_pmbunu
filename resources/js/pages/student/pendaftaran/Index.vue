@@ -395,9 +395,11 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                                         :value="
                                                             String(prodi.id)
                                                         "
+                                                        :disabled="prodi.is_full"
                                                     >
                                                         {{ prodi.jenjang }} -
                                                         {{ prodi.name }}
+                                                        {{ prodi.is_full ? '(Penuh)' : '' }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
@@ -451,12 +453,14 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                                                         prodi.id,
                                                                     )
                                                                 "
+                                                                :disabled="prodi.is_full"
                                                             >
                                                                 {{
                                                                     prodi.jenjang
                                                                 }}
                                                                 -
                                                                 {{ prodi.name }}
+                                                                {{ prodi.is_full ? '(Penuh)' : '' }}
                                                             </SelectItem>
                                                         </template>
                                                     </SelectGroup>
