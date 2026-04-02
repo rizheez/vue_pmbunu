@@ -38,12 +38,12 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 
         // Filter by status
         if ($this->request->filled('status') && $this->request->status !== 'all') {
-            $query->whereHas('registration', fn ($q) => $q->where('status', $this->request->status));
+            $query->whereHas('registration', fn($q) => $q->where('status', $this->request->status));
         }
 
         // Filter by period
         if ($this->request->filled('period') && $this->request->period !== 'all') {
-            $query->whereHas('registration', fn ($q) => $q->where('registration_period_id', $this->request->period));
+            $query->whereHas('registration', fn($q) => $q->where('registration_period_id', $this->request->period));
         }
 
         // Search
@@ -52,8 +52,8 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $query->where(function ($q) use ($search) {
                 $q->where('users.name', 'like', "%{$search}%")
                     ->orWhere('users.email', 'like', "%{$search}%")
-                    ->orWhereHas('studentBiodata', fn ($bq) => $bq->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('registration', fn ($rq) => $rq->where('registration_number', 'like', "%{$search}%"));
+                    ->orWhereHas('studentBiodata', fn($bq) => $bq->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('registration', fn($rq) => $rq->where('registration_number', 'like', "%{$search}%"));
             });
         }
 
@@ -67,6 +67,7 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     {
         return [
             'No. Pendaftaran',
+            'NIM',
             'Nama Lengkap',
             'Email',
             'No. HP',
@@ -100,12 +101,13 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         $registration = $user->registration;
 
         return [
-            "'".$registration?->registration_number ?? '-',
+            "'" . $registration?->registration_number ?? '-',
+            "'" . $user->nim ?? '-',
             $biodata?->name ?? $user->name,
             $user->email,
-            "'".(string) ($biodata?->phone ?? $user->phone ?? '-'),
-            "'".(string) ($biodata?->nik ?? '-'),
-            "'".(string) ($biodata?->nisn ?? '-'),
+            "'" . (string) ($biodata?->phone ?? $user->phone ?? '-'),
+            "'" . (string) ($biodata?->nik ?? '-'),
+            "'" . (string) ($biodata?->nisn ?? '-'),
             $biodata?->gender ?? '-',
             $biodata?->birth_place ?? '-',
             $biodata?->birth_date ?? '-',
@@ -116,8 +118,8 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $registration?->registrationPeriod?->name ?? '-',
             $registration?->registrationType?->name ?? '-',
             $registration?->registrationPath?->name ?? '-',
-            $registration?->programStudiChoice1 ? ($registration->programStudiChoice1->jenjang.' - '.$registration->programStudiChoice1->name) : '-',
-            $registration?->programStudiChoice2 ? ($registration->programStudiChoice2->jenjang.' - '.$registration->programStudiChoice2->name) : '-',
+            $registration?->programStudiChoice1 ? ($registration->programStudiChoice1->jenjang . ' - ' . $registration->programStudiChoice1->name) : '-',
+            $registration?->programStudiChoice2 ? ($registration->programStudiChoice2->jenjang . ' - ' . $registration->programStudiChoice2->name) : '-',
             $this->getStatusLabel($registration?->status),
             $registration?->referral_source ?? '-',
             $registration?->referral_detail ?? '-',
@@ -160,4 +162,3 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         ];
     }
 }
-
