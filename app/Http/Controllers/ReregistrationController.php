@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Rules\SafeFileName;
 
 class ReregistrationController extends Controller
 {
@@ -195,7 +196,7 @@ class ReregistrationController extends Controller
     public function uploadPayment(Request $request): RedirectResponse
     {
         $request->validate([
-            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'payment_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
         ], [
             'payment_proof.required' => 'Bukti pembayaran wajib diunggah.',
             'payment_proof.mimes' => 'File harus berupa JPG, PNG, atau PDF.',

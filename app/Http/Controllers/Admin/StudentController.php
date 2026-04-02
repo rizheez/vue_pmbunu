@@ -25,6 +25,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Rules\SafeFileName;
 
 class StudentController extends Controller
 {
@@ -70,10 +71,10 @@ class StudentController extends Controller
             'school_origin' => 'required|string|max:255',
             'major' => 'nullable|string|max:100',
             // Documents
-            'photo' => 'required|file|image|max:1024',
-            'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'certificate' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'photo' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png', 'max:1024', new SafeFileName],
+            'ktp' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
+            'kk' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
+            'certificate' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
             // Registration
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',
@@ -331,10 +332,10 @@ class StudentController extends Controller
             'school_origin' => 'required|string|max:255',
             'major' => 'nullable|string|max:100',
             // Documents (Nullable on update)
-            'photo' => 'nullable|file|image|max:1024',
-            'ktp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'kk' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'certificate' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'photo' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png', 'max:1024', new SafeFileName],
+            'ktp' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
+            'kk' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
+            'certificate' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
             // Registration
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',

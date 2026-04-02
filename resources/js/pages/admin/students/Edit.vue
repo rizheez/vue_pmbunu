@@ -498,7 +498,7 @@ const breadcrumbs = [
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*"
+                                            accept=".jpg,.jpeg,.png"
                                             @change="
                                                 handleFileChange(
                                                     'photo',
@@ -540,7 +540,7 @@ const breadcrumbs = [
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange('ktp', $event)
                                             "
@@ -579,7 +579,7 @@ const breadcrumbs = [
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange('kk', $event)
                                             "
@@ -619,7 +619,7 @@ const breadcrumbs = [
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange(
                                                     'certificate',

@@ -158,7 +158,7 @@ const breadcrumbs = [
                                     <label class="cursor-pointer">
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept=".jpg,.jpeg,.png"
                                             class="hidden"
                                             @change="handleFileChange(setting.key, $event)"
                                         />
@@ -246,7 +246,7 @@ const breadcrumbs = [
                                     <label class="cursor-pointer">
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept=".jpg,.jpeg,.png"
                                             class="hidden"
                                             @change="handleFileChange(setting.key, $event)"
                                         />
@@ -304,7 +304,7 @@ const breadcrumbs = [
                                     <label class="cursor-pointer">
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept=".jpg,.jpeg,.png"
                                             class="hidden"
                                             @change="handleFileChange(setting.key, $event)"
                                         />

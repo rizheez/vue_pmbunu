@@ -512,7 +512,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*"
+                                            accept=".jpg,.jpeg,.png"
                                             @change="
                                                 handleFileChange(
                                                     'photo',
@@ -548,7 +548,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange('ktp', $event)
                                             "
@@ -581,7 +581,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange('kk', $event)
                                             "
@@ -617,7 +617,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         <input
                                             type="file"
                                             class="hidden"
-                                            accept="image/*,.pdf"
+                                            accept=".jpg,.jpeg,.png,.pdf"
                                             @change="
                                                 handleFileChange(
                                                     'certificate',
