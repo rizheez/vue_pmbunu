@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdmissionLetter;
 use App\Models\Announcement;
 use App\Models\Registration;
 use App\Models\RegistrationPeriod;
@@ -49,6 +50,10 @@ class StudentDashboardController extends Controller
         $isAccepted = $registration && in_array($registration->status, ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled']);
         $isEnrolled = $registration && $registration->status === 'enrolled';
 
+        $admissionLetter = AdmissionLetter::query()
+            ->where('user_id', Auth::id())
+            ->first();
+
         // Check reregistration status
         $reregistrationCompleted = $biodata && in_array($biodata->reregistration_status, ['payment_verified', 'completed']);
         $reregistrationInProgress = $isAccepted && ! $isEnrolled && ! $reregistrationCompleted;
@@ -69,6 +74,8 @@ class StudentDashboardController extends Controller
             'announcements' => $announcements,
             'activePeriod' => $activePeriod,
             'rejectedVerifications' => $rejectedVerifications,
+            'admissionLetter' => $admissionLetter,
+            'admissionLetterUrl' => $admissionLetter?->pdf_path ? route('student.admission-letter') : null,
         ]);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdmissionLetterController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocumentVerificationController;
@@ -7,7 +8,9 @@ use App\Http\Controllers\Admin\FakultasController;
 use App\Http\Controllers\Admin\PeriodController;
 use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\AdmissionLetterVerificationController;
 use App\Http\Controllers\RegistrationCardController;
+use App\Http\Controllers\StudentAdmissionLetterController;
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentRegistrationController;
@@ -43,6 +46,8 @@ Route::get('/', function () {
 
 Route::get('/panduan', [App\Http\Controllers\GuideController::class, 'index'])->name('panduan');
 Route::get('/panduan-lengkap', [App\Http\Controllers\GuideController::class, 'view'])->name('panduan.view');
+Route::get('/s/{token}', [AdmissionLetterVerificationController::class, 'show'])->name('admission-letters.short-verify');
+Route::get('/verifikasi-surat/{token}', [AdmissionLetterVerificationController::class, 'show'])->name('admission-letters.verify');
 
 Route::get('dashboard', function (Illuminate\Http\Request $request) {
     if ($request->user()->isStudent()) {
@@ -76,6 +81,7 @@ Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('stu
 
     // Registration card PDF
     Route::get('/registration-card', [RegistrationCardController::class, 'showStudent'])->name('registration-card');
+    Route::get('/admission-letter', [StudentAdmissionLetterController::class, 'show'])->name('admission-letter');
 });
 
 // Admin Panel Routes
@@ -167,6 +173,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // NIM Generation
     Route::get('/nim-generation', [\App\Http\Controllers\Admin\NimGenerationController::class, 'index'])->name('nim-generation.index');
     Route::post('/nim-generation/generate', [\App\Http\Controllers\Admin\NimGenerationController::class, 'generate'])->name('nim-generation.generate');
+
+    // Admission Letters
+    Route::get('/admission-letters', [AdmissionLetterController::class, 'index'])->name('admission-letters.index');
+    Route::post('/admission-letters', [AdmissionLetterController::class, 'store'])->name('admission-letters.store');
+    Route::post('/admission-letters/{letter}/regenerate', [AdmissionLetterController::class, 'regenerate'])->name('admission-letters.regenerate');
+    Route::get('/admission-letters/{letter}/pdf', [AdmissionLetterController::class, 'pdf'])->name('admission-letters.pdf');
 
     // Admin Reregistration (Manual)
     Route::get('/reregistration', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'index'])->name('reregistration.index');

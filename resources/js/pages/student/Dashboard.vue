@@ -24,6 +24,7 @@ import {
     BookOpen,
     Calendar,
     Check,
+    Download,
     FileText,
     Inbox,
     Megaphone,
@@ -47,6 +48,13 @@ interface Props {
     announcements: Announcement[];
     activePeriod: RegistrationPeriod | null;
     rejectedVerifications: DocumentVerification[];
+    admissionLetter: {
+        id: number;
+        letter_number: string;
+        letter_date: string;
+        subject: string;
+    } | null;
+    admissionLetterUrl: string | null;
 }
 
 const props = defineProps<Props>();
@@ -374,6 +382,42 @@ const props = defineProps<Props>();
                                         </span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Admission Letter -->
+                            <div
+                                v-if="props.admissionLetter && props.admissionLetterUrl"
+                                class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4"
+                            >
+                                <div class="mb-3 flex items-center gap-2">
+                                    <FileText class="size-5 text-blue-600" />
+                                    <span class="font-semibold text-blue-800">
+                                        Surat Penerimaan Tersedia
+                                    </span>
+                                </div>
+                                <div class="space-y-2 text-sm text-blue-800">
+                                    <div class="flex justify-between gap-4">
+                                        <span class="text-blue-700">Nomor Surat:</span>
+                                        <span class="font-mono font-medium text-right">
+                                            {{ props.admissionLetter.letter_number }}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between gap-4">
+                                        <span class="text-blue-700">Tanggal:</span>
+                                        <span class="font-medium">
+                                            {{ formatDate(props.admissionLetter.letter_date) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <Button
+                                    as-child
+                                    class="mt-4 w-full bg-blue-600 text-white hover:bg-blue-700"
+                                >
+                                    <a :href="props.admissionLetterUrl" target="_blank">
+                                        <Download class="mr-2 size-4" />
+                                        Download Surat Penerimaan
+                                    </a>
+                                </Button>
                             </div>
 
                             <!-- Rejected -->

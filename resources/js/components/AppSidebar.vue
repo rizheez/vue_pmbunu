@@ -24,6 +24,7 @@ import {
     GraduationCap,
     Home,
     LayoutGrid,
+    MailCheck,
     MessageSquare,
     Route,
     Settings,
@@ -121,6 +122,11 @@ const adminPendaftaran: NavItem[] = [
         title: 'Generate NIM',
         href: '/admin/nim-generation',
         icon: Sparkles,
+    },
+    {
+        title: 'Surat Penerimaan',
+        href: '/admin/admission-letters',
+        icon: MailCheck,
     },
     {
         title: 'Daftar Ulang Manual',
