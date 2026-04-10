@@ -169,6 +169,15 @@ const exportUrl = computed(() => {
                             <option value="verified">Terverifikasi</option>
                             <option value="accepted">Diterima</option>
                             <option value="rejected">Ditolak</option>
+                            <option value="re_registration_pending">
+                                Daftar Ulang Pending
+                            </option>
+                            <option value="re_registration_verified">
+                                Daftar Ulang Terverifikasi
+                            </option>
+                            <option value="enrolled">
+                                Diterima dan NIM terbit
+                            </option>
                         </select>
 
                         <select

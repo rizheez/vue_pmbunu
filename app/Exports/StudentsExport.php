@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exports;
 
 use App\Models\User;
@@ -13,7 +15,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting
+class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting, WithHeadings, WithMapping, WithStyles
 {
     protected Request $request;
 
@@ -101,8 +103,8 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         $registration = $user->registration;
 
         return [
-            "'" . $registration?->registration_number ?? '-',
-            "'" . $user->nim ?? '-',
+            "'" . ($registration?->registration_number ?? '-'),
+            ($user->nim ?? '-'),
             $biodata?->name ?? $user->name,
             $user->email,
             "'" . (string) ($biodata?->phone ?? $user->phone ?? '-'),
@@ -131,11 +133,14 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     {
         return match ($status) {
             'draft' => 'Draft',
-            'submitted' => 'Terdaftar',
+            'submitted' => 'Terdaftar (Menunggu hasil verifikasi)',
             'verified' => 'Terverifikasi',
             'accepted' => 'Diterima',
             'rejected' => 'Ditolak',
-            default => '-',
+            're_registration_pending' => 'Daftar Ulang Pending',
+            're_registration_verified' => 'Daftar Ulang Terverifikasi',
+            'enrolled' => 'Diterima dan NIM terbit',
+            default => $status ? ucfirst(str_replace('_', ' ', $status)) : '-',
         };
     }
 
