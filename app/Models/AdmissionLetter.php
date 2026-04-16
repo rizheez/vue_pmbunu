@@ -12,6 +12,7 @@ class AdmissionLetter extends Model
 {
     protected $fillable = [
         'user_id',
+        'source_type',
         'letter_number',
         'letter_date',
         'subject',

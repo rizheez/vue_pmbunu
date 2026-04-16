@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { Download, FileCheck, RefreshCw, Search } from 'lucide-vue-next';
+import { Download, FileCheck, RefreshCw, Search, Upload } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 const DEFAULT_SUBJECT = 'Pemberitahuan';
@@ -46,6 +46,7 @@ interface EligibleStudent {
 
 interface AdmissionLetter {
     id: number;
+    source_type: 'generate_web' | 'upload_file';
     letter_number: string;
     letter_date: string;
     subject: string;
@@ -100,10 +101,12 @@ const toDateInputValue = (date: Date) => {
 const today = toDateInputValue(new Date());
 const form = useForm({
     user_id: '',
+    source_type: 'generate_web' as 'generate_web' | 'upload_file',
     letter_number: '',
     letter_date: today,
     subject: DEFAULT_SUBJECT,
     signatory_name: DEFAULT_SIGNATORY,
+    uploaded_pdf: null as File | null,
 });
 
 const selectedStudent = computed(() =>
@@ -133,13 +136,20 @@ watch(perPage, () => {
 const submit = () => {
     form.post('/admin/admission-letters', {
         preserveScroll: true,
+        forceFormData: true,
         onSuccess: () => {
-            form.reset('user_id', 'letter_number');
+            form.reset('user_id', 'letter_number', 'uploaded_pdf');
+            form.source_type = 'generate_web';
             form.letter_date = today;
             form.subject = DEFAULT_SUBJECT;
             form.signatory_name = DEFAULT_SIGNATORY;
         },
     });
+};
+
+const handlePdfChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    form.uploaded_pdf = input.files?.[0] ?? null;
 };
 
 const formatDate = (date: string | null) => {
@@ -172,6 +182,9 @@ const regeneratePdf = (letter: AdmissionLetter) => {
         },
     );
 };
+
+const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
+    sourceType === 'upload_file' ? 'Upload File' : 'Generate Web';
 </script>
 
 <template>
@@ -183,11 +196,12 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                 <CardHeader>
                     <CardTitle class="flex items-center gap-2">
                         <FileCheck class="size-5" />
-                        Generate Surat Penerimaan
+                        Buat Surat Penerimaan
                     </CardTitle>
                     <CardDescription>
                         Pilih mahasiswa yang sudah punya NIM dan belum dibuatkan
-                        surat penerimaan.
+                        surat penerimaan. Surat bisa dibuat dari template web
+                        atau upload PDF manual.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -220,6 +234,64 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                             >
                                 Program Studi: {{ prodiName(selectedStudent) }}
                             </p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-medium">
+                                Sumber Surat
+                            </label>
+                            <div class="grid gap-3 md:grid-cols-2">
+                                <label
+                                    class="flex cursor-pointer items-start gap-3 rounded-lg border p-4"
+                                    :class="
+                                        form.source_type === 'generate_web'
+                                            ? 'border-primary bg-primary/5'
+                                            : 'border-input'
+                                    "
+                                >
+                                    <input
+                                        v-model="form.source_type"
+                                        type="radio"
+                                        value="generate_web"
+                                        class="mt-1"
+                                    />
+                                    <div>
+                                        <div class="font-medium">
+                                            Generate Web
+                                        </div>
+                                        <p class="text-sm text-muted-foreground">
+                                            Sistem membuat PDF surat dari
+                                            template yang ada.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <label
+                                    class="flex cursor-pointer items-start gap-3 rounded-lg border p-4"
+                                    :class="
+                                        form.source_type === 'upload_file'
+                                            ? 'border-primary bg-primary/5'
+                                            : 'border-input'
+                                    "
+                                >
+                                    <input
+                                        v-model="form.source_type"
+                                        type="radio"
+                                        value="upload_file"
+                                        class="mt-1"
+                                    />
+                                    <div>
+                                        <div class="font-medium">
+                                            Upload File
+                                        </div>
+                                        <p class="text-sm text-muted-foreground">
+                                            Upload PDF surat yang sudah dibuat
+                                            dari luar sistem.
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                            <InputError :message="form.errors.source_type" />
                         </div>
 
                         <div>
@@ -257,9 +329,40 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                             <InputError :message="form.errors.signatory_name" />
                         </div>
 
+                        <div
+                            v-if="form.source_type === 'upload_file'"
+                            class="md:col-span-2"
+                        >
+                            <label class="mb-1 block text-sm font-medium">
+                                File Surat (PDF)
+                            </label>
+                            <label
+                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed px-4 py-6 text-sm text-muted-foreground"
+                            >
+                                <Upload class="size-5" />
+                                <span>
+                                    {{
+                                        form.uploaded_pdf?.name ||
+                                        'Pilih file PDF untuk diupload'
+                                    }}
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".pdf,application/pdf"
+                                    class="hidden"
+                                    @change="handlePdfChange"
+                                />
+                            </label>
+                            <InputError :message="form.errors.uploaded_pdf" />
+                        </div>
+
                         <div class="md:col-span-2">
                             <Button :disabled="form.processing">
-                                Generate PDF
+                                {{
+                                    form.source_type === 'upload_file'
+                                        ? 'Upload Surat'
+                                        : 'Generate PDF'
+                                }}
                             </Button>
                         </div>
                     </form>
@@ -333,6 +436,9 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                                         Tanggal
                                     </th>
                                     <th class="px-4 py-3 text-left font-medium">
+                                        Sumber
+                                    </th>
+                                    <th class="px-4 py-3 text-left font-medium">
                                         Status
                                     </th>
                                     <th class="px-4 py-3 text-left font-medium">
@@ -364,6 +470,15 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                                     </td>
                                     <td class="px-4 py-3">
                                         {{ formatDate(letter.letter_date) }}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <Badge variant="outline">
+                                            {{
+                                                sourceTypeLabel(
+                                                    letter.source_type,
+                                                )
+                                            }}
+                                        </Badge>
                                     </td>
                                     <td class="px-4 py-3">
                                         <Badge
@@ -399,6 +514,10 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                                                 </a>
                                             </Button>
                                             <Button
+                                                v-if="
+                                                    letter.source_type ===
+                                                    'generate_web'
+                                                "
                                                 size="sm"
                                                 variant="ghost"
                                                 @click="regeneratePdf(letter)"
@@ -413,7 +532,7 @@ const regeneratePdf = (letter: AdmissionLetter) => {
                                 </tr>
                                 <tr v-if="props.letters.data.length === 0">
                                     <td
-                                        colspan="6"
+                                        colspan="7"
                                         class="px-4 py-8 text-center text-gray-500"
                                     >
                                         Belum ada surat penerimaan.

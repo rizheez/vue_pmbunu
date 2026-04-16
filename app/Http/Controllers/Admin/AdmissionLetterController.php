@@ -10,6 +10,7 @@ use App\Models\AdmissionLetter;
 use App\Models\User;
 use App\Services\AdmissionLetterPdfService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -83,6 +84,7 @@ class AdmissionLetterController extends Controller
 
             $letter = AdmissionLetter::create([
                 'user_id' => $student->id,
+                'source_type' => $validated['source_type'],
                 'letter_number' => $validated['letter_number'],
                 'letter_date' => $validated['letter_date'],
                 'subject' => $validated['subject'],
@@ -92,16 +94,23 @@ class AdmissionLetterController extends Controller
                 'generated_at' => now(),
             ]);
 
-            $letter->update([
-                'pdf_path' => $pdfService->generate($letter),
-            ]);
+            $pdfPath = $validated['source_type'] === 'upload_file'
+                ? $this->storeUploadedPdf($validated['uploaded_pdf'], $letter->letter_number)
+                : $pdfService->generate($letter);
+
+            $letter->update(['pdf_path' => $pdfPath]);
 
             return $letter;
         });
 
         return redirect()
             ->route('admin.admission-letters.index')
-            ->with('success', 'Surat penerimaan berhasil dibuat.')
+            ->with(
+                'success',
+                $validated['source_type'] === 'upload_file'
+                    ? 'Surat penerimaan berhasil diunggah.'
+                    : 'Surat penerimaan berhasil dibuat.'
+            )
             ->with('pdf_url', $letter->pdf_url);
     }
 
@@ -117,6 +126,12 @@ class AdmissionLetterController extends Controller
 
     public function regenerate(AdmissionLetter $letter, AdmissionLetterPdfService $pdfService): RedirectResponse
     {
+        if ($letter->source_type !== 'generate_web') {
+            return redirect()
+                ->route('admin.admission-letters.index')
+                ->with('error', 'Surat upload file tidak dapat diregenerate dari web.');
+        }
+
         if (strlen($letter->verification_token) > 24) {
             $letter->verification_token = Str::random(24);
         }
@@ -135,5 +150,12 @@ class AdmissionLetterController extends Controller
     private function safeDownloadFilename(string $letterNumber): string
     {
         return trim((string) preg_replace('/[^A-Za-z0-9\-]+/', '-', $letterNumber), '-');
+    }
+
+    private function storeUploadedPdf(UploadedFile $file, string $letterNumber): string
+    {
+        $filename = $this->safeDownloadFilename($letterNumber).'-'.now()->format('YmdHis').'.pdf';
+
+        return $file->storeAs('admission-letters/uploads', $filename, 'public');
     }
 }
