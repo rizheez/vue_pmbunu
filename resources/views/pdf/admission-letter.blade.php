@@ -268,11 +268,16 @@
         </p>
 
         <p class="paragraph">
-            Dengan ini kami memberitahukan bahwa {{ $biodata->name ?? $user->name }} telah mendaftar dan diterima
-            sebagai Mahasiswa Universitas Nahdlatul Ulama Kalimantan Timur dengan data sebagai berikut:
+            Dengan ini kami memberitahukan bahwa <strong>{{ $biodata->name ?? $user->name }} telah mendaftar dan diterima
+            sebagai Mahasiswa Universitas Nahdlatul Ulama Kalimantan Timur</strong> dengan data sebagai berikut:
         </p>
 
         <table class="student-table" style="margin-left: 10mm;">
+            <tr>
+                <td class="student-label">No. Pendaftaran</td>
+                <td class="colon">:</td>
+                <td>{{ $registration->registration_number ?? '-' }}</td>
+            </tr>
             <tr>
                 <td class="student-label">Nama Lengkap</td>
                 <td class="colon">:</td>
