@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { Download, FileCheck, RefreshCw, Search, Upload } from 'lucide-vue-next';
+import { Download, FileCheck, Mail, RefreshCw, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 const DEFAULT_SUBJECT = 'Pemberitahuan';
@@ -89,6 +89,7 @@ const breadcrumbs = [
 
 const search = ref(props.filters.search || '');
 const perPage = ref(props.letters.per_page || 10);
+const sendingLetterId = ref<number | null>(null);
 
 const toDateInputValue = (date: Date) => {
     const year = date.getFullYear();
@@ -102,7 +103,6 @@ const today = toDateInputValue(new Date());
 const form = useForm({
     user_id: '',
     source_type: 'generate_web' as 'generate_web' | 'upload_file',
-    letter_number: '',
     letter_date: today,
     subject: DEFAULT_SUBJECT,
     signatory_name: DEFAULT_SIGNATORY,
@@ -114,6 +114,16 @@ const selectedStudent = computed(() =>
         (student) => String(student.id) === form.user_id,
     ),
 );
+
+const automaticLetterNumberHint = computed(() => {
+    const [year, month] = form.letter_date.split('-');
+
+    if (!year || !month) {
+        return 'Otomatis: {nomor}/PMB/UNU-KT/{bulan}/{tahun}';
+    }
+
+    return `Otomatis: {nomor}/PMB/UNU-KT/${month}/${year}`;
+});
 
 const applyFilters = () => {
     router.get(
@@ -138,7 +148,7 @@ const submit = () => {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
-            form.reset('user_id', 'letter_number', 'uploaded_pdf');
+            form.reset('user_id', 'uploaded_pdf');
             form.source_type = 'generate_web';
             form.letter_date = today;
             form.subject = DEFAULT_SUBJECT;
@@ -147,10 +157,12 @@ const submit = () => {
     });
 };
 
+/*
 const handlePdfChange = (event: Event) => {
     const input = event.target as HTMLInputElement;
     form.uploaded_pdf = input.files?.[0] ?? null;
 };
+*/
 
 const formatDate = (date: string | null) => {
     if (!date) return '-';
@@ -183,6 +195,21 @@ const regeneratePdf = (letter: AdmissionLetter) => {
     );
 };
 
+const sendEmail = (letter: AdmissionLetter) => {
+    sendingLetterId.value = letter.id;
+
+    router.post(
+        `/admin/admission-letters/${letter.id}/send-email`,
+        {},
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                sendingLetterId.value = null;
+            },
+        },
+    );
+};
+
 const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
     sourceType === 'upload_file' ? 'Upload File' : 'Generate Web';
 </script>
@@ -200,8 +227,8 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                     </CardTitle>
                     <CardDescription>
                         Pilih mahasiswa yang sudah punya NIM dan belum dibuatkan
-                        surat penerimaan. Surat bisa dibuat dari template web
-                        atau upload PDF manual.
+                        surat penerimaan. Nomor surat dibuat otomatis oleh
+                        sistem.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -236,6 +263,7 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             </p>
                         </div>
 
+                        <!--
                         <div class="md:col-span-2">
                             <label class="mb-2 block text-sm font-medium">
                                 Sumber Surat
@@ -293,16 +321,16 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             </div>
                             <InputError :message="form.errors.source_type" />
                         </div>
+                        -->
 
                         <div>
                             <label class="mb-1 block text-sm font-medium">
                                 Nomor Surat
                             </label>
                             <Input
-                                v-model="form.letter_number"
-                                placeholder="01.1/418/UNU-KT/02/2026"
+                                :model-value="automaticLetterNumberHint"
+                                disabled
                             />
-                            <InputError :message="form.errors.letter_number" />
                         </div>
 
                         <div>
@@ -329,6 +357,7 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             <InputError :message="form.errors.signatory_name" />
                         </div>
 
+                        <!--
                         <div
                             v-if="form.source_type === 'upload_file'"
                             class="md:col-span-2"
@@ -355,14 +384,11 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             </label>
                             <InputError :message="form.errors.uploaded_pdf" />
                         </div>
+                        -->
 
                         <div class="md:col-span-2">
                             <Button :disabled="form.processing">
-                                {{
-                                    form.source_type === 'upload_file'
-                                        ? 'Upload Surat'
-                                        : 'Generate PDF'
-                                }}
+                                Generate PDF
                             </Button>
                         </div>
                     </form>
@@ -497,6 +523,23 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex gap-2">
+                                            <Button
+                                                v-if="letter.download_url"
+                                                size="sm"
+                                                variant="ghost"
+                                                :disabled="
+                                                    sendingLetterId ===
+                                                    letter.id
+                                                "
+                                                @click="sendEmail(letter)"
+                                            >
+                                                <Mail class="mr-1 size-4" />
+                                                {{
+                                                    letter.sent_at
+                                                        ? 'Kirim Ulang'
+                                                        : 'Kirim Email'
+                                                }}
+                                            </Button>
                                             <Button
                                                 v-if="letter.download_url"
                                                 as-child

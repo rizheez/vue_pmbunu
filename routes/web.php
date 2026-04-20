@@ -178,6 +178,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/admission-letters', [AdmissionLetterController::class, 'index'])->name('admission-letters.index');
     Route::post('/admission-letters', [AdmissionLetterController::class, 'store'])->name('admission-letters.store');
     Route::post('/admission-letters/{letter}/regenerate', [AdmissionLetterController::class, 'regenerate'])->name('admission-letters.regenerate');
+    Route::post('/admission-letters/{letter}/send-email', [AdmissionLetterController::class, 'sendEmail'])->name('admission-letters.send-email');
     Route::get('/admission-letters/{letter}/pdf', [AdmissionLetterController::class, 'pdf'])->name('admission-letters.pdf');
 
     // Admin Reregistration (Manual)
