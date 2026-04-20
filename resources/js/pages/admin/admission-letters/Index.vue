@@ -90,6 +90,8 @@ const breadcrumbs = [
 const search = ref(props.filters.search || '');
 const perPage = ref(props.letters.per_page || 10);
 const sendingLetterId = ref<number | null>(null);
+const studentSearch = ref('');
+const isStudentPickerOpen = ref(false);
 
 const toDateInputValue = (date: Date) => {
     const year = date.getFullYear();
@@ -109,11 +111,40 @@ const form = useForm({
     uploaded_pdf: null as File | null,
 });
 
+const studentName = (student: EligibleStudent) =>
+    student.student_biodata?.name || student.name;
+
+const prodiName = (student: EligibleStudent) => {
+    const prodi = student.registration?.accepted_program_studi;
+
+    if (!prodi) return '-';
+
+    return [prodi.jenjang, prodi.name].filter(Boolean).join(' ');
+};
+
 const selectedStudent = computed(() =>
     props.eligibleStudents.find(
         (student) => String(student.id) === form.user_id,
     ),
 );
+
+const studentOptionLabel = (student: EligibleStudent) =>
+    `${studentName(student)} - ${student.nim}`;
+
+const filteredEligibleStudents = computed(() => {
+    const keyword = studentSearch.value.trim().toLowerCase();
+
+    if (!keyword) {
+        return props.eligibleStudents;
+    }
+
+    return props.eligibleStudents.filter((student) =>
+        [studentName(student), student.nim, student.email, prodiName(student)]
+            .join(' ')
+            .toLowerCase()
+            .includes(keyword),
+    );
+});
 
 const automaticLetterNumberHint = computed(() => {
     const [year, month] = form.letter_date.split('-');
@@ -149,6 +180,7 @@ const submit = () => {
         forceFormData: true,
         onSuccess: () => {
             form.reset('user_id', 'uploaded_pdf');
+            studentSearch.value = '';
             form.source_type = 'generate_web';
             form.letter_date = today;
             form.subject = DEFAULT_SUBJECT;
@@ -174,15 +206,37 @@ const formatDate = (date: string | null) => {
     });
 };
 
-const studentName = (student: EligibleStudent) =>
-    student.student_biodata?.name || student.name;
+const updateStudentSearch = (value: string | number | null) => {
+    studentSearch.value = String(value ?? '');
+    form.user_id = '';
+    isStudentPickerOpen.value = true;
+};
 
-const prodiName = (student: EligibleStudent) => {
-    const prodi = student.registration?.accepted_program_studi;
+const selectStudent = (student: EligibleStudent) => {
+    form.user_id = String(student.id);
+    studentSearch.value = studentOptionLabel(student);
+    isStudentPickerOpen.value = false;
+};
 
-    if (!prodi) return '-';
+const closeStudentPicker = () => {
+    window.setTimeout(() => {
+        isStudentPickerOpen.value = false;
 
-    return [prodi.jenjang, prodi.name].filter(Boolean).join(' ');
+        if (selectedStudent.value) {
+            studentSearch.value = studentOptionLabel(selectedStudent.value);
+        }
+    }, 150);
+};
+
+const selectFirstFilteredStudent = () => {
+    if (
+        !isStudentPickerOpen.value ||
+        filteredEligibleStudents.value.length === 0
+    ) {
+        return;
+    }
+
+    selectStudent(filteredEligibleStudents.value[0]);
 };
 
 const regeneratePdf = (letter: AdmissionLetter) => {
@@ -240,20 +294,52 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             <label class="mb-1 block text-sm font-medium">
                                 Calon Mahasiswa
                             </label>
-                            <select
-                                v-model="form.user_id"
-                                class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                            >
-                                <option value="">Pilih mahasiswa</option>
-                                <option
-                                    v-for="student in props.eligibleStudents"
-                                    :key="student.id"
-                                    :value="String(student.id)"
+                            <div class="relative">
+                                <Input
+                                    :model-value="studentSearch"
+                                    placeholder="Cari nama, NIM, email, atau prodi"
+                                    autocomplete="off"
+                                    @focus="isStudentPickerOpen = true"
+                                    @blur="closeStudentPicker"
+                                    @update:model-value="updateStudentSearch"
+                                    @keydown.enter.prevent="
+                                        selectFirstFilteredStudent
+                                    "
+                                />
+                                <div
+                                    v-if="isStudentPickerOpen"
+                                    class="absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
                                 >
-                                    {{ studentName(student) }} -
-                                    {{ student.nim }}
-                                </option>
-                            </select>
+                                    <button
+                                        v-for="student in filteredEligibleStudents"
+                                        :key="student.id"
+                                        type="button"
+                                        class="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                                        @mousedown.prevent="
+                                            selectStudent(student)
+                                        "
+                                    >
+                                        <span class="block font-medium">
+                                            {{ studentOptionLabel(student) }}
+                                        </span>
+                                        <span
+                                            class="block text-xs text-muted-foreground"
+                                        >
+                                            {{ student.email }} ·
+                                            {{ prodiName(student) }}
+                                        </span>
+                                    </button>
+                                    <div
+                                        v-if="
+                                            filteredEligibleStudents.length ===
+                                            0
+                                        "
+                                        class="px-3 py-2 text-sm text-muted-foreground"
+                                    >
+                                        Mahasiswa tidak ditemukan.
+                                    </div>
+                                </div>
+                            </div>
                             <InputError :message="form.errors.user_id" />
                             <p
                                 v-if="selectedStudent"
@@ -345,7 +431,7 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             <label class="mb-1 block text-sm font-medium">
                                 Perihal
                             </label>
-                            <Input v-model="form.subject" />
+                            <Input v-model="form.subject" disabled />
                             <InputError :message="form.errors.subject" />
                         </div>
 
@@ -353,7 +439,7 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             <label class="mb-1 block text-sm font-medium">
                                 Penandatangan
                             </label>
-                            <Input v-model="form.signatory_name" />
+                            <Input v-model="form.signatory_name" disabled />
                             <InputError :message="form.errors.signatory_name" />
                         </div>
 
