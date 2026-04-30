@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Registration;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class EnrolledStudentController extends Controller
 {
@@ -34,5 +37,20 @@ class EnrolledStudentController extends Controller
             'programStudi' => \App\Models\ProgramStudi::where('is_active', true)->get(),
             'filters' => request()->only(['search', 'prodi']),
         ]);
+    }
+
+    public function cancel(Registration $registration): RedirectResponse
+    {
+        if ($registration->status !== 'enrolled') {
+            return redirect()->back()
+                ->with('error', 'Hanya mahasiswa aktif yang dapat dibatalkan.');
+        }
+
+        DB::transaction(function () use ($registration) {
+            $registration->update(['status' => 'cancelled']);
+        });
+
+        return redirect()->back()
+            ->with('success', 'Mahasiswa aktif berhasil dibatalkan. NIM tetap tersimpan sebagai riwayat nomor yang pernah diterbitkan.');
     }
 }

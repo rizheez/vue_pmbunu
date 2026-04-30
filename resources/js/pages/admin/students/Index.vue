@@ -96,6 +96,7 @@ const getStatusBadge = (regStatus: string | undefined) => {
             label: 'Daftar Ulang Terverifikasi',
         },
         enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
+        cancelled: { variant: 'destructive', label: 'Mahasiswa Dibatalkan' },
     };
     return map[regStatus || ''] || { variant: 'secondary', label: 'Unknown' };
 };
@@ -177,6 +178,9 @@ const exportUrl = computed(() => {
                             </option>
                             <option value="enrolled">
                                 Diterima dan NIM terbit
+                            </option>
+                            <option value="cancelled">
+                                Mahasiswa Dibatalkan
                             </option>
                         </select>
 

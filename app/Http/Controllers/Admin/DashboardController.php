@@ -104,6 +104,7 @@ class DashboardController extends Controller
                 're_registration_pending' => $statusStats['re_registration_pending'] ?? 0,
                 're_registration_verified' => $statusStats['re_registration_verified'] ?? 0,
                 'enrolled' => $statusStats['enrolled'] ?? 0,
+                'cancelled' => $statusStats['cancelled'] ?? 0,
             ],
             'programStats' => $programStats,
             'pendingVerifications' => $pendingVerifications,

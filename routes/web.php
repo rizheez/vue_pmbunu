@@ -190,6 +190,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Enrolled Students
     Route::get('/enrolled-students', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'index'])->name('enrolled-students.index');
+    Route::post('/enrolled-students/{registration}/cancel', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'cancel'])->name('enrolled-students.cancel');
 
     // Payment Settings
     Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('payment-settings.index');

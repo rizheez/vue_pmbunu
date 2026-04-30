@@ -48,6 +48,7 @@ interface Props {
         re_registration_pending: number;
         re_registration_verified: number;
         enrolled: number;
+        cancelled: number;
     };
     programStats: ProgramStat[];
     pendingVerifications: number;
@@ -82,6 +83,7 @@ const getStatusLabel = (status: string) => {
         re_registration_pending: 'Finalisasi Data',
         re_registration_verified: 'Daftar Ulang Terverifikasi',
         enrolled: 'Mahasiswa Aktif',
+        cancelled: 'Mahasiswa Dibatalkan',
     };
     return labels[status] || status;
 };

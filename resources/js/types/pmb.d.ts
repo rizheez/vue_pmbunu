@@ -10,7 +10,8 @@ export type RegistrationStatus =
     | 'rejected'
     | 're_registration_pending'
     | 're_registration_verified'
-    | 'enrolled';
+    | 'enrolled'
+    | 'cancelled';
 
 export type DocumentType = 'photo' | 'kk' | 'ktp' | 'certificate' | 'biodata';
 

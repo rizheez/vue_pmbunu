@@ -15,7 +15,11 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = User::query();
+        $query = User::query()
+            ->with([
+                'studentBiodata:id,user_id',
+                'registration:id,user_id,status',
+            ]);
 
         if ($request->filled('role') && $request->role !== 'all') {
             $query->where('role', $request->role);

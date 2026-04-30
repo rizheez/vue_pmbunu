@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -17,7 +27,7 @@ import {
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { GraduationCap, Search } from 'lucide-vue-next';
+import { GraduationCap, Search, XCircle } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 interface ProgramStudi {
@@ -71,6 +81,8 @@ const breadcrumbs = [
 
 const searchQuery = ref(props.filters.search);
 const prodiFilter = ref(props.filters.prodi || 'all');
+const showCancelDialog = ref(false);
+const selectedRegistration = ref<Registration | null>(null);
 
 // Watch for filter changes
 let debounceTimer: ReturnType<typeof setTimeout>;
@@ -97,6 +109,27 @@ const formatDate = (dateString: string) => {
         month: 'short',
         year: 'numeric',
     });
+};
+
+const openCancelDialog = (registration: Registration) => {
+    selectedRegistration.value = registration;
+    showCancelDialog.value = true;
+};
+
+const cancelEnrollment = () => {
+    if (!selectedRegistration.value) return;
+
+    router.post(
+        `/admin/enrolled-students/${selectedRegistration.value.id}/cancel`,
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                showCancelDialog.value = false;
+                selectedRegistration.value = null;
+            },
+        },
+    );
 };
 </script>
 
@@ -161,6 +194,7 @@ const formatDate = (dateString: string) => {
                                     <th class="px-4 py-3 text-left font-medium">Program Studi</th>
                                     <th class="px-4 py-3 text-left font-medium">Angkatan</th>
                                     <th class="px-4 py-3 text-left font-medium">Status</th>
+                                    <th class="px-4 py-3 text-center font-medium">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y">
@@ -212,10 +246,22 @@ const formatDate = (dateString: string) => {
                                             Aktif
                                         </span>
                                     </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex justify-center">
+                                            <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                @click="openCancelDialog(reg)"
+                                            >
+                                                <XCircle class="mr-1 size-4" />
+                                                Batalkan
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr v-if="registrations.data.length === 0">
                                     <td
-                                        colspan="5"
+                                        colspan="6"
                                         class="px-4 py-8 text-center text-muted-foreground"
                                     >
                                         Tidak ada data mahasiswa aktif yang ditemukan
@@ -248,6 +294,38 @@ const formatDate = (dateString: string) => {
                     </div>
                 </CardContent>
             </Card>
+
+            <AlertDialog v-model:open="showCancelDialog">
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Batalkan Mahasiswa Aktif?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Data
+                            <strong>{{
+                                selectedRegistration?.user.name
+                            }}</strong>
+                            dengan NIM
+                            <strong>{{
+                                selectedRegistration?.user.nim || '-'
+                            }}</strong>
+                            tidak akan dihapus dan NIM tetap tersimpan sebagai
+                            riwayat, tetapi mahasiswa tidak lagi tampil sebagai
+                            mahasiswa aktif.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            @click="cancelEnrollment"
+                        >
+                            Ya, Batalkan
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     </AppLayout>
 </template>

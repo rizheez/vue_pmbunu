@@ -140,6 +140,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             're_registration_pending' => 'Daftar Ulang Pending',
             're_registration_verified' => 'Daftar Ulang Terverifikasi',
             'enrolled' => 'Diterima dan NIM terbit',
+            'cancelled' => 'Mahasiswa Dibatalkan',
             default => $status ? ucfirst(str_replace('_', ' ', $status)) : '-',
         };
     }

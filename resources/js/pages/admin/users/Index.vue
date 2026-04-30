@@ -42,6 +42,8 @@ interface User {
     role: 'admin' | 'staff' | 'student';
     email_verified_at: string | null;
     created_at: string;
+    student_biodata: { id: number; user_id: number } | null;
+    registration: { id: number; user_id: number; status: string } | null;
 }
 
 interface Props {
@@ -161,6 +163,34 @@ const getRoleBadge = (role: string) => {
     }
 };
 
+const getPmbStatus = (user: User) => {
+    if (user.role !== 'student') {
+        return {
+            label: '-',
+            class: 'bg-gray-100 text-gray-600 hover:bg-gray-100',
+        };
+    }
+
+    if (user.registration) {
+        return {
+            label: 'Calon Mahasiswa',
+            class: 'bg-teal-100 text-teal-800 hover:bg-teal-100',
+        };
+    }
+
+    if (user.student_biodata) {
+        return {
+            label: 'Sudah Biodata',
+            class: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
+        };
+    }
+
+    return {
+        label: 'Akun Saja',
+        class: 'bg-amber-100 text-amber-800 hover:bg-amber-100',
+    };
+};
+
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
     { title: 'Manajemen Pengguna', href: '/admin/users' },
@@ -230,6 +260,9 @@ const breadcrumbs = [
                                     <th class="px-4 py-3 text-left">Telepon</th>
                                     <th class="px-4 py-3 text-left">Role</th>
                                     <th class="px-4 py-3 text-left">
+                                        Data PMB
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
                                         Verified
                                     </th>
                                     <th class="px-4 py-3 text-left">Aksi</th>
@@ -253,6 +286,14 @@ const breadcrumbs = [
                                             :variant="getRoleBadge(user.role)"
                                         >
                                             {{ user.role }}
+                                        </Badge>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <Badge
+                                            variant="secondary"
+                                            :class="getPmbStatus(user).class"
+                                        >
+                                            {{ getPmbStatus(user).label }}
                                         </Badge>
                                     </td>
                                     <td class="px-4 py-3">

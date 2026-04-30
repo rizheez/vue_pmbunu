@@ -187,6 +187,7 @@ const getStatusBadge = (status: string | undefined) => {
             label: 'Daftar Ulang Terverifikasi',
         },
         enrolled: { variant: 'default', label: 'Diterima dan NIM terbit' },
+        cancelled: { variant: 'destructive', label: 'Mahasiswa Dibatalkan' },
     };
     return map[status || ''] || { variant: 'secondary', label: 'Unknown' };
 };

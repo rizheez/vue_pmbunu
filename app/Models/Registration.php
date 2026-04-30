@@ -198,6 +198,7 @@ class Registration extends Model
             're_registration_pending' => 'Menunggu Daftar Ulang',
             're_registration_verified' => 'Daftar Ulang Terverifikasi',
             'enrolled' => 'Terdaftar Sebagai Mahasiswa',
+            'cancelled' => 'Mahasiswa Dibatalkan',
         ];
 
         return $labels[$this->status] ?? ucfirst($this->status);
@@ -222,6 +223,7 @@ class Registration extends Model
             're_registration_pending' => 'bg-yellow-100 text-yellow-800',
             're_registration_verified' => 'bg-indigo-100 text-indigo-800',
             'enrolled' => 'bg-purple-100 text-purple-800',
+            'cancelled' => 'bg-red-100 text-red-800',
         ];
 
         return $classes[$this->status] ?? 'bg-gray-100 text-gray-800';
@@ -237,6 +239,7 @@ class Registration extends Model
             'accepted' => ['re_registration_pending'],
             're_registration_pending' => ['re_registration_verified'],
             're_registration_verified' => ['enrolled'],
+            'enrolled' => ['cancelled'],
         ];
 
         return in_array($newStatus, $allowedTransitions[$this->status] ?? []);
