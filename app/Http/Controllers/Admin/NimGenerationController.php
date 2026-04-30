@@ -12,18 +12,36 @@ use Inertia\Response;
 
 class NimGenerationController extends Controller
 {
+    private const LEGACY_COMPLETED_REREGISTRATION_STATUSES = [
+        'form_completed',
+        'payment_pending',
+        'completed',
+    ];
+
     /**
      * Display the NIM generation page.
      */
     public function index(Request $request): Response
     {
         $query = Registration::with([
-            'user',
+            'user.studentBiodata',
             'acceptedProgramStudi',
             'registrationType',
             'registrationPeriod',
         ])
-            ->where('status', 're_registration_verified')
+            ->where(function ($query) {
+                $query->where('status', 're_registration_verified')
+                    ->orWhere(function ($query) {
+                        $query
+                            ->where('status', 're_registration_pending')
+                            ->whereHas('user.studentBiodata', function ($query) {
+                                $query->whereIn(
+                                    'reregistration_status',
+                                    self::LEGACY_COMPLETED_REREGISTRATION_STATUSES,
+                                );
+                            });
+                    });
+            })
             ->whereHas('user', fn ($q) => $q->whereNull('nim'));
 
         // Filter by prodi
@@ -95,6 +113,8 @@ class NimGenerationController extends Controller
                     continue;
                 }
 
+                $this->finalizeLegacyReregistration($registration);
+
                 if ($registration->user->nim) {
                     $results['failed'][] = [
                         'id' => $id,
@@ -140,5 +160,25 @@ class NimGenerationController extends Controller
             'message' => $message,
             'results' => $results,
         ]);
+    }
+
+    private function finalizeLegacyReregistration(Registration $registration): void
+    {
+        if ($registration->status !== 're_registration_pending') {
+            return;
+        }
+
+        $biodata = $registration->user->studentBiodata;
+
+        if (
+            ! $biodata ||
+            ! in_array($biodata->reregistration_status, self::LEGACY_COMPLETED_REREGISTRATION_STATUSES, true)
+        ) {
+            return;
+        }
+
+        $biodata->update(['reregistration_status' => 'completed']);
+        $registration->update(['status' => 're_registration_verified']);
+        $registration->refresh();
     }
 }
