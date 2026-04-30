@@ -323,7 +323,7 @@ const props = defineProps<Props>();
                             <!-- Accepted -->
                             <div
                                 v-if="
-                                    props.registration?.status === 'accepted' &&
+                                    ['accepted', 're_registration_pending'].includes(props.registration?.status || '') &&
                                     props.registration?.accepted_program_studi
                                 "
                                 class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"

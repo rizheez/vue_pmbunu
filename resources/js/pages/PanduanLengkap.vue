@@ -67,7 +67,7 @@ const steps = [
         number: 5,
         icon: ShieldCheck,
         title: 'Verifikasi & Daftar Ulang',
-        desc: 'Tunggu proses verifikasi dari Tim PMB. Setelah dinyatakan lolos, Anda akan dihubungi untuk proses daftar ulang dan informasi selanjutnya.',
+        desc: 'Tunggu proses verifikasi dari Tim PMB. Setelah dinyatakan lolos, lakukan daftar ulang untuk finalisasi data. Pendaftaran dan daftar ulang gratis.',
     },
 ];
 
@@ -403,7 +403,11 @@ const avoid = [
                 <ul class="space-y-2 text-amber-900">
                     <li class="md:flex md:items-center md:gap-2">
                         <span>•</span> Pendaftaran <strong>GRATIS</strong>,
-                        tidak dipungut biaya apapun.
+                        daftar ulang juga gratis.
+                    </li>
+                    <li class="md:flex md:items-center md:gap-2">
+                        <span>•</span> Rp300.000 hanya untuk paket opsional
+                        almamater dan KTM.
                     </li>
                     <li class="md:flex md:items-center md:gap-2">
                         <span>•</span> Panitia

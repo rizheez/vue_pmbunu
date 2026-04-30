@@ -29,12 +29,10 @@ import { Head, useForm } from '@inertiajs/vue3';
 import {
     Accessibility,
     ArrowLeft,
-    CreditCard,
     MapPin,
     Plus,
     Save,
     Trash2,
-    Upload,
     Users,
 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
@@ -56,24 +54,12 @@ interface Student {
     email: string;
 }
 
-interface Payment {
-    id: number;
-    user_id: number;
-    amount: number;
-    payment_proof_path: string | null;
-    payment_proof_url: string | null;
-    status: 'pending' | 'verified' | 'rejected';
-    notes: string | null;
-}
-
 interface Props {
     student: Student;
     biodata: StudentBiodata | null;
     parents: StudentParent[];
     specialNeeds: StudentSpecialNeed | null;
     registration: Registration;
-    payment: Payment | null;
-    paymentAmount: number;
     options: Options;
 }
 
@@ -137,8 +123,6 @@ const form = useForm({
     special_need_type: props.specialNeeds?.type ?? 'tidak_ada',
     special_need_description: props.specialNeeds?.description ?? '',
     special_need_assistance: props.specialNeeds?.assistance_needed ?? '',
-    payment_proof: null as File | null,
-    mark_as_verified: false,
 });
 
 const activeTab = ref('alamat');
@@ -161,21 +145,6 @@ const submit = () => {
         preserveScroll: true,
         forceFormData: true,
     });
-};
-
-const handleFileUpload = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
-        form.payment_proof = target.files[0];
-    }
-};
-
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-    }).format(amount);
 };
 
 watch(
@@ -227,7 +196,7 @@ watch(
                 <CardContent>
                     <form @submit.prevent="submit" class="space-y-6">
                         <Tabs v-model="activeTab" class="w-full">
-                            <TabsList class="grid w-full grid-cols-4">
+                            <TabsList class="grid w-full grid-cols-3">
                                 <TabsTrigger
                                     value="alamat"
                                     class="flex cursor-pointer items-center gap-2"
@@ -251,15 +220,6 @@ watch(
                                     <Accessibility class="size-4" />
                                     <span class="hidden sm:inline"
                                         >Kebutuhan</span
-                                    >
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="pembayaran"
-                                    class="flex cursor-pointer items-center gap-2"
-                                >
-                                    <CreditCard class="size-4" />
-                                    <span class="hidden sm:inline"
-                                        >Pembayaran</span
                                     >
                                 </TabsTrigger>
                             </TabsList>
@@ -735,158 +695,15 @@ watch(
                                 </div>
                             </TabsContent>
 
-                            <!-- Tab: Pembayaran -->
-                            <TabsContent
-                                value="pembayaran"
-                                class="mt-6 space-y-6"
-                            >
-                                <div class="space-y-4">
-                                    <div class="rounded-lg bg-muted/50 p-4">
-                                        <h4 class="mb-2 font-medium">
-                                            Biaya Daftar Ulang
-                                        </h4>
-                                        <p
-                                            class="text-2xl font-bold text-primary"
-                                        >
-                                            {{ formatCurrency(paymentAmount) }}
-                                        </p>
-                                    </div>
-
-                                    <!-- Existing Payment -->
-                                    <div
-                                        v-if="payment"
-                                        class="rounded-lg border p-4"
-                                    >
-                                        <h4 class="mb-3 font-medium">
-                                            Bukti Pembayaran Saat Ini
-                                        </h4>
-                                        <div class="flex items-start gap-4">
-                                            <div
-                                                v-if="payment.payment_proof_url"
-                                                class="shrink-0"
-                                            >
-                                                <img
-                                                    v-if="
-                                                        !payment.payment_proof_path?.endsWith(
-                                                            '.pdf',
-                                                        )
-                                                    "
-                                                    :src="
-                                                        payment.payment_proof_url
-                                                    "
-                                                    alt="Bukti Pembayaran"
-                                                    class="h-32 w-auto rounded border object-contain"
-                                                />
-                                                <div
-                                                    v-else
-                                                    class="flex h-32 w-24 items-center justify-center rounded border bg-muted"
-                                                >
-                                                    <span
-                                                        class="text-xs text-muted-foreground"
-                                                        >PDF</span
-                                                    >
-                                                </div>
-                                            </div>
-                                            <div class="space-y-1 text-sm">
-                                                <p>
-                                                    <span
-                                                        class="text-muted-foreground"
-                                                        >Status:</span
-                                                    >
-                                                    <span
-                                                        :class="{
-                                                            'text-yellow-600':
-                                                                payment.status ===
-                                                                'pending',
-                                                            'text-green-600':
-                                                                payment.status ===
-                                                                'verified',
-                                                            'text-red-600':
-                                                                payment.status ===
-                                                                'rejected',
-                                                        }"
-                                                        class="ml-1 font-medium"
-                                                    >
-                                                        {{
-                                                            payment.status ===
-                                                            'pending'
-                                                                ? 'Menunggu'
-                                                                : payment.status ===
-                                                                    'verified'
-                                                                  ? 'Terverifikasi'
-                                                                  : 'Ditolak'
-                                                        }}
-                                                    </span>
-                                                </p>
-                                                <p v-if="payment.notes">
-                                                    <span
-                                                        class="text-muted-foreground"
-                                                        >Catatan:</span
-                                                    >
-                                                    {{ payment.notes }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Upload New -->
-                                    <div class="space-y-2">
-                                        <Label>{{
-                                            payment
-                                                ? 'Ganti Bukti Pembayaran'
-                                                : 'Upload Bukti Pembayaran'
-                                        }}</Label>
-                                        <div class="flex items-center gap-4">
-                                            <label
-                                                class="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 px-6 py-4 transition-colors hover:border-primary"
-                                            >
-                                                <Upload
-                                                    class="size-5 text-muted-foreground"
-                                                />
-                                                <span
-                                                    class="text-sm text-muted-foreground"
-                                                >
-                                                    {{
-                                                        form.payment_proof
-                                                            ? form.payment_proof
-                                                                  .name
-                                                            : 'Pilih file (JPG, PNG, PDF max 2MB)'
-                                                    }}
-                                                </span>
-                                                <input
-                                                    type="file"
-                                                    accept=".jpg,.jpeg,.png,.pdf"
-                                                    class="hidden"
-                                                    @change="handleFileUpload"
-                                                />
-                                            </label>
-                                        </div>
-                                        <p
-                                            v-if="form.errors.payment_proof"
-                                            class="text-sm text-red-500"
-                                        >
-                                            {{ form.errors.payment_proof }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </TabsContent>
                         </Tabs>
 
                         <!-- Submit Section -->
                         <div class="border-t pt-6">
-                            <div class="mb-4 flex items-center space-x-2">
-                                <Checkbox
-                                    id="mark_as_verified"
-                                    v-model="form.mark_as_verified"
-                                />
-                                <Label
-                                    for="mark_as_verified"
-                                    class="cursor-pointer"
-                                >
-                                    Langsung set status ke "Daftar Ulang
-                                    Terverifikasi" (siap generate NIM)
-                                </Label>
-                            </div>
+                            <p class="mb-4 text-sm text-muted-foreground">
+                                Menyimpan data akan memfinalisasi daftar ulang
+                                dan mengubah status menjadi "Daftar Ulang
+                                Terverifikasi" agar siap generate NIM.
+                            </p>
                             <div class="flex gap-4">
                                 <Button
                                     type="submit"

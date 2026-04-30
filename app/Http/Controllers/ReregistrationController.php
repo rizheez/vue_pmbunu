@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PaymentSetting;
 use App\Models\RegistrationPeriod;
-use App\Models\ReregistrationPayment;
 use App\Models\StudentBiodata;
 use App\Models\StudentParent;
 use App\Models\StudentSpecialNeed;
@@ -14,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Rules\SafeFileName;
 
 class ReregistrationController extends Controller
 {
@@ -33,7 +30,7 @@ class ReregistrationController extends Controller
         // Check if registration is accepted or already in re-registration process
         $registration = \App\Models\Registration::where('user_id', Auth::id())->first();
 
-        if (! $registration || ! in_array($registration->status, ['accepted', 're_registration_pending'])) {
+        if (! $registration || ! in_array($registration->status, ['accepted', 're_registration_pending', 're_registration_verified'])) {
             return redirect()->route('student.dashboard')
                 ->with('error', 'Daftar ulang hanya untuk mahasiswa yang sudah diterima.');
         }
@@ -52,46 +49,22 @@ class ReregistrationController extends Controller
                 ->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
         }
 
-        // Get payment data
-        $payment = ReregistrationPayment::where('user_id', Auth::id())->first();
-
         return Inertia::render('student/reregistration/Edit', [
             'biodata' => $biodata,
             'parents' => $biodata->parents,
             'specialNeeds' => $biodata->specialNeeds->first(),
             'activePeriod' => $activePeriod,
             'options' => $this->getFormOptions(),
-            'payment' => $payment,
-            'paymentAmount' => (int) PaymentSetting::getValue('payment_amount', 300000),
         ]);
     }
 
     /**
-     * Show the payment page.
+     * Redirect legacy payment page requests back to data finalization.
      */
     public function paymentPage(): Response|RedirectResponse
     {
-        $biodata = StudentBiodata::where('user_id', Auth::id())->first();
-
-        if (! $biodata) {
-            return redirect()->route('student.reregistration.edit')
-                ->with('error', 'Silakan lengkapi form daftar ulang terlebih dahulu.');
-        }
-
-        // Check if form is completed
-        if (! in_array($biodata->reregistration_status, ['form_completed', 'payment_pending', 'payment_verified'])) {
-            return redirect()->route('student.reregistration.edit')
-                ->with('error', 'Silakan lengkapi form daftar ulang terlebih dahulu.');
-        }
-
-        $payment = ReregistrationPayment::where('user_id', Auth::id())->first();
-        $paymentInfo = \App\Models\PaymentSetting::getPaymentInfo();
-
-        return Inertia::render('student/reregistration/Payment', [
-            'biodata' => $biodata,
-            'payment' => $payment,
-            'paymentInfo' => $paymentInfo,
-        ]);
+        return redirect()->route('student.reregistration.edit')
+            ->with('info', 'Daftar ulang gratis. Silakan finalisasi data daftar ulang Anda.');
     }
 
     /**
@@ -168,7 +141,7 @@ class ReregistrationController extends Controller
                 'kps_number' => $validated['kps_recipient'] ? ($validated['kps_number'] ?? null) : null,
                 'residence_type' => $validated['residence_type'],
                 'transportation' => $validated['transportation'],
-                'reregistration_status' => 'form_completed',
+                'reregistration_status' => 'completed',
             ]);
 
             // Sync parents data
@@ -184,53 +157,23 @@ class ReregistrationController extends Controller
                 'description' => $validated['special_need_description'] ?? null,
                 'assistance_needed' => $validated['special_need_assistance'] ?? null,
             ]);
+
+            $biodata->user?->registration?->update([
+                'status' => 're_registration_verified',
+            ]);
         });
 
-        return redirect()->route('student.reregistration.edit')
-            ->with('success', 'Data daftar ulang berhasil disimpan. Silakan lanjutkan ke pembayaran.');
+        return redirect()->route('student.dashboard')
+            ->with('success', 'Data daftar ulang berhasil difinalisasi. Daftar ulang gratis; pembayaran hanya diperlukan jika mahasiswa membeli almamater dan KTM.');
     }
 
     /**
-     * Upload payment proof.
+     * Reject legacy payment proof uploads because re-registration is free.
      */
     public function uploadPayment(Request $request): RedirectResponse
     {
-        $request->validate([
-            'payment_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
-        ], [
-            'payment_proof.required' => 'Bukti pembayaran wajib diunggah.',
-            'payment_proof.mimes' => 'File harus berupa JPG, PNG, atau PDF.',
-            'payment_proof.max' => 'Ukuran file maksimal 2MB.',
-        ]);
-
-        $biodata = StudentBiodata::where('user_id', Auth::id())->firstOrFail();
-
-        // Check if form is completed first
-        if (! in_array($biodata->reregistration_status, ['form_completed', 'payment_pending'])) {
-            return redirect()->route('student.reregistration.edit')
-                ->with('error', 'Silakan lengkapi form daftar ulang terlebih dahulu.');
-        }
-
-        $path = $request->file('payment_proof')->store('reregistration-payments', 'public');
-
-        // Create or update payment record
-        $payment = ReregistrationPayment::updateOrCreate(
-            ['user_id' => Auth::id()],
-            [
-                'amount' => (int) PaymentSetting::getValue('payment_amount', 300000),
-                'payment_proof_path' => $path,
-                'status' => 'pending',
-                'verified_by' => null,
-                'verified_at' => null,
-                'notes' => null,
-            ]
-        );
-
-        // Update biodata status
-        $biodata->update(['reregistration_status' => 'payment_pending']);
-
         return redirect()->route('student.reregistration.edit')
-            ->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu verifikasi admin.');
+            ->with('info', 'Upload bukti pembayaran tidak diperlukan untuk daftar ulang.');
     }
 
     /**

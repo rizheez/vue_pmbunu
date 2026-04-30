@@ -98,7 +98,7 @@ const getStatusBadge = (status: string) => {
             return { label: 'Diterima', class: 'bg-green-100 text-green-800' };
         case 're_registration_pending':
             return {
-                label: 'Menunggu Daftar Ulang',
+                label: 'Finalisasi Data',
                 class: 'bg-yellow-100 text-yellow-800',
             };
         default:
@@ -110,12 +110,12 @@ const getReregistrationStatus = (status?: string) => {
     switch (status) {
         case 'form_completed':
             return {
-                label: 'Form Lengkap',
+                label: 'Siap Finalisasi',
                 class: 'bg-blue-100 text-blue-800',
             };
         case 'payment_pending':
             return {
-                label: 'Menunggu Verifikasi',
+                label: 'Perlu Finalisasi',
                 class: 'bg-orange-100 text-orange-800',
             };
         case 'completed':
@@ -169,7 +169,7 @@ const getReregistrationStatus = (status?: string) => {
                                     >Diterima</SelectItem
                                 >
                                 <SelectItem value="re_registration_pending"
-                                    >Menunggu Daftar Ulang</SelectItem
+                                    >Finalisasi Data</SelectItem
                                 >
                             </SelectContent>
                         </Select>

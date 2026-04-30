@@ -87,42 +87,42 @@ class RegistrationGuideSeeder extends Seeder
                 'group' => 'registration_guide',
             ],
 
-            // Step 4: Verifikasi & Pembayaran
+            // Step 4: Verifikasi Data
             [
                 'key' => 'registration_step_4_title',
-                'value' => 'Verifikasi & Pembayaran',
+                'value' => 'Verifikasi Data',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],
             [
                 'key' => 'registration_step_4_description',
-                'value' => 'Tunggu verifikasi dari admin dan lakukan pembayaran biaya pendaftaran.',
+                'value' => 'Tunggu verifikasi data dari admin. Pendaftaran dan daftar ulang gratis.',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],
             [
                 'key' => 'registration_step_4_icon',
-                'value' => 'credit-card',
+                'value' => 'shield-check',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],
 
-            // Step 5: Cetak Kartu Ujian
+            // Step 5: Daftar Ulang
             [
                 'key' => 'registration_step_5_title',
-                'value' => 'Cetak Kartu Ujian',
+                'value' => 'Daftar Ulang',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],
             [
                 'key' => 'registration_step_5_description',
-                'value' => 'Download dan cetak kartu peserta ujian masuk untuk mengikuti tes.',
+                'value' => 'Finalisasi data daftar ulang setelah dinyatakan diterima.',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],
             [
                 'key' => 'registration_step_5_icon',
-                'value' => 'printer',
+                'value' => 'user-check',
                 'type' => 'text',
                 'group' => 'registration_guide',
             ],

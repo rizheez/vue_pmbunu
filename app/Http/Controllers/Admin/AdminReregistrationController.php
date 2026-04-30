@@ -3,20 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PaymentSetting;
 use App\Models\Registration;
-use App\Models\ReregistrationPayment;
 use App\Models\StudentBiodata;
 use App\Models\StudentParent;
 use App\Models\StudentSpecialNeed;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Rules\SafeFileName;
 
 class AdminReregistrationController extends Controller
 {
@@ -73,17 +69,12 @@ class AdminReregistrationController extends Controller
                 ->with('error', 'Mahasiswa tidak dalam status yang dapat melakukan daftar ulang.');
         }
 
-        // Get payment data
-        $payment = ReregistrationPayment::where('user_id', $user->id)->first();
-
         return Inertia::render('admin/reregistration/Edit', [
             'student' => $user,
             'biodata' => $user->studentBiodata,
             'parents' => $user->studentBiodata?->parents ?? [],
             'specialNeeds' => $user->studentBiodata?->specialNeeds?->first(),
             'registration' => $user->registration,
-            'payment' => $payment,
-            'paymentAmount' => (int) PaymentSetting::getValue('payment_amount', 300000),
             'options' => $this->getFormOptions(),
         ]);
     }
@@ -141,11 +132,6 @@ class AdminReregistrationController extends Controller
             'special_need_description' => 'nullable|string',
             'special_need_assistance' => 'nullable|string',
 
-            // Payment
-            'payment_proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048', new SafeFileName],
-
-            // Status update option
-            'mark_as_verified' => 'boolean',
         ]);
 
         DB::transaction(function () use ($biodata, $user, $validated) {
@@ -186,38 +172,12 @@ class AdminReregistrationController extends Controller
                 'assistance_needed' => $validated['special_need_assistance'] ?? null,
             ]);
 
-            // Update registration status if requested
-            if ($validated['mark_as_verified'] ?? false) {
-                $user->registration->update([
-                    'status' => 're_registration_verified',
-                ]);
-            } elseif ($user->registration->status === 'accepted') {
-                $user->registration->update([
-                    'status' => 're_registration_pending',
-                ]);
-            }
+            $user->registration->update([
+                'status' => 're_registration_verified',
+            ]);
         });
 
-        // Handle payment proof upload (outside transaction for file handling)
-        if ($request->hasFile('payment_proof')) {
-            $path = $request->file('payment_proof')->store('reregistration-payments', 'public');
-
-            ReregistrationPayment::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'amount' => (int) PaymentSetting::getValue('payment_amount', 300000),
-                    'payment_proof_path' => $path,
-                    'status' => ($validated['mark_as_verified'] ?? false) ? 'verified' : 'pending',
-                    'verified_by' => ($validated['mark_as_verified'] ?? false) ? Auth::id() : null,
-                    'verified_at' => ($validated['mark_as_verified'] ?? false) ? now() : null,
-                ]
-            );
-        }
-
-        $message = 'Data daftar ulang berhasil disimpan.';
-        if ($validated['mark_as_verified'] ?? false) {
-            $message .= ' Status diubah ke "Daftar Ulang Terverifikasi".';
-        }
+        $message = 'Data daftar ulang berhasil difinalisasi. Status diubah ke "Daftar Ulang Terverifikasi".';
 
         return redirect()->route('admin.reregistration.index')
             ->with('success', $message);

@@ -49,19 +49,20 @@ const submit = () => {
 
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
-    { title: 'Pengaturan Pembayaran', href: '/admin/payment-settings' },
+    { title: 'Paket Almamater & KTM', href: '/admin/payment-settings' },
 ];
 </script>
 
 <template>
-    <Head title="Pengaturan Pembayaran" />
+    <Head title="Paket Almamater & KTM" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4">
             <div>
-                <h1 class="text-2xl font-bold">Pengaturan Pembayaran</h1>
+                <h1 class="text-2xl font-bold">Paket Almamater & KTM</h1>
                 <p class="text-sm text-muted-foreground">
-                    Kelola informasi rekening bank untuk pembayaran daftar ulang
+                    Kelola informasi pembayaran opsional untuk mahasiswa yang
+                    ingin membeli almamater dan KTM
                 </p>
             </div>
 
@@ -82,7 +83,8 @@ const breadcrumbs = [
                         Informasi Rekening Bank
                     </CardTitle>
                     <CardDescription>
-                        Informasi ini akan ditampilkan kepada mahasiswa pada halaman pembayaran daftar ulang
+                        Informasi ini hanya untuk paket opsional, bukan syarat
+                        daftar ulang.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -168,7 +170,7 @@ const breadcrumbs = [
 
                             <div class="space-y-2">
                                 <Label for="payment_amount">
-                                    Jumlah Pembayaran (Rp) <span class="text-red-500">*</span>
+                                    Harga Paket (Rp) <span class="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="payment_amount"

@@ -26,7 +26,7 @@ import type {
     StudentParent,
     StudentSpecialNeed,
 } from '@/types/pmb';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import {
     Accessibility,
     MapPin,
@@ -48,25 +48,12 @@ interface Options {
     specialNeedTypes: Record<string, string>;
 }
 
-interface Payment {
-    id: number;
-    user_id: number;
-    amount: number;
-    payment_proof_path: string | null;
-    payment_proof_url: string | null;
-    status: 'pending' | 'verified' | 'rejected';
-    notes: string | null;
-    verified_at: string | null;
-}
-
 interface Props {
     biodata: StudentBiodata & { reregistration_status?: string };
     parents: StudentParent[];
     specialNeeds: StudentSpecialNeed | null;
     activePeriod: RegistrationPeriod;
     options: Options;
-    payment: Payment | null;
-    paymentAmount: number;
 }
 
 const props = defineProps<Props>();
@@ -147,10 +134,6 @@ const removeParent = (index: number) => {
 const submit = () => {
     form.post('/student/reregistration', {
         preserveScroll: true,
-        onSuccess: () => {
-            // Redirect to payment page after successful form submission
-            router.visit('/student/reregistration/payment', { preserveScroll: true });
-        },
     });
 };
 

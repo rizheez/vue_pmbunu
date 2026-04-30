@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Bell, FileText, CreditCard } from 'lucide-vue-next';
+import { Bell, FileText } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const page = usePage();
@@ -24,7 +24,7 @@ const pendingCounts = computed(() => {
 // Calculate total pending items
 const totalPending = computed(() => {
     if (!pendingCounts.value) return 0;
-    return (pendingCounts.value.documents || 0) + (pendingCounts.value.payments || 0);
+    return pendingCounts.value.documents || 0;
 });
 </script>
 
@@ -54,18 +54,6 @@ const totalPending = computed(() => {
                         </div>
                         <Badge variant="secondary" class="bg-blue-100 text-blue-700 hover:bg-blue-100">
                             {{ pendingCounts.documents }}
-                        </Badge>
-                    </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem as-child v-if="pendingCounts.payments > 0">
-                    <Link href="/admin/reregistration" class="flex w-full cursor-pointer items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <CreditCard class="size-4 text-orange-500" />
-                            <span>Verifikasi Pembayaran</span>
-                        </div>
-                        <Badge variant="secondary" class="bg-orange-100 text-orange-700 hover:bg-orange-100">
-                            {{ pendingCounts.payments }}
                         </Badge>
                     </Link>
                 </DropdownMenuItem>

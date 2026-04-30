@@ -19,7 +19,6 @@ import {
     BookOpen,
     CheckCircle,
     Clock,
-    CreditCard,
     FileCheck,
     FileX,
     GraduationCap,
@@ -80,7 +79,7 @@ const getStatusLabel = (status: string) => {
         verified: 'Terverifikasi',
         accepted: 'Diterima',
         rejected: 'Ditolak',
-        re_registration_pending: 'Menunggu Daftar Ulang',
+        re_registration_pending: 'Finalisasi Data',
         re_registration_verified: 'Daftar Ulang Terverifikasi',
         enrolled: 'Mahasiswa Aktif',
     };
@@ -206,7 +205,7 @@ const getStatusLabel = (status: string) => {
                         class="flex flex-row items-center justify-between pb-2"
                     >
                         <CardTitle class="text-sm font-medium">
-                            Menunggu Daftar Ulang
+                            Perlu Finalisasi Data
                         </CardTitle>
                         <RefreshCw class="size-4 text-purple-500" />
                     </CardHeader>
@@ -220,30 +219,6 @@ const getStatusLabel = (status: string) => {
                                 class="underline hover:text-purple-600"
                             >
                                 Lihat daftar ulang
-                            </Link>
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card class="border-orange-200 bg-orange-50/50">
-                    <CardHeader
-                        class="flex flex-row items-center justify-between pb-2"
-                    >
-                        <CardTitle class="text-sm font-medium">
-                            Menunggu Verifikasi Bayar
-                        </CardTitle>
-                        <CreditCard class="size-4 text-orange-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div class="text-2xl font-bold text-orange-600">
-                            {{ props.pendingPaymentVerifications }}
-                        </div>
-                        <p class="text-xs text-muted-foreground">
-                            <Link
-                                href="/admin/reregistration-payments"
-                                class="underline hover:text-orange-600"
-                            >
-                                Verifikasi pembayaran
                             </Link>
                         </p>
                     </CardContent>
@@ -314,12 +289,6 @@ const getStatusLabel = (status: string) => {
                         <Link href="/admin/students?status=submitted">
                             <FileCheck class="mr-2 size-4" />
                             Verifikasi Dokumen
-                        </Link>
-                    </Button>
-                    <Button as-child variant="outline" class="flex-1">
-                        <Link href="/admin/reregistration-payments">
-                            <CreditCard class="mr-2 size-4" />
-                            Verifikasi Pembayaran
                         </Link>
                     </Button>
                     <Button as-child variant="outline" class="flex-1">

@@ -64,28 +64,14 @@ const studentNavItems = computed<NavItem[]>(() => {
 
     // Only show Daftar Ulang if registration is accepted
     if (
-        !['submitted', 'rejected', 'draft', 'verified'].includes(
+        ['accepted', 're_registration_pending'].includes(
             user.value?.registration_status,
-        ) &&
-        user.value?.registration_status !== null
+        )
     ) {
         items.push({
             title: 'Daftar Ulang',
             href: '/student/reregistration',
             icon: Users,
-        });
-    }
-
-    // Show Pembayaran Daftar Ulang if form is completed or payment pending
-    if (
-        ['form_completed', 'payment_pending'].includes(
-            user.value?.reregistration_status,
-        )
-    ) {
-        items.push({
-            title: 'Pembayaran Daftar Ulang',
-            href: '/student/reregistration/payment',
-            icon: CreditCard,
         });
     }
 
@@ -113,11 +99,6 @@ const adminPendaftaran: NavItem[] = [
         icon: UserPlus,
     },
 
-    {
-        title: 'Verifikasi Pembayaran',
-        href: '/admin/reregistration-payments',
-        icon: CreditCard,
-    },
     {
         title: 'Generate NIM',
         href: '/admin/nim-generation',
@@ -151,6 +132,11 @@ const adminAkademik: NavItem[] = [
         href: '/admin/enrolled-students',
         icon: Users,
     },
+    {
+        title: 'Verifikasi Pembayaran',
+        href: '/admin/reregistration-payments',
+        icon: CreditCard,
+    },
 ];
 
 const adminPengaturan: NavItem[] = [
@@ -170,7 +156,7 @@ const adminPengaturan: NavItem[] = [
         icon: Route,
     },
     {
-        title: 'Pengaturan Pembayaran',
+        title: 'Paket Almamater & KTM',
         href: '/admin/payment-settings',
         icon: CreditCard,
     },

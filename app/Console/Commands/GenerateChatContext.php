@@ -105,19 +105,22 @@ class GenerateChatContext extends Command
 
         // Important Notices
         $importantInfo = "INFORMASI PENTING:\n";
-        $importantInfo .= "- Pembayaran biaya registrasi awal dilakukan SAAT DAFTAR ULANG, bukan saat mengisi formulir awal.\n";
+        $importantInfo .= "- Pendaftaran dan daftar ulang gratis.\n";
+        $importantInfo .= "- Pembayaran Rp 300.000 hanya untuk mahasiswa yang ingin membeli paket almamater dan KTM.\n";
         $importantInfo .= "- Panitia TIDAK PERNAH meminta transfer uang ke rekening PRIBADI.\n";
         $importantInfo .= "- Hati-hati terhadap penipuan yang mengatasnamakan PMB UNU Kaltim.\n";
         $importantInfo .= '- Jika mengalami kendala teknis, hubungi panitia resmi melalui kontak yang tertera di website.';
 
         // Informasi Biaya (Pendaftaran, RPL, UKT)
         $biayaInfo = "INFORMASI BIAYA:\n";
-        $biayaInfo .= "1. BIAYA REGISTRASI AWAL / DAFTAR ULANG (Dibayar saat melakukan daftar ulang):\n";
+        $biayaInfo .= "1. BIAYA PENDAFTARAN DAN DAFTAR ULANG:\n";
+        $biayaInfo .= "   - Gratis.\n";
+        $biayaInfo .= "2. PAKET OPSIONAL ALMAMATER + KTM:\n";
         $biayaInfo .= "   - Nominal: Rp 300.000\n";
-        $biayaInfo .= "   - Mencakup: Pembuatan NIM, KTM (Kartu Tanda Mahasiswa), dan Jaket Almamater.\n";
-        $biayaInfo .= "2. BIAYA RPL (Rekognisi Pembelajaran Lampau) / ALIH JENJANG / PINDAHAN:\n";
+        $biayaInfo .= "   - Hanya dibayar jika mahasiswa ingin membeli almamater dan KTM (Kartu Tanda Mahasiswa).\n";
+        $biayaInfo .= "3. BIAYA RPL (Rekognisi Pembelajaran Lampau) / ALIH JENJANG / PINDAHAN:\n";
         $biayaInfo .= "   - Biaya Konversi: Rp 120.000 per SKS\n";
-        $biayaInfo .= "3. BIAYA UKT (Uang Kuliah Tunggal) PER SEMESTER:\n";
+        $biayaInfo .= "4. BIAYA UKT (Uang Kuliah Tunggal) PER SEMESTER:\n";
         $biayaInfo .= "   - Reguler Non-Farmasi: Rp 5.000.000\n";
         $biayaInfo .= "   - Reguler Farmasi: Rp 7.000.000\n";
         $biayaInfo .= "   - Kelas Karyawan: Hubungi Panitia PMB untuk informasi lebih lanjut\n";
@@ -148,6 +151,7 @@ class GenerateChatContext extends Command
 
         // Clear cached context so next request gets fresh data
         \Illuminate\Support\Facades\Cache::forget('chat_context');
+        \Illuminate\Support\Facades\Cache::forget('chat_context_' . app()->environment());
 
         $this->info('Chat context generated successfully at ' . storage_path('app/chat_context.txt'));
     }

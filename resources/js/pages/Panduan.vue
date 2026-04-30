@@ -55,7 +55,7 @@ const steps = [
     {
         number: 5,
         title: 'Verifikasi & Daftar Ulang',
-        desc: 'Tunggu verifikasi Tim PMB. Setelah lolos, Anda akan dihubungi untuk proses daftar ulang dan pembayaran UKT.',
+        desc: 'Tunggu verifikasi Tim PMB. Setelah lolos, lakukan daftar ulang untuk finalisasi data. Pendaftaran dan daftar ulang gratis.',
         highlight: true,
     },
 ];
@@ -336,6 +336,10 @@ const avoid = [
                         <span class="flex items-center gap-1"
                             >• Pendaftaran <strong>GRATIS</strong>, tidak
                             dipungut biaya</span
+                        >
+                        <span class="flex items-center gap-1"
+                            >• Rp300.000 hanya untuk paket opsional almamater
+                            dan KTM</span
                         >
                         <span class="flex items-center gap-1"
                             >• Panitia <strong>TIDAK PERNAH</strong> meminta
