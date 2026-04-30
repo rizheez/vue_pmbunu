@@ -17,12 +17,21 @@ class UserController extends Controller
     {
         $query = User::query()
             ->with([
-                'studentBiodata:id,user_id',
                 'registration:id,user_id,status',
             ]);
 
         if ($request->filled('role') && $request->role !== 'all') {
             $query->where('role', $request->role);
+        }
+
+        if ($request->filled('pmb_status') && $request->pmb_status !== 'all') {
+            $query->where('role', 'student');
+
+            match ($request->pmb_status) {
+                'candidate' => $query->whereHas('registration'),
+                'account_only' => $query->whereDoesntHave('registration'),
+                default => null,
+            };
         }
 
         if ($request->filled('search')) {
@@ -37,7 +46,7 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/Index', [
             'users' => $users,
-            'filters' => $request->only(['role', 'search']),
+            'filters' => $request->only(['role', 'search', 'pmb_status']),
         ]);
     }
 

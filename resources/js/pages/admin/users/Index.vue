@@ -42,7 +42,6 @@ interface User {
     role: 'admin' | 'staff' | 'student';
     email_verified_at: string | null;
     created_at: string;
-    student_biodata: { id: number; user_id: number } | null;
     registration: { id: number; user_id: number; status: string } | null;
 }
 
@@ -53,6 +52,7 @@ interface Props {
     };
     filters: {
         role?: string;
+        pmb_status?: string;
         search?: string;
     };
 }
@@ -64,13 +64,18 @@ const flash = computed(
 );
 
 const filterRole = ref(props.filters.role || 'all');
+const filterPmbStatus = ref(props.filters.pmb_status || 'all');
 const search = ref(props.filters.search || '');
 
-watch([filterRole, search], () => {
+watch([filterRole, filterPmbStatus, search], () => {
     router.get(
         '/admin/users',
         {
             role: filterRole.value !== 'all' ? filterRole.value : undefined,
+            pmb_status:
+                filterPmbStatus.value !== 'all'
+                    ? filterPmbStatus.value
+                    : undefined,
             search: search.value || undefined,
         },
         { preserveState: true, replace: true },
@@ -178,13 +183,6 @@ const getPmbStatus = (user: User) => {
         };
     }
 
-    if (user.student_biodata) {
-        return {
-            label: 'Sudah Biodata',
-            class: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
-        };
-    }
-
     return {
         label: 'Akun Saja',
         class: 'bg-amber-100 text-amber-800 hover:bg-amber-100',
@@ -242,6 +240,20 @@ const breadcrumbs = [
                                 <SelectItem value="admin">Admin</SelectItem>
                                 <SelectItem value="staff">Staff</SelectItem>
                                 <SelectItem value="student">Student</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select v-model="filterPmbStatus">
+                            <SelectTrigger class="w-44">
+                                <SelectValue placeholder="Data PMB" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua PMB</SelectItem>
+                                <SelectItem value="candidate">
+                                    Calon Mahasiswa
+                                </SelectItem>
+                                <SelectItem value="account_only">
+                                    Akun Saja
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                         <Button @click="openCreate">
