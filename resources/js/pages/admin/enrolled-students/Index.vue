@@ -131,6 +131,11 @@ const cancelEnrollment = () => {
         },
     );
 };
+
+const rowNumber = (index: number) =>
+    (props.registrations.current_page - 1) * props.registrations.per_page +
+    index +
+    1;
 </script>
 
 <template>
@@ -189,6 +194,7 @@ const cancelEnrollment = () => {
                         <table class="w-full text-sm">
                             <thead class="bg-muted/50">
                                 <tr>
+                                    <th class="w-16 px-4 py-3 text-left font-medium">No</th>
                                     <th class="px-4 py-3 text-left font-medium">NIM</th>
                                     <th class="px-4 py-3 text-left font-medium">Nama Mahasiswa</th>
                                     <th class="px-4 py-3 text-left font-medium">Program Studi</th>
@@ -199,10 +205,13 @@ const cancelEnrollment = () => {
                             </thead>
                             <tbody class="divide-y">
                                 <tr
-                                    v-for="reg in registrations.data"
+                                    v-for="(reg, index) in registrations.data"
                                     :key="reg.id"
                                     class="hover:bg-muted/50"
                                 >
+                                    <td class="px-4 py-3 text-muted-foreground">
+                                        {{ rowNumber(index) }}
+                                    </td>
                                     <td class="px-4 py-3 font-mono font-medium">
                                         {{ reg.user.nim || '-' }}
                                     </td>
@@ -261,7 +270,7 @@ const cancelEnrollment = () => {
                                 </tr>
                                 <tr v-if="registrations.data.length === 0">
                                     <td
-                                        colspan="6"
+                                        colspan="7"
                                         class="px-4 py-8 text-center text-muted-foreground"
                                     >
                                         Tidak ada data mahasiswa aktif yang ditemukan

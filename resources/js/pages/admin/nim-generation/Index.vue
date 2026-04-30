@@ -177,6 +177,11 @@ const formatDate = (dateString: string) => {
         year: 'numeric',
     });
 };
+
+const rowNumber = (index: number) =>
+    (props.registrations.current_page - 1) * props.registrations.per_page +
+    index +
+    1;
 </script>
 
 <template>
@@ -255,6 +260,9 @@ const formatDate = (dateString: string) => {
                                             @update:model-value="toggleAll"
                                         />
                                     </th>
+                                    <th class="w-16 px-4 py-3 text-left font-medium">
+                                        No
+                                    </th>
                                     <th class="px-4 py-3 text-left font-medium">
                                         No. Registrasi
                                     </th>
@@ -277,7 +285,7 @@ const formatDate = (dateString: string) => {
                             </thead>
                             <tbody class="divide-y">
                                 <tr
-                                    v-for="reg in registrations.data"
+                                    v-for="(reg, index) in registrations.data"
                                     :key="reg.id"
                                     class="hover:bg-muted/50"
                                     :class="{
@@ -293,6 +301,9 @@ const formatDate = (dateString: string) => {
                                                 toggleSelection(reg.id)
                                             "
                                         />
+                                    </td>
+                                    <td class="px-4 py-3 text-muted-foreground">
+                                        {{ rowNumber(index) }}
                                     </td>
                                     <td
                                         class="px-4 py-3 font-mono text-xs text-muted-foreground"
@@ -353,7 +364,7 @@ const formatDate = (dateString: string) => {
                                 </tr>
                                 <tr v-if="registrations.data.length === 0">
                                     <td
-                                        colspan="7"
+                                        colspan="8"
                                         class="px-4 py-8 text-center text-muted-foreground"
                                     >
                                         Tidak ada calon mahasiswa yang siap

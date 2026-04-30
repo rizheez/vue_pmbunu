@@ -48,6 +48,8 @@ interface User {
 interface Props {
     users: {
         data: User[];
+        current_page: number;
+        per_page: number;
         links: { url: string | null; label: string; active: boolean }[];
     };
     filters: {
@@ -189,6 +191,9 @@ const getPmbStatus = (user: User) => {
     };
 };
 
+const rowNumber = (index: number) =>
+    (props.users.current_page - 1) * props.users.per_page + index + 1;
+
 const breadcrumbs = [
     { title: 'Admin Dashboard', href: '/admin/dashboard' },
     { title: 'Manajemen Pengguna', href: '/admin/users' },
@@ -267,6 +272,7 @@ const breadcrumbs = [
                         <table class="w-full text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="w-16 px-4 py-3 text-left">No</th>
                                     <th class="px-4 py-3 text-left">Nama</th>
                                     <th class="px-4 py-3 text-left">Email</th>
                                     <th class="px-4 py-3 text-left">Telepon</th>
@@ -282,10 +288,13 @@ const breadcrumbs = [
                             </thead>
                             <tbody class="divide-y">
                                 <tr
-                                    v-for="user in props.users.data"
+                                    v-for="(user, index) in props.users.data"
                                     :key="user.id"
                                     class="hover:bg-gray-50"
                                 >
+                                    <td class="px-4 py-3 text-gray-500">
+                                        {{ rowNumber(index) }}
+                                    </td>
                                     <td class="px-4 py-3 font-medium">
                                         {{ user.name }}
                                     </td>

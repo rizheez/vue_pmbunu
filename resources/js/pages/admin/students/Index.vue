@@ -113,6 +113,9 @@ const exportUrl = computed(() => {
     if (period.value !== 'all') params.append('period', period.value);
     return `/admin/students-export?${params.toString()}`;
 });
+
+const rowNumber = (index: number) =>
+    (props.students.current_page - 1) * props.students.per_page + index + 1;
 </script>
 
 <template>
@@ -215,6 +218,11 @@ const exportUrl = computed(() => {
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th
+                                        class="w-16 px-4 py-3 text-left font-medium"
+                                    >
+                                        No
+                                    </th>
+                                    <th
                                         class="min-w-[140px] px-4 py-3 text-left font-medium"
                                     >
                                         No. Pendaftaran
@@ -254,10 +262,14 @@ const exportUrl = computed(() => {
                             </thead>
                             <tbody class="divide-y">
                                 <tr
-                                    v-for="student in props.students.data"
+                                    v-for="(student, index) in props.students
+                                        .data"
                                     :key="student.id"
                                     class="hover:bg-gray-50"
                                 >
+                                    <td class="px-4 py-3 text-gray-500">
+                                        {{ rowNumber(index) }}
+                                    </td>
                                     <td class="px-4 py-3 font-mono text-xs">
                                         {{
                                             student.registration
@@ -362,7 +374,7 @@ const exportUrl = computed(() => {
                                 </tr>
                                 <tr v-if="props.students.data.length === 0">
                                     <td
-                                        colspan="8"
+                                        colspan="9"
                                         class="px-4 py-8 text-center text-gray-500"
                                     >
                                         Tidak ada data mahasiswa
