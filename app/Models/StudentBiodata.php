@@ -28,6 +28,7 @@ class StudentBiodata extends Model
         'kk_path',
         'ktp_path',
         'certificate_path',
+        'color_blind_certificate_path',
         // Re-registration fields (Neo Feeder compatible)
         'mother_name',
         'npwp',
@@ -48,7 +49,13 @@ class StudentBiodata extends Model
         'reregistration_status',
     ];
 
-    protected $appends = ['photo_url', 'kk_url', 'ktp_url', 'certificate_url'];
+    protected $appends = [
+        'photo_url',
+        'kk_url',
+        'ktp_url',
+        'certificate_url',
+        'color_blind_certificate_url',
+    ];
 
     /**
      * @return array<string, string>
@@ -125,6 +132,13 @@ class StudentBiodata extends Model
     {
         return $this->certificate_path
             ? Storage::url($this->certificate_path)
+            : null;
+    }
+
+    public function getColorBlindCertificateUrlAttribute(): ?string
+    {
+        return $this->color_blind_certificate_path
+            ? Storage::url($this->color_blind_certificate_path)
             : null;
     }
 

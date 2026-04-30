@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type {
+    Registration,
     RegistrationPeriod,
     StudentBiodata,
     StudentParent,
@@ -29,6 +30,7 @@ import type {
 import { Head, useForm } from '@inertiajs/vue3';
 import {
     Accessibility,
+    FileText,
     MapPin,
     Plus,
     Save,
@@ -36,7 +38,7 @@ import {
     UserRound,
     Users,
 } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Options {
     residenceTypes: Record<string, string>;
@@ -53,6 +55,7 @@ interface Props {
     parents: StudentParent[];
     specialNeeds: StudentSpecialNeed | null;
     activePeriod: RegistrationPeriod;
+    registration: Registration;
     options: Options;
 }
 
@@ -117,9 +120,16 @@ const form = useForm({
     special_need_type: props.specialNeeds?.type ?? 'tidak_ada',
     special_need_description: props.specialNeeds?.description ?? '',
     special_need_assistance: props.specialNeeds?.assistance_needed ?? '',
+
+    color_blind_certificate: null as File | null,
 });
 
 const activeTab = ref('alamat');
+const isPharmacy = computed(() =>
+    (props.registration.accepted_program_studi?.name || '')
+        .toLowerCase()
+        .includes('farmasi'),
+);
 
 const addParent = () => {
     form.parents.push({ ...defaultParent(), type: 'wali' });
@@ -134,7 +144,13 @@ const removeParent = (index: number) => {
 const submit = () => {
     form.post('/student/reregistration', {
         preserveScroll: true,
+        forceFormData: true,
     });
+};
+
+const handleColorBlindCertificate = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    form.color_blind_certificate = input.files?.[0] ?? null;
 };
 
 const breadcrumbs = [
@@ -215,7 +231,12 @@ watch(
 
                     <form @submit.prevent="submit" class="space-y-6">
                         <Tabs v-model="activeTab" class="w-full">
-                            <TabsList class="grid w-full grid-cols-4">
+                            <TabsList
+                                :class="[
+                                    'grid w-full',
+                                    isPharmacy ? 'grid-cols-5' : 'grid-cols-4',
+                                ]"
+                            >
                                 <TabsTrigger
                                     value="alamat"
                                     class="flex cursor-pointer items-center gap-2"
@@ -238,6 +259,16 @@ watch(
                                 >
                                     <UserRound class="size-4" />
                                     <span class="hidden sm:inline">Wali</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    v-if="isPharmacy"
+                                    value="dokumen"
+                                    class="flex cursor-pointer items-center gap-2"
+                                >
+                                    <FileText class="size-4" />
+                                    <span class="hidden sm:inline"
+                                        >Dokumen</span
+                                    >
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="kebutuhan_khusus"
@@ -799,6 +830,64 @@ watch(
                                     <Plus class="mr-2 size-4" />
                                     Tambah Wali
                                 </Button>
+                            </TabsContent>
+
+                            <!-- Tab: Dokumen Farmasi -->
+                            <TabsContent
+                                v-if="isPharmacy"
+                                value="dokumen"
+                                class="mt-6 space-y-6"
+                            >
+                                <div class="rounded-lg border p-4">
+                                    <div class="space-y-2">
+                                        <Label for="color_blind_certificate">
+                                            Surat Keterangan Bebas Buta Warna *
+                                        </Label>
+                                        <Input
+                                            id="color_blind_certificate"
+                                            type="file"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            @change="
+                                                handleColorBlindCertificate
+                                            "
+                                        />
+                                        <p class="text-sm text-muted-foreground">
+                                            Wajib untuk Program Studi Farmasi.
+                                            Format PDF/JPG/PNG, maksimal 2 MB.
+                                        </p>
+                                        <p
+                                            v-if="
+                                                biodata.color_blind_certificate_url
+                                            "
+                                            class="text-sm text-emerald-600"
+                                        >
+                                            Dokumen sebelumnya sudah terupload.
+                                            <a
+                                                :href="
+                                                    biodata.color_blind_certificate_url
+                                                "
+                                                target="_blank"
+                                                class="font-medium underline"
+                                            >
+                                                Lihat dokumen
+                                            </a>
+                                            atau upload file baru jika ingin
+                                            mengganti.
+                                        </p>
+                                        <p
+                                            v-if="
+                                                form.errors
+                                                    .color_blind_certificate
+                                            "
+                                            class="text-sm text-red-500"
+                                        >
+                                            {{
+                                                form.errors
+                                                    .color_blind_certificate
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
                             </TabsContent>
 
                             <!-- Tab: Kebutuhan Khusus -->

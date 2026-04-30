@@ -6,10 +6,13 @@ use App\Models\RegistrationPeriod;
 use App\Models\StudentBiodata;
 use App\Models\StudentParent;
 use App\Models\StudentSpecialNeed;
+use App\Rules\SafeFileName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,7 +31,9 @@ class ReregistrationController extends Controller
         }
 
         // Check if registration is accepted or already in re-registration process
-        $registration = \App\Models\Registration::where('user_id', Auth::id())->first();
+        $registration = \App\Models\Registration::with('acceptedProgramStudi')
+            ->where('user_id', Auth::id())
+            ->first();
 
         if (! $registration || ! in_array($registration->status, ['accepted', 're_registration_pending', 're_registration_verified'])) {
             return redirect()->route('student.dashboard')
@@ -54,6 +59,7 @@ class ReregistrationController extends Controller
             'parents' => $biodata->parents,
             'specialNeeds' => $biodata->specialNeeds->first(),
             'activePeriod' => $activePeriod,
+            'registration' => $registration,
             'options' => $this->getFormOptions(),
         ]);
     }
@@ -72,7 +78,10 @@ class ReregistrationController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        $biodata = StudentBiodata::where('user_id', Auth::id())->firstOrFail();
+        $biodata = StudentBiodata::with('user.registration.acceptedProgramStudi')
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+        $isPharmacy = $this->isPharmacyRegistration($biodata->user?->registration);
 
         $validated = $request->validate([
             // Contact info
@@ -111,8 +120,18 @@ class ReregistrationController extends Controller
             'special_need_type' => 'required|string|in:'.implode(',', array_keys(StudentSpecialNeed::typeOptions())),
             'special_need_description' => 'nullable|string',
             'special_need_assistance' => 'nullable|string',
+
+            'color_blind_certificate' => [
+                Rule::requiredIf($isPharmacy && ! $biodata->color_blind_certificate_path),
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:2048',
+                new SafeFileName,
+            ],
         ], [
             'required' => ':attribute wajib diisi.',
+            'color_blind_certificate.required' => 'Surat keterangan bebas buta warna wajib diupload untuk Program Studi Farmasi.',
             'email' => 'Format email tidak valid.',
             'parents.required' => 'Data orang tua wajib diisi.',
             'parents.min' => 'Minimal 1 data orang tua harus diisi.',
@@ -120,13 +139,12 @@ class ReregistrationController extends Controller
             'parents.*.type.required' => 'Tipe orang tua wajib dipilih.',
         ]);
 
-        DB::transaction(function () use ($biodata, $validated) {
+        DB::transaction(function () use ($biodata, $request, $validated) {
             // Get mother's name from parents data
             $motherName = collect($validated['parents'])
                 ->firstWhere('type', 'ibu')['name'] ?? null;
 
-            // Update biodata
-            $biodata->update([
+            $biodataData = [
                 'mother_name' => $motherName,
                 'npwp' => $validated['npwp'] ?? null,
                 'dusun' => $validated['dusun'] ?? null,
@@ -142,7 +160,20 @@ class ReregistrationController extends Controller
                 'residence_type' => $validated['residence_type'],
                 'transportation' => $validated['transportation'],
                 'reregistration_status' => 'completed',
-            ]);
+            ];
+
+            if ($request->hasFile('color_blind_certificate')) {
+                if ($biodata->color_blind_certificate_path) {
+                    Storage::disk('public')->delete($biodata->color_blind_certificate_path);
+                }
+
+                $biodataData['color_blind_certificate_path'] = $request
+                    ->file('color_blind_certificate')
+                    ->store('students/color-blind-certificates', 'public');
+            }
+
+            // Update biodata
+            $biodata->update($biodataData);
 
             // Sync parents data
             $biodata->parents()->delete();
@@ -190,5 +221,13 @@ class ReregistrationController extends Controller
             'incomes' => StudentParent::incomeOptions(),
             'specialNeedTypes' => StudentSpecialNeed::typeOptions(),
         ];
+    }
+
+    private function isPharmacyRegistration($registration): bool
+    {
+        return str_contains(
+            strtolower($registration?->acceptedProgramStudi?->name ?? ''),
+            'farmasi',
+        );
     }
 }

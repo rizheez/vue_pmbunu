@@ -97,6 +97,7 @@ export interface StudentBiodata {
     kk_path?: string;
     ktp_path?: string;
     certificate_path?: string;
+    color_blind_certificate_path?: string;
     // Re-registration fields (Neo Feeder)
     mother_name?: string;
     npwp?: string;
@@ -119,6 +120,7 @@ export interface StudentBiodata {
     kk_url?: string;
     ktp_url?: string;
     certificate_url?: string;
+    color_blind_certificate_url?: string;
     created_at: string;
     updated_at: string;
     verifications?: DocumentVerification[];
