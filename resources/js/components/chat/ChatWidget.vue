@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { send } from '@/actions/App/Http/Controllers/Api/ChatController';
 import { Button } from '@/components/ui/button';
+import TypeWriter from '@/components/ui/TypeWriter.vue';
 import {
     Bot,
     Loader2,
@@ -10,7 +11,6 @@ import {
     User,
     X,
 } from 'lucide-vue-next';
-import TypeWriter from '@/components/ui/TypeWriter.vue';
 import sanitizeHtml from 'sanitize-html';
 import { computed, nextTick, ref, watch } from 'vue';
 
@@ -18,6 +18,8 @@ interface Message {
     role: 'user' | 'assistant';
     content: string;
 }
+
+const CHAT_TYPE_SPEED_MS = 14;
 
 const isOpen = ref(false);
 const inputMessage = ref('');
@@ -184,8 +186,6 @@ function formatMarkdown(content: string) {
 
     return formatted;
 }
-
-
 </script>
 
 <template>
@@ -284,12 +284,9 @@ function formatMarkdown(content: string) {
                                 v-if="msg.role === 'assistant'"
                                 :content="formatMarkdown(msg.content)"
                                 :show-cursor="false"
-                                :type-speed="20"
+                                :type-speed="CHAT_TYPE_SPEED_MS"
                             />
-                            <div
-                                v-else
-                                v-html="msg.content"
-                            ></div>
+                            <div v-else v-html="msg.content"></div>
                         </div>
 
                         <!-- User Avatar -->

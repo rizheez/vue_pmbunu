@@ -41,6 +41,8 @@ return [
 
     'openrouter' => [
         'api_key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        'fallback_models' => array_values(array_filter(array_map('trim', explode(',', env('OPENROUTER_FALLBACK_MODELS', 'openrouter/free'))))),
     ],
 
     'chat' => [
