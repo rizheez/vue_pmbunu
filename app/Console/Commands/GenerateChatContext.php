@@ -30,18 +30,20 @@ class GenerateChatContext extends Command
         // Active Period
         $activePeriod = \App\Models\RegistrationPeriod::where('is_active', true)->first();
         $periodInfo = $activePeriod
-            ? "Gelombang saat ini: {$activePeriod->name} ({$activePeriod->start_date->format('d M Y')} - {$activePeriod->end_date->format('d M Y')})."
-            : 'Saat ini belum ada gelombang pendaftaran yang aktif.';
+            ? "Gelombang: {$activePeriod->name} ({$activePeriod->start_date->format('d M Y')} - {$activePeriod->end_date->format('d M Y')})"
+            : 'Gelombang: belum ada yang aktif';
 
         // Registration Paths
         $paths = \App\Models\RegistrationPath::where('is_active', true)->pluck('name')->implode(', ');
-        $pathsInfo = $paths ? "Jalur pendaftaran yang tersedia: {$paths}." : 'Belum ada jalur pendaftaran yang dibuka.';
+        $pathsInfo = $paths ? "Jalur: {$paths}" : 'Jalur: belum dibuka';
 
         // Program Studi
         $prodi = \App\Models\ProgramStudi::where('is_active', true)->get()->map(function ($p) {
-            return "- {$p->jenjang} {$p->name}";
-        })->implode("\n");
-        $prodiInfo = "Program Studi yang tersedia:\n{$prodi}";
+            $quota = $p->quota ? " kuota {$p->quota}" : '';
+
+            return "{$p->jenjang} {$p->name}{$quota}";
+        })->implode('; ');
+        $prodiInfo = "Prodi: {$prodi}";
 
         // Landing Page Settings
         $allSettings = \App\Models\LandingPageSetting::all()->groupBy('group');
@@ -52,107 +54,77 @@ class GenerateChatContext extends Command
         $contactEmail = $contactSettings->where('key', 'contact_email')->first()?->value ?? '-';
         $contactAddress = $contactSettings->where('key', 'contact_address')->first()?->value ?? '-';
 
-        $contactInfo = "KONTAK RESMI:\n";
-        $contactInfo .= "- Telepon/WA: {$contactPhone}\n";
-        $contactInfo .= "- Email: {$contactEmail}\n";
-        $contactInfo .= "- Alamat Kampus: {$contactAddress}";
+        $contactInfo = "Kontak resmi: WA {$contactPhone}; email {$contactEmail}; alamat {$contactAddress}";
 
         // About Section
         $aboutSettings = $allSettings->get('about', collect());
         $aboutDesc = $aboutSettings->where('key', 'about_description')->first()?->value ?? '';
-        $aboutInfo = $aboutDesc ? "TENTANG UNU KALTIM:\n{$aboutDesc}" : '';
+        $aboutInfo = $aboutDesc ? 'Tentang: '.$this->compactText($aboutDesc) : '';
 
         // Social Media
         $socialSettings = $allSettings->get('social_media', collect());
         $socialFb = $socialSettings->where('key', 'social_media_facebook')->first()?->value ?? '';
         $socialIg = $socialSettings->where('key', 'social_media_instagram')->first()?->value ?? '';
         $socialWeb = $socialSettings->where('key', 'social_media_website')->first()?->value ?? '';
-        $socialInfo = "SOCIAL MEDIA:\n- Website: {$socialWeb}\n- Instagram: {$socialIg}\n- Facebook: {$socialFb}";
+        $socialInfo = "Sosmed: web {$socialWeb}; IG {$socialIg}; FB {$socialFb}";
 
         // Chat Training Q&A (Knowledge Base)
         $knowledgeBase = \App\Models\ChatTraining::all()->map(function ($item) {
-            return "Q: {$item->question}\nA: {$item->answer}";
-        })->implode("\n\n");
-        $knowledgeInfo = $knowledgeBase ? "REFERENSI PERTANYAAN UMUM:\n{$knowledgeBase}" : '';
+            return 'Q: '.$this->compactText($item->question).' | A: '.$this->compactText($item->answer);
+        })->implode("\n");
+        $knowledgeInfo = $knowledgeBase ? "FAQ:\n{$knowledgeBase}" : '';
 
         // Beasiswa Info
-        $beasiswaInfo = 'BEASISWA TERSEDIA: KIP-K, GratisPol (PENDIDIKAN GRATISPOL KALIMANTAN TIMUR). Jika ingin mengajukan beasiswa, silahkan menghubungi kontak resmi UNU Kaltim.';
+        $beasiswaInfo = 'Beasiswa: KIP-K, GratisPol Kaltim. Pengajuan/konsultasi via kontak resmi.';
 
         // Registration Steps (Alur Pendaftaran)
-        $stepsInfo = "ALUR PENDAFTARAN PMB (5 Langkah):\n";
-        $stepsInfo .= "1. REGISTRASI AKUN: Buka website PMB, klik tombol Daftar. Isi email aktif, nama lengkap, nomor WhatsApp aktif, dan password. Cek email untuk verifikasi dan aktifkan akun.\n";
-        $stepsInfo .= "2. LENGKAPI BIODATA: Login ke akun, lalu lengkapi data pribadi: NIK, NISN, tempat tanggal lahir, alamat lengkap, dan upload foto 4x6 latar merah.\n";
-        $stepsInfo .= "3. UPLOAD DOKUMEN: Upload dokumen yang diperlukan: KTP, Kartu Keluarga, dan Ijazah/SKL. Format: PDF, JPG, atau PNG (maks 2MB).\n";
-        $stepsInfo .= "4. PILIH PROGRAM STUDI: Pilih jenis pendaftaran, jalur masuk, dan 2 pilihan program studi sesuai dengan minat dan bakat.\n";
-        $stepsInfo .= '5. VERIFIKASI DAN DAFTAR ULANG: Tunggu proses verifikasi dari Tim PMB. Setelah dinyatakan lolos, akan dihubungi untuk proses daftar ulang dan informasi selanjutnya.';
+        $stepsInfo = 'Alur: daftar akun + verifikasi email; lengkapi biodata; upload foto 4x6 merah, KTP, KK, ijazah/SKL; pilih jenis/jalur dan 2 prodi; tunggu verifikasi PMB; jika lolos lanjut daftar ulang.';
 
         // Required Documents
-        $documentsInfo = "DOKUMEN YANG DIPERLUKAN:\n";
-        $documentsInfo .= "- Foto 4x6 latar merah\n";
-        $documentsInfo .= "- Scan/Foto KTP\n";
-        $documentsInfo .= "- Scan/Foto Kartu Keluarga (KK)\n";
-        $documentsInfo .= "- Scan/Foto Ijazah atau Surat Keterangan Lulus (SKL)\n";
-        $documentsInfo .= 'Format file: PDF, JPG, atau PNG dengan ukuran maksimal 2MB per file.';
+        $documentsInfo = 'Dokumen: foto 4x6 latar merah; KTP; KK; ijazah/SKL. Format PDF/JPG/PNG maks 2MB/file.';
 
         // Tips for Success
-        $tipsInfo = "TIPS SUKSES PENDAFTARAN:\n";
-        $tipsInfo .= "- Gunakan email aktif yang sering dicek\n";
-        $tipsInfo .= "- Gunakan nomor WhatsApp aktif (PENTING: informasi status pendaftaran dan jadwal daftar ulang dikirim via WhatsApp)\n";
-        $tipsInfo .= "- Siapkan semua dokumen sebelum mendaftar\n";
-        $tipsInfo .= "- Pastikan foto/scan dokumen jelas dan terbaca\n";
-        $tipsInfo .= "- Isi data sesuai dokumen resmi (KTP/Ijazah)\n";
-        $tipsInfo .= '- Simpan nomor WA panitia PMB';
+        $tipsInfo = 'Tips: gunakan email/WA aktif, siapkan dokumen, upload jelas, isi data sesuai dokumen resmi, simpan nomor WA PMB.';
 
         // Important Notices
-        $importantInfo = "INFORMASI PENTING:\n";
-        $importantInfo .= "- Pendaftaran dan daftar ulang gratis.\n";
-        $importantInfo .= "- Pembayaran Rp 300.000 hanya untuk mahasiswa yang ingin membeli paket almamater dan KTM.\n";
-        $importantInfo .= "- Panitia TIDAK PERNAH meminta transfer uang ke rekening PRIBADI.\n";
-        $importantInfo .= "- Hati-hati terhadap penipuan yang mengatasnamakan PMB UNU Kaltim.\n";
-        $importantInfo .= '- Jika mengalami kendala teknis, hubungi panitia resmi melalui kontak yang tertera di website.';
+        $importantInfo = 'Penting: pendaftaran dan daftar ulang gratis; Rp300.000 hanya paket opsional almamater+KTM; panitia tidak meminta transfer ke rekening pribadi; waspada penipuan; kendala teknis hubungi kontak resmi.';
 
         // Informasi Biaya (Pendaftaran, RPL, UKT)
-        $biayaInfo = "INFORMASI BIAYA:\n";
-        $biayaInfo .= "1. BIAYA PENDAFTARAN DAN DAFTAR ULANG:\n";
-        $biayaInfo .= "   - Gratis.\n";
-        $biayaInfo .= "2. PAKET OPSIONAL ALMAMATER + KTM:\n";
-        $biayaInfo .= "   - Nominal: Rp 300.000\n";
-        $biayaInfo .= "   - Hanya dibayar jika mahasiswa ingin membeli almamater dan KTM (Kartu Tanda Mahasiswa).\n";
-        $biayaInfo .= "3. BIAYA RPL (Rekognisi Pembelajaran Lampau) / ALIH JENJANG / PINDAHAN:\n";
-        $biayaInfo .= "   - Biaya Konversi: Rp 120.000 per SKS\n";
-        $biayaInfo .= "4. BIAYA UKT (Uang Kuliah Tunggal) PER SEMESTER:\n";
-        $biayaInfo .= "   - Reguler Non-Farmasi: Rp 5.000.000\n";
-        $biayaInfo .= "   - Reguler Farmasi: Rp 7.000.000\n";
-        $biayaInfo .= "   - Kelas Karyawan: Hubungi Panitia PMB untuk informasi lebih lanjut\n";
+        $biayaInfo = 'Biaya: pendaftaran/daftar ulang gratis; paket opsional almamater+KTM Rp300.000; RPL/alih jenjang/pindahan Rp120.000/SKS; UKT/semester reguler non-farmasi Rp5.000.000, farmasi Rp7.000.000, kelas karyawan hubungi PMB.';
 
         // Website Features Info
-        $websiteInfo = "FITUR WEBSITE PMB:\n";
-        $websiteInfo .= "- Di website PMB (pmb.unukaltim.ac.id) terdapat Asisten Virtual AI (chatbot) yang dapat membantu menjawab pertanyaan seputar pendaftaran.\n";
-        $websiteInfo .= "- Tombol chat AI terletak di pojok kanan bawah halaman landing page, berbentuk ikon bulat berwarna hijau.\n";
-        $websiteInfo .= '- Calon mahasiswa dapat bertanya langsung kepada chatbot ini kapan saja untuk mendapatkan informasi PMB.';
+        $websiteInfo = 'Website: pmb.unukaltim.ac.id menyediakan chatbot PMB di pojok kanan bawah.';
 
-        $content = "[DATA REAL-TIME UNU KALTIM]\n\n";
-        $content .= "{$periodInfo}\n{$pathsInfo}\n\n";
-        $content .= "{$prodiInfo}\n\n";
-        $content .= "{$stepsInfo}\n\n";
-        $content .= "{$documentsInfo}\n\n";
-        $content .= "{$tipsInfo}\n\n";
-        $content .= "{$importantInfo}\n\n";
-        $content .= "{$biayaInfo}\n\n";
-        $content .= "{$contactInfo}\n\n";
-        $content .= "{$socialInfo}\n\n";
-        $content .= "{$aboutInfo}\n\n";
-        $content .= "{$beasiswaInfo}\n\n";
-        $content .= "{$websiteInfo}\n\n";
-        $content .= "{$knowledgeInfo}\n\n";
-        $content .= '[AKHIR DATA REAL-TIME]';
+        $content = collect([
+            '[KONTEKS PMB UNU KALTIM]',
+            $periodInfo,
+            $pathsInfo,
+            $prodiInfo,
+            $stepsInfo,
+            $documentsInfo,
+            $tipsInfo,
+            $importantInfo,
+            $biayaInfo,
+            $contactInfo,
+            $socialInfo,
+            $aboutInfo,
+            $beasiswaInfo,
+            $websiteInfo,
+            $knowledgeInfo,
+            '[AKHIR KONTEKS]',
+        ])->filter()->implode("\n");
 
         \Illuminate\Support\Facades\Storage::put('chat_context.txt', $content);
 
         // Clear cached context so next request gets fresh data
         \Illuminate\Support\Facades\Cache::forget('chat_context');
-        \Illuminate\Support\Facades\Cache::forget('chat_context_' . app()->environment());
+        \Illuminate\Support\Facades\Cache::forget('chat_context_'.app()->environment());
 
-        $this->info('Chat context generated successfully at ' . storage_path('app/chat_context.txt'));
+        $this->info('Chat context generated successfully at '.storage_path('app/private/chat_context.txt'));
+    }
+
+    private function compactText(string $text): string
+    {
+        return trim((string) preg_replace('/\s+/', ' ', strip_tags($text)));
     }
 }

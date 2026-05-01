@@ -19,7 +19,7 @@ interface Message {
     content: string;
 }
 
-const CHAT_TYPE_SPEED_MS = 14;
+const CHAT_TYPE_SPEED_MS = 5;
 
 const isOpen = ref(false);
 const inputMessage = ref('');

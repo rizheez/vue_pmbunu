@@ -32,7 +32,8 @@ test('it uses the configured openrouter model in the api payload', function () {
         ->success->toBeTrue()
         ->model->toBe('openai/gpt-test');
 
-    Http::assertSent(fn ($request) => $request['model'] === 'openai/gpt-test');
+    Http::assertSent(fn ($request) => $request['model'] === 'openai/gpt-test'
+        && $request['reasoning']['enabled'] === false);
 });
 
 test('it retries with openrouter fallback model when primary model fails', function () {
@@ -64,6 +65,8 @@ test('it retries with openrouter fallback model when primary model fails', funct
         ->model->toBe('openrouter/free');
 
     Http::assertSentCount(2);
-    Http::assertSent(fn ($request) => $request['model'] === 'provider/primary-free');
-    Http::assertSent(fn ($request) => $request['model'] === 'openrouter/free');
+    Http::assertSent(fn ($request) => $request['model'] === 'provider/primary-free'
+        && $request['reasoning']['enabled'] === false);
+    Http::assertSent(fn ($request) => $request['model'] === 'openrouter/free'
+        && $request['reasoning']['enabled'] === true);
 });
