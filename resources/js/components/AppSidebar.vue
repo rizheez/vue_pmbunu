@@ -133,7 +133,7 @@ const adminAkademik: NavItem[] = [
         icon: Users,
     },
     {
-        title: 'Verifikasi Pembayaran',
+        title: 'Pembayaran Almamater & KTM',
         href: '/admin/reregistration-payments',
         icon: CreditCard,
     },

@@ -473,19 +473,19 @@ const isPdf = (url: string | null) => {
                     </CardContent>
                 </Card>
 
-                <!-- Re-registration Payment Info -->
+                <!-- Almamater and KTM Payment Info -->
                 <Card v-if="props.student.reregistration_payment">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <CreditCard class="size-5" />
-                            Informasi Daftar Ulang
+                            Pembayaran Almamater & KTM
                         </CardTitle>
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <div class="grid gap-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500"
-                                    >Jumlah Pembayaran</span
+                                    >Nominal</span
                                 >
                                 <span class="font-medium">
                                     {{
@@ -524,7 +524,7 @@ const isPdf = (url: string | null) => {
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500"
-                                    >Tanggal Submit</span
+                                    >Tanggal Catat</span
                                 >
                                 <span class="font-medium">
                                     {{

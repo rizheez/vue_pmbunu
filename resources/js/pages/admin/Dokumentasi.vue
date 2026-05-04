@@ -265,43 +265,38 @@ const faqs = ref([
 
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
                         <Info class="size-5 text-blue-500 shrink-0" />
-                        <p class="text-sm text-blue-700"><strong>Info:</strong> Setelah disimpan, status mahasiswa akan berubah ke "Daftar Ulang Pending". Admin masih perlu memverifikasi pembayaran secara terpisah jika mahasiswa membayar secara offline.</p>
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Daftar ulang gratis. Pembayaran hanya dicatat jika mahasiswa mengambil almamater dan KTM.</p>
                     </div>
                 </div>
 
                 <hr />
 
-                <!-- 5. Verifikasi Pembayaran Daftar Ulang -->
+                <!-- 5. Pembayaran Almamater & KTM -->
                 <div id="pembayaran">
                     <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
                         <span class="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
-                        Verifikasi Pembayaran Daftar Ulang
+                        Pembayaran Almamater & KTM
                     </h3>
-                    <p class="text-gray-600 mb-4">Proses verifikasi bukti pembayaran daftar ulang dari mahasiswa yang sudah diterima.</p>
+                    <p class="text-gray-600 mb-4">Admin mencatat pembayaran almamater dan KTM untuk mahasiswa yang sudah diterima.</p>
 
                     <h4 class="font-semibold text-gray-900 mb-3">Langkah-langkah:</h4>
                     <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                        <li>Buka menu <strong>"Verifikasi Pembayaran"</strong> di sidebar</li>
+                        <li>Buka menu <strong>"Pembayaran Almamater & KTM"</strong> di sidebar</li>
+                        <li>Klik tombol <strong>"Tambah Pembayaran"</strong></li>
+                        <li>Pilih mahasiswa, isi nominal, status pembayaran, dan catatan jika diperlukan</li>
+                        <li>Klik <strong>"Simpan"</strong> untuk mencatat pembayaran almamater dan KTM</li>
                         <li>Filter berdasarkan status: Pending, Terverifikasi, atau Ditolak</li>
-                        <li>Klik tombol <strong>mata (👁)</strong> untuk preview bukti pembayaran</li>
-                        <li>Periksa bukti pembayaran:
-                            <ul class="list-disc list-inside ml-6 mt-2 space-y-1 text-gray-600">
-                                <li>Nominal sesuai dengan biaya daftar ulang</li>
-                                <li>Rekening tujuan benar</li>
-                                <li>Bukti transfer jelas dan valid</li>
-                            </ul>
-                        </li>
                         <li>Pilih aksi:
                             <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
-                                <li><CheckCircle class="inline size-4 text-green-600" /> <span class="text-green-600 font-semibold">Verifikasi</span> - Jika pembayaran valid</li>
-                                <li><XCircle class="inline size-4 text-red-600" /> <span class="text-red-600 font-semibold">Tolak</span> - Jika ada masalah (wajib isi alasan)</li>
+                                <li><CheckCircle class="inline size-4 text-green-600" /> <span class="text-green-600 font-semibold">Verifikasi</span> - Jika pembayaran sudah valid</li>
+                                <li><XCircle class="inline size-4 text-red-600" /> <span class="text-red-600 font-semibold">Tolak</span> - Jika pembayaran bermasalah atau dibatalkan</li>
                             </ul>
                         </li>
                     </ol>
 
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
                         <Info class="size-5 text-blue-500 shrink-0" />
-                        <p class="text-sm text-blue-700"><strong>Info:</strong> Setelah diverifikasi, status mahasiswa berubah ke "Daftar Ulang Terverifikasi" dan siap untuk generate NIM. Email notifikasi otomatis dikirim ke mahasiswa.</p>
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Verifikasi pembayaran almamater dan KTM tidak mengubah status daftar ulang mahasiswa.</p>
                     </div>
                 </div>
 
@@ -354,13 +349,13 @@ const faqs = ref([
 
                 <hr />
 
-                <!-- 6. Pengaturan Pembayaran -->
+                <!-- 7. Pengaturan Pembayaran -->
                 <div id="pengaturan">
                     <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3 mb-4">
                         <span class="bg-gray-200 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center text-sm">7</span>
                         Pengaturan Pembayaran
                     </h3>
-                    <p class="text-gray-600 mb-4">Kelola informasi rekening bank untuk pembayaran daftar ulang.</p>
+                    <p class="text-gray-600 mb-4">Kelola informasi rekening bank dan nominal pembayaran almamater dan KTM.</p>
 
                     <h4 class="font-semibold text-gray-900 mb-3">Pengaturan yang tersedia:</h4>
                     <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
@@ -368,7 +363,7 @@ const faqs = ref([
                         <li><strong>Nama Bank:</strong> Nama bank tujuan (contoh: BRI, BNI, Mandiri)</li>
                         <li><strong>Nomor Rekening/VA:</strong> Nomor rekening atau VA tujuan</li>
                         <li><strong>Nama Pemilik:</strong> Nama pemilik rekening</li>
-                        <li><strong>Jumlah Pembayaran:</strong> Nominal biaya daftar ulang</li>
+                        <li><strong>Jumlah Pembayaran:</strong> Nominal pembayaran almamater dan KTM</li>
                         <li><strong>Instruksi:</strong> Pesan tambahan untuk mahasiswa (opsional)</li>
                     </ul>
 
@@ -382,7 +377,7 @@ const faqs = ref([
 
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 flex items-start gap-3">
                         <Info class="size-5 text-blue-500 shrink-0" />
-                        <p class="text-sm text-blue-700"><strong>Info:</strong> Perubahan akan langsung tampil di halaman pembayaran mahasiswa. Pastikan informasi akurat sebelum disimpan.</p>
+                        <p class="text-sm text-blue-700"><strong>Info:</strong> Nominal ini menjadi default saat admin mencatat pembayaran almamater dan KTM.</p>
                     </div>
                 </div>
 
@@ -446,5 +441,4 @@ const faqs = ref([
         </div>
     </AppLayout>
 </template>
-
 

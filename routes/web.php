@@ -167,6 +167,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Reregistration Payments
     Route::get('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'index'])->name('reregistration-payments.index');
+    Route::post('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'store'])->name('reregistration-payments.store');
+    Route::put('/reregistration-payments/{payment}', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'update'])->name('reregistration-payments.update');
     Route::post('/reregistration-payments/{payment}/verify', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'verify'])->name('reregistration-payments.verify');
     Route::post('/reregistration-payments/{payment}/reject', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'reject'])->name('reregistration-payments.reject');
 
