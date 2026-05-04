@@ -314,19 +314,33 @@ class Registration extends Model
             // Build NIM prefix for this combination
             $nimPrefix = $year.$prodi->nim_code;
 
-            // Get last NIM in this sequence range with lock
-            $lastUser = User::where('nim', 'like', $nimPrefix.'%')
+            User::where('nim', 'like', $nimPrefix.'%')
+                ->whereHas('registration', fn ($query) => $query->where('status', 'cancelled'))
+                ->lockForUpdate()
+                ->update(['nim' => null]);
+
+            // Get used NIM sequences in this range with lock
+            $usedSequences = User::where('nim', 'like', $nimPrefix.'%')
                 ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) >= ?', [$sequenceStart])
                 ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) <= ?', [$sequenceEnd])
-                ->orderByRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) DESC')
                 ->lockForUpdate()
-                ->first();
+                ->pluck('nim')
+                ->map(fn (string $nim): int => (int) substr($nim, -3))
+                ->unique()
+                ->sort()
+                ->values();
 
-            if ($lastUser) {
-                $lastSequence = (int) substr($lastUser->nim, -3);
-                $nextSequence = $lastSequence + 1;
-            } else {
-                $nextSequence = $sequenceStart;
+            $nextSequence = $sequenceStart;
+
+            foreach ($usedSequences as $usedSequence) {
+                if ($usedSequence === $nextSequence) {
+                    $nextSequence++;
+                    continue;
+                }
+
+                if ($usedSequence > $nextSequence) {
+                    break;
+                }
             }
 
             // Check if we've exceeded the range
@@ -350,7 +364,7 @@ class Registration extends Model
      */
     public function enrollStudent(): string
     {
-        if ($this->status !== 're_registration_verified') {
+        if (! in_array($this->status, ['re_registration_verified', 'cancelled'], true)) {
             throw new \RuntimeException('Status harus "Daftar Ulang Terverifikasi" untuk melakukan enrollment');
         }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,8 @@ class NimGenerationController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->releaseCancelledNims();
+
         $query = Registration::with([
             'user.studentBiodata',
             'acceptedProgramStudi',
@@ -31,6 +34,7 @@ class NimGenerationController extends Controller
         ])
             ->where(function ($query) {
                 $query->where('status', 're_registration_verified')
+                    ->orWhere('status', 'cancelled')
                     ->orWhere(function ($query) {
                         $query
                             ->where('status', 're_registration_pending')
@@ -114,6 +118,7 @@ class NimGenerationController extends Controller
                 }
 
                 $this->finalizeLegacyReregistration($registration);
+                $this->releaseCancelledNim($registration);
 
                 if ($registration->user->nim) {
                     $results['failed'][] = [
@@ -180,5 +185,22 @@ class NimGenerationController extends Controller
         $biodata->update(['reregistration_status' => 'completed']);
         $registration->update(['status' => 're_registration_verified']);
         $registration->refresh();
+    }
+
+    private function releaseCancelledNims(): void
+    {
+        User::whereNotNull('nim')
+            ->whereHas('registration', fn ($query) => $query->where('status', 'cancelled'))
+            ->update(['nim' => null]);
+    }
+
+    private function releaseCancelledNim(Registration $registration): void
+    {
+        if ($registration->status !== 'cancelled' || ! $registration->user?->nim) {
+            return;
+        }
+
+        $registration->user->update(['nim' => null]);
+        $registration->user->refresh();
     }
 }

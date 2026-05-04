@@ -47,10 +47,12 @@ class EnrolledStudentController extends Controller
         }
 
         DB::transaction(function () use ($registration) {
+            $registration->loadMissing('user');
+            $registration->user?->update(['nim' => null]);
             $registration->update(['status' => 'cancelled']);
         });
 
         return redirect()->back()
-            ->with('success', 'Mahasiswa aktif berhasil dibatalkan. NIM tetap tersimpan sebagai riwayat nomor yang pernah diterbitkan.');
+            ->with('success', 'Mahasiswa aktif berhasil dibatalkan. NIM sudah dikosongkan dan dapat digunakan kembali.');
     }
 }

@@ -264,6 +264,10 @@ class StudentController extends Controller
                 if ($prodi) {
                     $acceptedCount = Registration::where('accepted_program_studi_id', $prodiId)
                         ->whereIn('status', $acceptedStatuses)
+                        ->when(
+                            $student->registration->accepted_program_studi_id === (int) $prodiId,
+                            fn ($query) => $query->whereKeyNot($student->registration->id),
+                        )
                         ->count();
 
                     $prodiQuotas[$prodiId] = [
@@ -461,7 +465,9 @@ class StudentController extends Controller
 
         $student = User::with('registration')->findOrFail($id);
 
-        if (! $student->registration || $student->registration->status !== 'verified') {
+        $allowedStatuses = ['verified', 'accepted', 're_registration_pending', 're_registration_verified', 'cancelled'];
+
+        if (! $student->registration || ! in_array($student->registration->status, $allowedStatuses, true)) {
             return redirect()->back()->with('error', 'Status tidak valid untuk penerimaan.');
         }
 
@@ -472,6 +478,7 @@ class StudentController extends Controller
             $acceptedStatuses = ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled'];
             $acceptedCount = Registration::where('accepted_program_studi_id', $prodi->id)
                 ->whereIn('status', $acceptedStatuses)
+                ->whereKeyNot($student->registration->id)
                 ->count();
 
             if ($acceptedCount >= $prodi->quota) {
@@ -479,8 +486,9 @@ class StudentController extends Controller
             }
         }
 
+        $currentStatus = $student->registration->status;
         $student->registration->update([
-            'status' => 'accepted',
+            'status' => $currentStatus === 'verified' ? 'accepted' : $currentStatus,
             'accepted_at' => now(),
             'accepted_by' => auth()->id(),
             'acceptance_notes' => $request->notes,

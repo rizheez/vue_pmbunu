@@ -14,7 +14,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { formatDate } from '@/composables/useFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Registration, StudentBiodata } from '@/types/pmb';
+import type { ProgramStudi, Registration, StudentBiodata } from '@/types/pmb';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
     Accessibility,
@@ -128,6 +128,57 @@ const breadcrumbs = [
 const canAcceptReject = computed(
     () => props.student.registration?.status === 'verified',
 );
+
+const canChangeAcceptedProdi = computed(() =>
+    [
+        'accepted',
+        're_registration_pending',
+        're_registration_verified',
+        'cancelled',
+    ].includes(props.student.registration?.status || ''),
+);
+
+const acceptedProdiOptions = computed(() => {
+    const registration = props.student.registration;
+
+    if (!registration) {
+        return [];
+    }
+
+    return [
+        {
+            order: 1,
+            id: registration.choice_1,
+            prodi: registration.program_studi_choice1,
+        },
+        {
+            order: 2,
+            id: registration.choice_2,
+            prodi: registration.program_studi_choice2,
+        },
+        {
+            order: 3,
+            id: registration.choice_3,
+            prodi: registration.program_studi_choice3,
+        },
+    ].filter(
+        (
+            option,
+        ): option is { order: number; id: number; prodi: ProgramStudi } =>
+            Boolean(option.id && option.prodi),
+    );
+});
+
+const openAcceptDialog = () => {
+    const registration = props.student.registration;
+
+    selectedProdi.value =
+        registration?.accepted_program_studi_id ||
+        registration?.choice_1 ||
+        null;
+    acceptNotes.value = registration?.acceptance_notes || '';
+    showAcceptDialog.value = true;
+};
 
 const accept = () => {
     if (!selectedProdi.value) return;
@@ -253,11 +304,19 @@ const isPdf = (url: string | null) => {
                     </Button>
                     <Button
                         v-if="canAcceptReject"
-                        @click="showAcceptDialog = true"
+                        @click="openAcceptDialog"
                         class="bg-green-600 hover:bg-green-700"
                     >
                         <CheckCircle class="mr-2 size-4" />
                         Terima
+                    </Button>
+                    <Button
+                        v-if="canChangeAcceptedProdi"
+                        variant="outline"
+                        @click="openAcceptDialog"
+                    >
+                        <Pencil class="mr-2 size-4" />
+                        Ubah Prodi
                     </Button>
                     <Button
                         v-if="canAcceptReject"
@@ -436,19 +495,41 @@ const isPdf = (url: string | null) => {
                         <!-- Accepted Info -->
                         <div
                             v-if="
-                                props.student.registration.status === 'accepted'
+                                props.student.registration
+                                    .accepted_program_studi
                             "
                             class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
                         >
-                            <p class="font-medium text-green-800">
-                                Diterima di:
-                            </p>
-                            <p class="text-lg font-bold text-green-900">
-                                {{
-                                    props.student.registration
-                                        .accepted_program_studi?.name
-                                }}
-                            </p>
+                            <div
+                                class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                                <div>
+                                    <p class="font-medium text-green-800">
+                                        Diterima di:
+                                    </p>
+                                    <p class="text-lg font-bold text-green-900">
+                                        {{
+                                            props.student.registration
+                                                .accepted_program_studi?.jenjang
+                                        }}
+                                        {{
+                                            props.student.registration
+                                                .accepted_program_studi?.name
+                                        }}
+                                    </p>
+                                </div>
+                                <Button
+                                    v-if="canChangeAcceptedProdi"
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    class="border-green-300 bg-white text-green-800 hover:bg-green-100"
+                                    @click="openAcceptDialog"
+                                >
+                                    <Pencil class="mr-2 size-4" />
+                                    Ubah Prodi
+                                </Button>
+                            </div>
                         </div>
 
                         <!-- Rejected Info -->
@@ -484,9 +565,7 @@ const isPdf = (url: string | null) => {
                     <CardContent class="space-y-4">
                         <div class="grid gap-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500"
-                                    >Nominal</span
-                                >
+                                <span class="text-gray-500">Nominal</span>
                                 <span class="font-medium">
                                     {{
                                         props.student.reregistration_payment
@@ -523,9 +602,7 @@ const isPdf = (url: string | null) => {
                                 </Badge>
                             </div>
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500"
-                                    >Tanggal Catat</span
-                                >
+                                <span class="text-gray-500">Tanggal Catat</span>
                                 <span class="font-medium">
                                     {{
                                         formatDate(
@@ -1229,9 +1306,15 @@ const isPdf = (url: string | null) => {
         <Dialog v-model:open="showAcceptDialog">
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Terima Mahasiswa</DialogTitle>
+                    <DialogTitle>
+                        {{
+                            canChangeAcceptedProdi
+                                ? 'Ubah Program Studi'
+                                : 'Terima Mahasiswa'
+                        }}
+                    </DialogTitle>
                     <DialogDescription>
-                        Pilih program studi yang akan diterima
+                        Pilih program studi yang akan menjadi prodi diterima.
                     </DialogDescription>
                 </DialogHeader>
                 <div class="space-y-4 py-4">
@@ -1239,27 +1322,36 @@ const isPdf = (url: string | null) => {
                         <Label>Program Studi</Label>
                         <div class="space-y-3">
                             <label
-                                v-if="props.student.registration?.choice_1"
+                                v-for="option in acceptedProdiOptions"
+                                :key="option.id"
                                 class="flex items-center gap-3 rounded-lg border p-3 transition-colors"
                                 :class="{
-                                    'border-green-300 bg-green-50': selectedProdi === props.student.registration.choice_1,
-                                    'opacity-60': props.prodiQuotas[props.student.registration.choice_1]?.is_full,
+                                    'border-green-300 bg-green-50':
+                                        selectedProdi === option.id,
+                                    'opacity-60':
+                                        props.prodiQuotas[option.id]?.is_full,
                                 }"
                             >
                                 <input
                                     type="radio"
-                                    :value="props.student.registration.choice_1"
                                     v-model="selectedProdi"
-                                    :disabled="props.prodiQuotas[props.student.registration.choice_1]?.is_full"
+                                    :value="option.id"
+                                    :disabled="
+                                        props.prodiQuotas[option.id]?.is_full
+                                    "
                                 />
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2">
                                         <span class="font-medium">
-                                            Pilihan 1:
-                                            {{ props.student.registration.program_studi_choice1?.name }}
+                                            Pilihan {{ option.order }}:
+                                            {{ option.prodi.jenjang }}
+                                            {{ option.prodi.name }}
                                         </span>
                                         <Badge
-                                            v-if="props.prodiQuotas[props.student.registration.choice_1]?.is_full"
+                                            v-if="
+                                                props.prodiQuotas[option.id]
+                                                    ?.is_full
+                                            "
                                             variant="destructive"
                                             class="text-xs"
                                         >
@@ -1267,66 +1359,36 @@ const isPdf = (url: string | null) => {
                                         </Badge>
                                     </div>
                                     <p
-                                        v-if="props.prodiQuotas[props.student.registration.choice_1]"
+                                        v-if="props.prodiQuotas[option.id]"
                                         class="mt-1 text-xs"
                                         :class="
-                                            props.prodiQuotas[props.student.registration.choice_1]?.is_full
+                                            props.prodiQuotas[option.id]
+                                                ?.is_full
                                                 ? 'text-red-500'
                                                 : 'text-gray-500'
                                         "
                                     >
-                                        Terisi: {{ props.prodiQuotas[props.student.registration.choice_1].accepted }}
-                                        <template v-if="props.prodiQuotas[props.student.registration.choice_1].quota">
-                                            / {{ props.prodiQuotas[props.student.registration.choice_1].quota }}
-                                            (sisa {{ props.prodiQuotas[props.student.registration.choice_1].available }})
-                                        </template>
-                                        <template v-else>
-                                            (tanpa batas kuota)
-                                        </template>
-                                    </p>
-                                </div>
-                            </label>
-                            <label
-                                v-if="props.student.registration?.choice_2"
-                                class="flex items-center gap-3 rounded-lg border p-3 transition-colors"
-                                :class="{
-                                    'border-green-300 bg-green-50': selectedProdi === props.student.registration.choice_2,
-                                    'opacity-60': props.prodiQuotas[props.student.registration.choice_2]?.is_full,
-                                }"
-                            >
-                                <input
-                                    type="radio"
-                                    :value="props.student.registration.choice_2"
-                                    v-model="selectedProdi"
-                                    :disabled="props.prodiQuotas[props.student.registration.choice_2]?.is_full"
-                                />
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-medium">
-                                            Pilihan 2:
-                                            {{ props.student.registration.program_studi_choice2?.name }}
-                                        </span>
-                                        <Badge
-                                            v-if="props.prodiQuotas[props.student.registration.choice_2]?.is_full"
-                                            variant="destructive"
-                                            class="text-xs"
+                                        Terisi:
+                                        {{
+                                            props.prodiQuotas[option.id]
+                                                .accepted
+                                        }}
+                                        <template
+                                            v-if="
+                                                props.prodiQuotas[option.id]
+                                                    .quota
+                                            "
                                         >
-                                            PENUH
-                                        </Badge>
-                                    </div>
-                                    <p
-                                        v-if="props.prodiQuotas[props.student.registration.choice_2]"
-                                        class="mt-1 text-xs"
-                                        :class="
-                                            props.prodiQuotas[props.student.registration.choice_2]?.is_full
-                                                ? 'text-red-500'
-                                                : 'text-gray-500'
-                                        "
-                                    >
-                                        Terisi: {{ props.prodiQuotas[props.student.registration.choice_2].accepted }}
-                                        <template v-if="props.prodiQuotas[props.student.registration.choice_2].quota">
-                                            / {{ props.prodiQuotas[props.student.registration.choice_2].quota }}
-                                            (sisa {{ props.prodiQuotas[props.student.registration.choice_2].available }})
+                                            /
+                                            {{
+                                                props.prodiQuotas[option.id]
+                                                    .quota
+                                            }}
+                                            (sisa
+                                            {{
+                                                props.prodiQuotas[option.id]
+                                                    .available
+                                            }})
                                         </template>
                                         <template v-else>
                                             (tanpa batas kuota)
@@ -1354,7 +1416,7 @@ const isPdf = (url: string | null) => {
                         :disabled="!selectedProdi || processing"
                         class="bg-green-600 hover:bg-green-700"
                     >
-                        Terima
+                        {{ canChangeAcceptedProdi ? 'Simpan Prodi' : 'Terima' }}
                     </Button>
                 </DialogFooter>
             </DialogContent>
