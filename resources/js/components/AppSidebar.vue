@@ -98,7 +98,11 @@ const adminPendaftaran: NavItem[] = [
         href: '/admin/students/create',
         icon: UserPlus,
     },
-
+    {
+        title: 'Daftar Ulang Manual',
+        href: '/admin/reregistration',
+        icon: UserPlus,
+    },
     {
         title: 'Generate NIM',
         href: '/admin/nim-generation',
@@ -108,11 +112,6 @@ const adminPendaftaran: NavItem[] = [
         title: 'Surat Penerimaan',
         href: '/admin/admission-letters',
         icon: MailCheck,
-    },
-    {
-        title: 'Daftar Ulang Manual',
-        href: '/admin/reregistration',
-        icon: UserPlus,
     },
 ];
 
