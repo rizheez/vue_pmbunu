@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ChatTraining;
+use Illuminate\Database\Seeder;
 
 class ChatTrainingSeeder extends Seeder
 {
@@ -29,4 +29,3 @@ class ChatTrainingSeeder extends Seeder
         ]);
     }
 }
-?>

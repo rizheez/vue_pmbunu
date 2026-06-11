@@ -14,7 +14,9 @@ import type {
     Registration,
     RegistrationPeriod,
 } from '@/types/pmb';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Deferred, Head, Link, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 import {
     BookOpen,
     CheckCircle,
@@ -29,6 +31,7 @@ import {
     Users,
     XCircle,
     Zap,
+    Sparkles,
 } from 'lucide-vue-next';
 
 interface ProgramStat {
@@ -59,6 +62,11 @@ interface Props {
     activePeriod: RegistrationPeriod | null;
     allPeriods: RegistrationPeriod[];
     selectedPeriod: RegistrationPeriod | null;
+    registrationTrend: {
+        labels: string[];
+        data: number[];
+    };
+    aiInsight?: string;
 }
 
 const props = defineProps<Props>();
@@ -87,6 +95,49 @@ const getStatusLabel = (status: string) => {
     };
     return labels[status] || status;
 };
+
+const chartOptions = computed(() => ({
+    chart: {
+        type: 'area',
+        height: 350,
+        fontFamily: 'inherit',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+    },
+    colors: ['#0d9488'], // Teal-600
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: {
+        categories: props.registrationTrend.labels,
+        tooltip: { enabled: false },
+    },
+    yaxis: {
+        labels: {
+            formatter: (val: number) => Math.floor(val),
+        },
+    },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.4,
+            opacityTo: 0.05,
+            stops: [0, 100],
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: (val: number) => `${val} pendaftar`,
+        },
+    },
+}));
+
+const chartSeries = computed(() => [
+    {
+        name: 'Pendaftar Baru',
+        data: props.registrationTrend.data,
+    },
+]);
 </script>
 
 <template>
@@ -117,6 +168,34 @@ const getStatusLabel = (status: string) => {
                     </option>
                 </select>
             </div>
+
+            <!-- AI Insight -->
+            <Deferred data="aiInsight">
+                <template #fallback>
+                    <Card class="border-purple-200 bg-purple-50/30">
+                        <CardContent class="flex items-center gap-4 p-4">
+                            <div class="size-6 animate-pulse rounded-full bg-purple-200"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 w-full animate-pulse rounded bg-purple-200"></div>
+                                <div class="h-4 w-3/4 animate-pulse rounded bg-purple-200"></div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </template>
+                <Card class="border-purple-200 bg-gradient-to-r from-purple-50 to-white shadow-sm">
+                    <CardContent class="flex items-start gap-4 p-4">
+                        <div class="mt-1">
+                            <Sparkles class="size-6 text-purple-500" />
+                        </div>
+                        <div>
+                            <h3 class="mb-1 font-semibold text-purple-900">✨ Insight AI</h3>
+                            <p class="text-sm leading-relaxed text-purple-800">
+                                {{ props.aiInsight }}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Deferred>
 
             <!-- Stats Grid - Row 1: Pendaftaran -->
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -423,6 +502,26 @@ const getStatusLabel = (status: string) => {
                             </div>
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            <!-- Trend Chart -->
+            <Card>
+                <CardHeader>
+                    <CardTitle class="flex items-center gap-2">
+                        Tren Pendaftaran 14 Hari Terakhir
+                    </CardTitle>
+                    <CardDescription>
+                        Grafik jumlah pendaftar baru per hari
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <VueApexCharts
+                        type="area"
+                        height="350"
+                        :options="chartOptions"
+                        :series="chartSeries"
+                    />
                 </CardContent>
             </Card>
 

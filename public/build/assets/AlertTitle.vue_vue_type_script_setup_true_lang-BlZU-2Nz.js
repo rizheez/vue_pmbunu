@@ -1,1 +1,0 @@
-import{c as e}from"./index-B7OplA9C.js";import{d as o,f as r,s as l,u as n,aF as c,o as i}from"./vendor-CiimY56v.js";const d=o({__name:"AlertTitle",props:{class:{}},setup(s){const t=s;return(a,m)=>(i(),r("div",{"data-slot":"alert-title",class:l(n(e)("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight",t.class))},[c(a.$slots,"default")],2))}});export{d as _};

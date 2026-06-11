@@ -335,6 +335,7 @@ class Registration extends Model
             foreach ($usedSequences as $usedSequence) {
                 if ($usedSequence === $nextSequence) {
                     $nextSequence++;
+
                     continue;
                 }
 

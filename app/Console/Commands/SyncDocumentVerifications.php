@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class SyncDocumentVerifications extends Command
 {
     protected $signature = 'pmb:sync-verifications';
+
     protected $description = 'Sync document verification records based on existing file uploads';
 
     public function handle()

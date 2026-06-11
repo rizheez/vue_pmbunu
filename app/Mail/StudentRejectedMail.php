@@ -15,7 +15,9 @@ class StudentRejectedMail extends Mailable
     use Queueable, SerializesModels;
 
     public User $student;
+
     public Registration $registration;
+
     public string $reason;
 
     /**

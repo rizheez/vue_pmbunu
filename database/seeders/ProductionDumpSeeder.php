@@ -120,7 +120,7 @@ class ProductionDumpSeeder extends Seeder
                         $this->command->info("Executed {$count} statements...");
                     }
                 } catch (\Exception $e) {
-                    $this->command->warn('Error executing statement (length: ' . strlen($statement) . '): ' . substr($statement, 0, 50) . '...');
+                    $this->command->warn('Error executing statement (length: '.strlen($statement).'): '.substr($statement, 0, 50).'...');
                     $this->command->error($e->getMessage());
                 }
 

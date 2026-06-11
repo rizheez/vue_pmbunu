@@ -33,7 +33,7 @@ class DocumentVerification extends Model
 
     public function getDocumentTypeNameAttribute()
     {
-        return match($this->document_type) {
+        return match ($this->document_type) {
             'kk' => 'Kartu Keluarga',
             'ktp' => 'KTP',
             'certificate' => 'Ijazah/SKL',
@@ -45,7 +45,7 @@ class DocumentVerification extends Model
 
     public function getStatusBadgeAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'approved' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Disetujui</span>',
             'rejected' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Ditolak</span>',
             'pending' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Menunggu</span>',

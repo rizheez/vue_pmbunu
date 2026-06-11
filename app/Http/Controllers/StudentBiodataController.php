@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\RegistrationPeriod;
 use App\Models\StudentBiodata;
+use App\Rules\SafeFileName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Rules\SafeFileName;
 
 class StudentBiodataController extends Controller
 {

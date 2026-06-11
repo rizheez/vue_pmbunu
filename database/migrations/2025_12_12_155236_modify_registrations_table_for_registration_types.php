@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -23,7 +23,7 @@ return new class extends Migration
         }
 
         // Check if registration_type_id doesn't exist before adding
-        if (!Schema::hasColumn('registrations', 'registration_type_id')) {
+        if (! Schema::hasColumn('registrations', 'registration_type_id')) {
             Schema::table('registrations', function (Blueprint $table) {
                 $table->foreignId('registration_type_id')->after('registration_period_id')->constrained('registration_types')->cascadeOnDelete();
             });
@@ -42,7 +42,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasColumn('registrations', 'registration_type')) {
+        if (! Schema::hasColumn('registrations', 'registration_type')) {
             Schema::table('registrations', function (Blueprint $table) {
                 $table->enum('registration_type', ['Reguler', 'CBT'])->after('registration_period_id');
             });

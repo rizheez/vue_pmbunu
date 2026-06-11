@@ -22,6 +22,7 @@ class LandingPageSetting extends Model
     public static function getValue($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 
@@ -53,7 +54,7 @@ class LandingPageSetting extends Model
      */
     public function getImageUrlAttribute()
     {
-        if ($this->type !== 'image' || !$this->value) {
+        if ($this->type !== 'image' || ! $this->value) {
             return null;
         }
 

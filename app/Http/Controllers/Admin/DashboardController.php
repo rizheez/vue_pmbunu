@@ -92,6 +92,59 @@ class DashboardController extends Controller
             ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
             ->count();
 
+        // 14 Days Trend
+        $trendRegistrations = Registration::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->where('created_at', '>=', now()->subDays(14)->startOfDay())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        $trendDates = [];
+        $trendData = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $dateStr = now()->subDays($i)->format('Y-m-d');
+            $trendDates[] = now()->subDays($i)->format('d M');
+            $trendData[] = $trendRegistrations[$dateStr] ?? 0;
+        }
+
+        $registrationTrend = [
+            'labels' => $trendDates,
+            'data' => $trendData,
+        ];
+
+        $aiInsight = Inertia::defer(function () use ($statusStats, $todayRegistrations, $weekRegistrations, $pendingVerifications) {
+            $prompt = 'Anda adalah AI Asisten untuk Admin PMB UNU Kaltim. Berikut adalah data saat ini: '.json_encode([
+                'total_pendaftar_hari_ini' => $todayRegistrations,
+                'total_pendaftar_minggu_ini' => $weekRegistrations,
+                'menunggu_verifikasi' => $pendingVerifications,
+                'diterima' => $statusStats['accepted'] ?? 0,
+                'ditolak' => $statusStats['rejected'] ?? 0,
+            ]).'. Berikan SATU paragraf singkat (maksimal 3 kalimat) berupa insight dan saran tindakan. Gunakan bahasa Indonesia yang profesional namun menyemangati. Jangan gunakan markdown tebal/miring, cukup teks biasa.';
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(15)->withHeaders([
+                    'Authorization' => 'Bearer '.config('services.openrouter.api_key'),
+                    'Content-Type' => 'application/json',
+                ])->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model' => config('services.openrouter.model', 'openrouter/free'),
+                    'messages' => [['role' => 'user', 'content' => $prompt]],
+                ]);
+
+                if ($response->successful()) {
+                    $content = $response->json()['choices'][0]['message']['content'];
+                    if ($content) {
+                        return $content;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Return fallback
+            }
+
+            return 'Grafik pendaftaran terlihat menjanjikan. Tetap semangat dalam memverifikasi data calon mahasiswa baru agar kuota segera terpenuhi!';
+        });
+
         return Inertia::render('admin/Dashboard', [
             'totalStudents' => $totalStudents,
             'totalAnnouncements' => $totalAnnouncements,
@@ -115,6 +168,8 @@ class DashboardController extends Controller
             'activePeriod' => $activePeriod,
             'allPeriods' => $allPeriods,
             'selectedPeriod' => $selectedPeriod,
+            'registrationTrend' => $registrationTrend,
+            'aiInsight' => $aiInsight,
         ]);
     }
 }

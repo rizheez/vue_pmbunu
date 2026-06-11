@@ -54,7 +54,7 @@ class StudentRegistrationController extends Controller
             ->get();
 
         $acceptedStatuses = ['accepted', 're_registration_pending', 're_registration_verified', 'enrolled'];
-        
+
         $prodiCounts = Registration::whereIn('status', $acceptedStatuses)
             ->whereNotNull('accepted_program_studi_id')
             ->select('accepted_program_studi_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))

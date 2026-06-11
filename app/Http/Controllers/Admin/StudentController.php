@@ -15,6 +15,7 @@ use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\StudentBiodata;
 use App\Models\User;
+use App\Rules\SafeFileName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Rules\SafeFileName;
 
 class StudentController extends Controller
 {

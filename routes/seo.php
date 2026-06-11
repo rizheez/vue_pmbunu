@@ -1,9 +1,5 @@
 <?php
 
-use App\Models\Fakultas;
-use App\Models\RegistrationPeriod;
-use Illuminate\Http\Response;
-
 Route::get('/sitemap.xml', function () {
     $urls = collect();
 
@@ -25,10 +21,10 @@ Route::get('/sitemap.xml', function () {
 
     foreach ($urls as $url) {
         $xml .= '<url>';
-        $xml .= '<loc>' . htmlspecialchars($url['loc']) . '</loc>';
-        $xml .= '<lastmod>' . now()->toDateString() . '</lastmod>';
-        $xml .= '<changefreq>' . $url['changefreq'] . '</changefreq>';
-        $xml .= '<priority>' . $url['priority'] . '</priority>';
+        $xml .= '<loc>'.htmlspecialchars($url['loc']).'</loc>';
+        $xml .= '<lastmod>'.now()->toDateString().'</lastmod>';
+        $xml .= '<changefreq>'.$url['changefreq'].'</changefreq>';
+        $xml .= '<priority>'.$url['priority'].'</priority>';
         $xml .= '</url>';
     }
 
@@ -49,7 +45,7 @@ Route::get('/robots.txt', function () {
     $content .= "Disallow: /forgot-password\n";
     $content .= "Disallow: /reset-password\n";
     $content .= "\n";
-    $content .= "Sitemap: " . url('/sitemap.xml') . "\n";
+    $content .= 'Sitemap: '.url('/sitemap.xml')."\n";
 
     return response($content, 200, [
         'Content-Type' => 'text/plain',

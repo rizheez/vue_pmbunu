@@ -14,13 +14,13 @@ class DocumentRejectedMail extends Mailable
     use Queueable, SerializesModels;
 
     public User $student;
+
     public array $rejectedDocuments;
 
     /**
      * Create a new message instance.
      *
-     * @param User $student
-     * @param array $documents Array of ['type' => string, 'notes' => string|null]
+     * @param  array  $documents  Array of ['type' => string, 'notes' => string|null]
      */
     public function __construct(User $student, array $documents)
     {

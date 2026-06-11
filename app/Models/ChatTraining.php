@@ -22,4 +22,3 @@ class ChatTraining extends Model
         'answer',
     ];
 }
-?>

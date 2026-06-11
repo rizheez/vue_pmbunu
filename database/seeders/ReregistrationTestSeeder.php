@@ -134,9 +134,9 @@ class ReregistrationTestSeeder extends Seeder
             ['user_id' => $user->id],
             [
                 'name' => $name,
-                'nik' => '3575' . rand(100000000000, 999999999999),
+                'nik' => '3575'.rand(100000000000, 999999999999),
                 'nisn' => rand(1000000000, 9999999999),
-                'phone' => '08' . rand(1000000000, 9999999999),
+                'phone' => '08'.rand(1000000000, 9999999999),
                 'birth_place' => 'Samarinda',
                 'birth_date' => '2000-01-15',
                 'gender' => 'Laki-laki',
@@ -145,7 +145,7 @@ class ReregistrationTestSeeder extends Seeder
                 'last_education' => 'SMA',
                 'school_origin' => 'SMAN 1 Samarinda',
                 'major' => 'IPA',
-                'mother_name' => 'Ibu ' . $name,
+                'mother_name' => 'Ibu '.$name,
                 // Re-registration address fields
                 'provinsi' => 'Kalimantan Timur',
                 'kabupaten' => 'Kota Samarinda',
@@ -175,28 +175,28 @@ class ReregistrationTestSeeder extends Seeder
             StudentParent::create([
                 'student_biodata_id' => $biodata->id,
                 'type' => 'ayah',
-                'name' => 'Ayah ' . $name,
-                'nik' => '3575' . rand(100000000000, 999999999999),
+                'name' => 'Ayah '.$name,
+                'nik' => '3575'.rand(100000000000, 999999999999),
                 'birth_date' => '1970-05-10',
                 'is_alive' => true,
                 'education' => 'd4_s1',
                 'occupation' => 'PNS',
                 'income' => 'lebih_5jt',
-                'phone' => '08' . rand(1000000000, 9999999999),
+                'phone' => '08'.rand(1000000000, 9999999999),
             ]);
 
             // Create Mother
             StudentParent::create([
                 'student_biodata_id' => $biodata->id,
                 'type' => 'ibu',
-                'name' => 'Ibu ' . $name,
-                'nik' => '3575' . rand(100000000000, 999999999999),
+                'name' => 'Ibu '.$name,
+                'nik' => '3575'.rand(100000000000, 999999999999),
                 'birth_date' => '1975-08-20',
                 'is_alive' => true,
                 'education' => 'sma',
                 'occupation' => 'Ibu Rumah Tangga',
                 'income' => 'tidak_berpenghasilan',
-                'phone' => '08' . rand(1000000000, 9999999999),
+                'phone' => '08'.rand(1000000000, 9999999999),
             ]);
 
             // Create special needs (default: tidak ada)
