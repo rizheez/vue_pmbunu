@@ -83,7 +83,7 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Today/week stats
+        // Today/week/month stats
         $todayRegistrations = Registration::whereDate('created_at', today())
             ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
             ->count();
@@ -91,6 +91,23 @@ class DashboardController extends Controller
         $weekRegistrations = Registration::where('created_at', '>=', now()->startOfWeek())
             ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
             ->count();
+
+        $monthRegistrations = Registration::where('created_at', '>=', now()->startOfMonth())
+            ->when($filterPeriodId, fn ($q) => $q->where('registration_period_id', $filterPeriodId))
+            ->count();
+
+        // Per-wave (period) breakdown
+        $waveStats = RegistrationPeriod::withCount(['registrations as total_registrations'])
+            ->orderByDesc('academic_year')
+            ->orderByDesc('wave_number')
+            ->get()
+            ->map(fn ($p) => [
+                'name' => $p->name,
+                'wave_number' => $p->wave_number,
+                'academic_year' => $p->academic_year,
+                'total' => $p->total_registrations,
+                'is_active' => $p->is_active,
+            ]);
 
         // 14 Days Trend
         $trendRegistrations = Registration::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
@@ -114,14 +131,16 @@ class DashboardController extends Controller
             'data' => $trendData,
         ];
 
-        $aiInsight = Inertia::defer(function () use ($statusStats, $todayRegistrations, $weekRegistrations, $pendingVerifications) {
+        $aiInsight = Inertia::defer(function () use ($statusStats, $todayRegistrations, $weekRegistrations, $monthRegistrations, $pendingVerifications, $waveStats) {
             $prompt = 'Anda adalah AI Asisten untuk Admin PMB UNU Kaltim. Berikut adalah data saat ini: '.json_encode([
                 'total_pendaftar_hari_ini' => $todayRegistrations,
                 'total_pendaftar_minggu_ini' => $weekRegistrations,
+                'total_pendaftar_bulan_ini' => $monthRegistrations,
                 'menunggu_verifikasi' => $pendingVerifications,
                 'diterima' => $statusStats['accepted'] ?? 0,
                 'ditolak' => $statusStats['rejected'] ?? 0,
-            ]).'. Berikan SATU paragraf singkat (maksimal 3 kalimat) berupa insight dan saran tindakan. Gunakan bahasa Indonesia yang profesional namun menyemangati. Jangan gunakan markdown tebal/miring, cukup teks biasa.';
+                'per_gelombang' => $waveStats->take(3)->values(),
+            ]).'. Berikan SATU paragraf singkat (maksimal 3 kalimat) berupa insight dan saran tindakan yang mempertimbangkan tren harian, mingguan, bulanan, dan antar gelombang. Gunakan bahasa Indonesia yang profesional namun menyemangati. Jangan gunakan markdown tebal/miring, cukup teks biasa.';
 
             try {
                 $response = \Illuminate\Support\Facades\Http::timeout(15)->withHeaders([
@@ -165,6 +184,8 @@ class DashboardController extends Controller
             'recentRegistrations' => $recentRegistrations,
             'todayRegistrations' => $todayRegistrations,
             'weekRegistrations' => $weekRegistrations,
+            'monthRegistrations' => $monthRegistrations,
+            'waveStats' => $waveStats,
             'activePeriod' => $activePeriod,
             'allPeriods' => $allPeriods,
             'selectedPeriod' => $selectedPeriod,

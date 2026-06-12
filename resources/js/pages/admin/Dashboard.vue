@@ -15,17 +15,20 @@ import type {
     RegistrationPeriod,
 } from '@/types/pmb';
 import { Deferred, Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import {
     BookOpen,
+    CalendarDays,
     CheckCircle,
     Clock,
     FileCheck,
     FileX,
     GraduationCap,
+    Layers,
     Megaphone,
     RefreshCw,
+    TrendingUp,
     UserCheck,
     UserPlus,
     Users,
@@ -37,6 +40,14 @@ import {
 interface ProgramStat {
     total: number;
     program_studi: ProgramStudi;
+}
+
+interface WaveStat {
+    name: string;
+    wave_number: number;
+    academic_year: string;
+    total: number;
+    is_active: boolean;
 }
 
 interface Props {
@@ -59,6 +70,8 @@ interface Props {
     recentRegistrations: Registration[];
     todayRegistrations: number;
     weekRegistrations: number;
+    monthRegistrations: number;
+    waveStats: WaveStat[];
     activePeriod: RegistrationPeriod | null;
     allPeriods: RegistrationPeriod[];
     selectedPeriod: RegistrationPeriod | null;
@@ -212,10 +225,10 @@ const chartSeries = computed(() => [
                         <div class="text-2xl font-bold">
                             {{ props.totalStudents }}
                         </div>
-                        <p class="text-xs text-muted-foreground">
-                            Hari ini: {{ props.todayRegistrations }} | Minggu
-                            ini: {{ props.weekRegistrations }}
-                        </p>
+                        <div class="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                            <p>Hari ini: {{ props.todayRegistrations }} · Minggu ini: {{ props.weekRegistrations }}</p>
+                            <p>Bulan ini: {{ props.monthRegistrations }}</p>
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -522,6 +535,60 @@ const chartSeries = computed(() => [
                         :options="chartOptions"
                         :series="chartSeries"
                     />
+                </CardContent>
+            </Card>
+
+            <!-- Per-Wave Comparison -->
+            <Card v-if="props.waveStats && props.waveStats.length > 0">
+                <CardHeader>
+                    <CardTitle class="flex items-center gap-2">
+                        <Layers class="size-5 text-indigo-500" />
+                        Perbandingan Per Gelombang
+                    </CardTitle>
+                    <CardDescription>
+                        Jumlah pendaftar per gelombang pendaftaran
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <div
+                            v-for="wave in props.waveStats"
+                            :key="wave.name"
+                            class="relative overflow-hidden rounded-lg border p-4 transition-all hover:shadow-md"
+                            :class="wave.is_active ? 'border-indigo-300 bg-indigo-50/50 ring-1 ring-indigo-200' : ''"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-muted-foreground">
+                                        {{ wave.name }}
+                                    </p>
+                                    <p class="mt-1 text-2xl font-bold">
+                                        {{ wave.total }}
+                                        <span class="text-sm font-normal text-muted-foreground">pendaftar</span>
+                                    </p>
+                                </div>
+                                <Badge
+                                    v-if="wave.is_active"
+                                    class="bg-indigo-100 text-indigo-700"
+                                >
+                                    Aktif
+                                </Badge>
+                            </div>
+                            <!-- Progress bar relative to max -->
+                            <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                                <div
+                                    class="h-full rounded-full transition-all"
+                                    :class="wave.is_active ? 'bg-indigo-500' : 'bg-gray-300'"
+                                    :style="{
+                                        width: Math.max(
+                                            (wave.total / Math.max(...props.waveStats.map(w => w.total), 1)) * 100,
+                                            wave.total > 0 ? 5 : 0
+                                        ) + '%',
+                                    }"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
 
