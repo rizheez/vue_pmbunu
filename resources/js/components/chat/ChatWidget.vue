@@ -286,7 +286,7 @@ function formatMarkdown(content: string) {
                                 :show-cursor="false"
                                 :type-speed="CHAT_TYPE_SPEED_MS"
                             />
-                            <div v-else v-html="msg.content"></div>
+                            <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
                         </div>
 
                         <!-- User Avatar -->
