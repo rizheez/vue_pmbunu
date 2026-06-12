@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { send } from '@/actions/App/Http/Controllers/Api/ChatController';
 import { Button } from '@/components/ui/button';
-import TypeWriter from '@/components/ui/TypeWriter.vue';
 import {
     Bot,
     Loader2,
@@ -280,12 +279,10 @@ function formatMarkdown(content: string) {
                             ]"
                             style="overflow-wrap: anywhere"
                         >
-                            <TypeWriter
+                            <div
                                 v-if="msg.role === 'assistant'"
-                                :content="formatMarkdown(msg.content)"
-                                :show-cursor="false"
-                                :type-speed="CHAT_TYPE_SPEED_MS"
-                            />
+                                v-html="formatMarkdown(msg.content)"
+                            ></div>
                             <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
                         </div>
 
