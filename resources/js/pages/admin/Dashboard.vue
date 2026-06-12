@@ -518,58 +518,62 @@ const chartSeries = computed(() => [
                         </p>
                     </CardContent>
                 </Card>
-
-                <!-- Recent Registrations -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Pendaftaran Terbaru</CardTitle>
-                        <CardDescription>7 hari terakhir</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div
-                            v-if="props.recentRegistrations.length > 0"
-                            class="max-h-64 space-y-3 overflow-y-auto"
-                        >
-                            <div
-                                v-for="reg in props.recentRegistrations"
-                                :key="reg.id"
-                                class="flex items-center justify-between rounded-lg border p-3"
-                            >
-                                <div>
-                                    <p class="font-medium">
-                                        {{
-                                            reg.user?.student_biodata?.name ||
-                                            reg.user?.name ||
-                                            'N/A'
-                                        }}
-                                    </p>
-                                    <p class="text-sm text-gray-500">
-                                        {{
-                                            reg.program_studi_choice1?.name ||
-                                            '-'
-                                        }}
-                                    </p>
-                                </div>
-                                <Badge
-                                    :variant="
-                                        reg.status === 'accepted' ||
-                                        reg.status === 'enrolled'
-                                            ? 'default'
-                                            : reg.status === 'rejected'
-                                              ? 'destructive'
-                                              : 'secondary'
-                                    "
-                                >
-                                    {{ getStatusLabel(reg.status) }}
-                                </Badge>
-                            </div>
-                        </div>
-                        <p v-else class="text-center text-gray-500">
-                            Belum ada pendaftaran minggu ini
-                        </p>
-                    </CardContent>
-                </Card>
             </div>
+
+            <!-- Recent Registrations (Full Width) -->
+            <Card>
+                <CardHeader>
+                    <CardTitle>Pendaftaran Terbaru</CardTitle>
+                    <CardDescription>7 hari terakhir</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div
+                        v-if="props.recentRegistrations.length > 0"
+                        class="space-y-3"
+                    >
+                        <div
+                            v-for="reg in props.recentRegistrations"
+                            :key="reg.id"
+                            class="flex items-center justify-between rounded-lg border p-3"
+                        >
+                            <div class="flex-1">
+                                <p class="font-medium">
+                                    {{
+                                        reg.user?.student_biodata?.name ||
+                                        reg.user?.name ||
+                                        'N/A'
+                                    }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{
+                                        reg.program_studi_choice1?.name ||
+                                        '-'
+                                    }}
+                                </p>
+                                <p class="mt-0.5 text-xs text-muted-foreground">
+                                    {{ new Date(reg.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+                                    {{ new Date(reg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }}
+                                </p>
+                            </div>
+                            <Badge
+                                :variant="
+                                    reg.status === 'accepted' ||
+                                    reg.status === 'enrolled'
+                                        ? 'default'
+                                        : reg.status === 'rejected'
+                                          ? 'destructive'
+                                          : 'secondary'
+                                "
+                            >
+                                {{ getStatusLabel(reg.status) }}
+                            </Badge>
+                        </div>
+                    </div>
+                    <p v-else class="text-center text-gray-500">
+                        Belum ada pendaftaran minggu ini
+                    </p>
+                </CardContent>
+            </Card>
         </div>
     </AppLayout>
 </template>
