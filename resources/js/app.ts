@@ -26,5 +26,21 @@ createInertiaApp({
     },
 });
 
+import { router } from '@inertiajs/vue3';
+
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// Handle invalid Inertia responses (e.g. Cloudflare challenges or session expired)
+router.on('invalid', (event) => {
+    const response = event.detail.response;
+    
+    // Check if it's a Cloudflare challenge (usually returns HTML containing 'cloudflare')
+    // or if it's a 419 session expired
+    if (response && (response.status === 419 || response.status === 403 || response.status === 503)) {
+        if (typeof response.data === 'string' && (response.data.toLowerCase().includes('cloudflare') || response.status === 419)) {
+            event.preventDefault(); // Prevent the black error modal from appearing
+            window.location.reload(); // Reload to let Cloudflare challenge the main frame
+        }
+    }
+});
