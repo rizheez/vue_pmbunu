@@ -9,6 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type {
     ProgramStudi,
     Registration,
@@ -65,6 +66,7 @@ interface Props {
         cancelled: number;
     };
     programStats: ProgramStat[];
+    programStatsEnrolled: ProgramStat[];
     pendingVerifications: number;
     pendingPaymentVerifications: number;
     recentRegistrations: Registration[];
@@ -482,39 +484,79 @@ const chartSeries = computed(() => [
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Top Programs -->
                 <Card>
-                    <CardHeader>
+                    <CardHeader class="pb-2">
                         <CardTitle class="flex items-center gap-2">
                             <GraduationCap class="size-5" />
                             Program Studi Favorit
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div
-                            v-if="props.programStats.length > 0"
-                            class="space-y-4"
-                        >
-                            <div
-                                v-for="(stat, index) in props.programStats"
-                                :key="stat.program_studi.id"
-                                class="flex items-center justify-between"
-                            >
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="flex size-8 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-600"
+                        <Tabs defaultValue="pendaftar" class="w-full">
+                            <TabsList class="mb-4 grid w-full grid-cols-2">
+                                <TabsTrigger value="pendaftar">
+                                    Pendaftar
+                                </TabsTrigger>
+                                <TabsTrigger value="mahasiswa-aktif">
+                                    Mahasiswa Aktif
+                                </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="pendaftar">
+                                <div
+                                    v-if="props.programStats.length > 0"
+                                    class="space-y-4"
+                                >
+                                    <div
+                                        v-for="(stat, index) in props.programStats"
+                                        :key="stat.program_studi.id"
+                                        class="flex items-center justify-between"
                                     >
-                                        {{ index + 1 }}
-                                    </span>
-                                    <span class="font-medium">
-                                        {{ stat.program_studi.jenjang }}
-                                        {{ stat.program_studi.name }}
-                                    </span>
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="flex size-8 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-600"
+                                            >
+                                                {{ index + 1 }}
+                                            </span>
+                                            <span class="font-medium">
+                                                {{ stat.program_studi.jenjang }}
+                                                {{ stat.program_studi.name }}
+                                            </span>
+                                        </div>
+                                        <Badge>{{ stat.total }} pendaftar</Badge>
+                                    </div>
                                 </div>
-                                <Badge>{{ stat.total }} pendaftar</Badge>
-                            </div>
-                        </div>
-                        <p v-else class="text-center text-gray-500">
-                            Belum ada data
-                        </p>
+                                <p v-else class="text-center text-gray-500">
+                                    Belum ada data pendaftar
+                                </p>
+                            </TabsContent>
+                            <TabsContent value="mahasiswa-aktif">
+                                <div
+                                    v-if="props.programStatsEnrolled.length > 0"
+                                    class="space-y-4"
+                                >
+                                    <div
+                                        v-for="(stat, index) in props.programStatsEnrolled"
+                                        :key="stat.program_studi.id"
+                                        class="flex items-center justify-between"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="flex size-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-600"
+                                            >
+                                                {{ index + 1 }}
+                                            </span>
+                                            <span class="font-medium">
+                                                {{ stat.program_studi.jenjang }}
+                                                {{ stat.program_studi.name }}
+                                            </span>
+                                        </div>
+                                        <Badge variant="outline" class="border-emerald-200 bg-emerald-50 text-emerald-700">{{ stat.total }} mahasiswa</Badge>
+                                    </div>
+                                </div>
+                                <p v-else class="text-center text-gray-500">
+                                    Belum ada data mahasiswa aktif
+                                </p>
+                            </TabsContent>
+                        </Tabs>
                     </CardContent>
                 </Card>
 

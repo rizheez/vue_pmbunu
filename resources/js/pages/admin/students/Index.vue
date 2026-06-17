@@ -238,6 +238,11 @@ const rowNumber = (index: number) =>
                                         Email
                                     </th>
                                     <th
+                                        class="min-w-[150px] px-4 py-3 text-left font-medium"
+                                    >
+                                        No. HP / WA
+                                    </th>
+                                    <th
                                         class="min-w-[200px] px-4 py-3 text-left font-medium"
                                     >
                                         Sumber Informasi
@@ -284,6 +289,18 @@ const rowNumber = (index: number) =>
                                     </td>
                                     <td class="px-4 py-3 text-gray-500">
                                         {{ student.email }}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <a
+                                            v-if="student.phone"
+                                            :href="'https://wa.me/' + student.phone.replace(/^0/, '62')"
+                                            target="_blank"
+                                            class="text-emerald-600 hover:underline"
+                                            title="Hubungi via WhatsApp"
+                                        >
+                                            {{ student.phone }}
+                                        </a>
+                                        <span v-else class="text-gray-500">-</span>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex flex-col">

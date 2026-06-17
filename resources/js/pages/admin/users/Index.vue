@@ -300,7 +300,16 @@ const breadcrumbs = [
                                     </td>
                                     <td class="px-4 py-3">{{ user.email }}</td>
                                     <td class="px-4 py-3">
-                                        {{ user.phone || '-' }}
+                                        <a
+                                            v-if="user.phone"
+                                            :href="'https://wa.me/' + user.phone.replace(/^0/, '62')"
+                                            target="_blank"
+                                            class="text-emerald-600 hover:underline"
+                                            title="Hubungi via WhatsApp"
+                                        >
+                                            {{ user.phone }}
+                                        </a>
+                                        <span v-else class="text-gray-500">-</span>
                                     </td>
                                     <td class="px-4 py-3">
                                         <Badge
