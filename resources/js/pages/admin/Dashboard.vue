@@ -98,7 +98,7 @@ const filterByPeriod = (periodId: number | string) => {
             period_id: periodId,
             ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
         },
-        { preserveState: true },
+        { preserveState: true, preserveScroll: true },
     );
 };
 
@@ -112,7 +112,7 @@ const filterByPath = (pathId: number | string) => {
             ...(props.selectedPeriod?.id ? { period_id: props.selectedPeriod.id } : {}),
             ...(pathId ? { registration_path_id: pathId } : {}),
         },
-        { preserveState: true },
+        { preserveState: true, preserveScroll: true },
     );
 };
 

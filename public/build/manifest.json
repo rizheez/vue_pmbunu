@@ -233,7 +233,7 @@
     "name": "vendor"
   },
   "resources/js/app.ts": {
-    "file": "assets/app-C5a6WbuV.js",
+    "file": "assets/app-9_WMUIhq.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -349,7 +349,7 @@
     ]
   },
   "resources/js/pages/admin/Dashboard.vue": {
-    "file": "assets/Dashboard-BkxsXRZE.js",
+    "file": "assets/Dashboard-BW49Gk5C.js",
     "name": "Dashboard",
     "src": "resources/js/pages/admin/Dashboard.vue",
     "isDynamicEntry": true,
