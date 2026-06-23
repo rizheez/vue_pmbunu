@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
+use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\ReregistrationPayment;
 use App\Models\User;
@@ -38,6 +39,10 @@ class DashboardController extends Controller
 
         $filterPeriodId = $selectedPeriod?->id;
 
+        // Registration path filter (for program stats)
+        $filterPathId = request('registration_path_id') ? (int) request('registration_path_id') : null;
+        $registrationPaths = RegistrationPath::active()->orderBy('name')->get();
+
         // Global stats
         $totalStudents = User::where('role', 'student')
             ->whereHas('registration')
@@ -54,8 +59,9 @@ class DashboardController extends Controller
 
         // Program stats (all active prodi)
         $programStats = ProgramStudi::active()
-            ->withCount(['registrationsChoice1 as total' => function ($q) use ($filterPeriodId) {
-                $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId));
+            ->withCount(['registrationsChoice1 as total' => function ($q) use ($filterPeriodId, $filterPathId) {
+                $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId))
+                    ->when($filterPathId, fn ($q2) => $q2->where('registration_path_id', $filterPathId));
             }])
             ->orderByDesc('total')
             ->get()
@@ -66,8 +72,9 @@ class DashboardController extends Controller
 
         // Program stats enrolled (all active prodi for enrolled students)
         $programStatsEnrolled = ProgramStudi::active()
-            ->withCount(['acceptedRegistrations as total' => function ($q) use ($filterPeriodId) {
+            ->withCount(['acceptedRegistrations as total' => function ($q) use ($filterPeriodId, $filterPathId) {
                 $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId))
+                    ->when($filterPathId, fn ($q2) => $q2->where('registration_path_id', $filterPathId))
                     ->where('status', 'enrolled');
             }])
             ->orderByDesc('total')
@@ -205,6 +212,8 @@ class DashboardController extends Controller
             'allPeriods' => $allPeriods,
             'selectedPeriod' => $selectedPeriod,
             'registrationTrend' => $registrationTrend,
+            'registrationPaths' => $registrationPaths,
+            'selectedPathId' => $filterPathId,
             'aiInsight' => $aiInsight,
         ]);
     }
