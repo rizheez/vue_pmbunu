@@ -109,7 +109,7 @@ const filterByPath = (pathId: number | string) => {
     router.get(
         '/admin/dashboard',
         {
-            ...(props.selectedPeriod?.id ? { period_id: props.selectedPeriod.id } : {}),
+            period_id: props.selectedPeriod?.id ?? '',
             ...(pathId ? { registration_path_id: pathId } : {}),
         },
         { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId'] },
