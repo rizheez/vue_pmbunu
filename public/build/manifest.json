@@ -233,7 +233,7 @@
     "name": "vendor"
   },
   "resources/js/app.ts": {
-    "file": "assets/app-qKB9HlXL.js",
+    "file": "assets/app-C9VG0Z64.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -564,7 +564,7 @@
     ]
   },
   "resources/js/pages/admin/program-studi/Index.vue": {
-    "file": "assets/Index-fMq-qAp-.js",
+    "file": "assets/Index-BPdnk43d.js",
     "name": "Index",
     "src": "resources/js/pages/admin/program-studi/Index.vue",
     "isDynamicEntry": true,
