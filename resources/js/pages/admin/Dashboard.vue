@@ -9,9 +9,11 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type {
     ProgramStudi,
     Registration,
+    RegistrationPath,
     RegistrationPeriod,
 } from '@/types/pmb';
 import { Deferred, Head, Link, router } from '@inertiajs/vue3';
@@ -65,6 +67,7 @@ interface Props {
         cancelled: number;
     };
     programStats: ProgramStat[];
+    programStatsEnrolled: ProgramStat[];
     pendingVerifications: number;
     pendingPaymentVerifications: number;
     recentRegistrations: Registration[];
@@ -79,6 +82,8 @@ interface Props {
         labels: string[];
         data: number[];
     };
+    registrationPaths: RegistrationPath[];
+    selectedPathId: number | null;
     aiInsight?: string;
 }
 
@@ -89,8 +94,25 @@ const breadcrumbs = [{ title: 'Admin Dashboard', href: '/admin/dashboard' }];
 const filterByPeriod = (periodId: number | string) => {
     router.get(
         '/admin/dashboard',
-        { period_id: periodId },
-        { preserveState: true },
+        {
+            period_id: periodId,
+            ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
+        },
+        { preserveState: true, preserveScroll: true },
+    );
+};
+
+const selectedPathId = ref<number | string>(props.selectedPathId || '');
+
+const filterByPath = (pathId: number | string) => {
+    selectedPathId.value = pathId;
+    router.get(
+        '/admin/dashboard',
+        {
+            period_id: props.selectedPeriod?.id ?? '',
+            ...(pathId ? { registration_path_id: pathId } : {}),
+        },
+        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId'] },
     );
 };
 
@@ -482,39 +504,96 @@ const chartSeries = computed(() => [
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Top Programs -->
                 <Card>
-                    <CardHeader>
+                    <CardHeader class="pb-2">
                         <CardTitle class="flex items-center gap-2">
                             <GraduationCap class="size-5" />
                             Program Studi Favorit
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div
-                            v-if="props.programStats.length > 0"
-                            class="space-y-4"
-                        >
-                            <div
-                                v-for="(stat, index) in props.programStats"
-                                :key="stat.program_studi.id"
-                                class="flex items-center justify-between"
+                        <!-- Jalur Pendaftaran Filter -->
+                        <div v-if="props.registrationPaths.length > 0" class="mb-4">
+                            <select
+                                class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                                :value="selectedPathId"
+                                @change="filterByPath(($event.target as HTMLSelectElement).value)"
                             >
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="flex size-8 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-600"
-                                    >
-                                        {{ index + 1 }}
-                                    </span>
-                                    <span class="font-medium">
-                                        {{ stat.program_studi.jenjang }}
-                                        {{ stat.program_studi.name }}
-                                    </span>
-                                </div>
-                                <Badge>{{ stat.total }} pendaftar</Badge>
-                            </div>
+                                <option value="">Semua Jalur Pendaftaran</option>
+                                <option
+                                    v-for="path in props.registrationPaths"
+                                    :key="path.id"
+                                    :value="path.id"
+                                >
+                                    {{ path.name }}
+                                </option>
+                            </select>
                         </div>
-                        <p v-else class="text-center text-gray-500">
-                            Belum ada data
-                        </p>
+                        <Tabs defaultValue="pendaftar" class="w-full">
+                            <TabsList class="mb-4 grid w-full grid-cols-2">
+                                <TabsTrigger value="pendaftar">
+                                    Pendaftar
+                                </TabsTrigger>
+                                <TabsTrigger value="mahasiswa-aktif">
+                                    Mahasiswa Aktif
+                                </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="pendaftar">
+                                <div
+                                    v-if="props.programStats.length > 0"
+                                    class="space-y-4"
+                                >
+                                    <div
+                                        v-for="(stat, index) in props.programStats"
+                                        :key="stat.program_studi.id"
+                                        class="flex items-center justify-between"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="flex size-8 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-600"
+                                            >
+                                                {{ index + 1 }}
+                                            </span>
+                                            <span class="font-medium">
+                                                {{ stat.program_studi.jenjang }}
+                                                {{ stat.program_studi.name }}
+                                            </span>
+                                        </div>
+                                        <Badge>{{ stat.total }} pendaftar</Badge>
+                                    </div>
+                                </div>
+                                <p v-else class="text-center text-gray-500">
+                                    Belum ada data pendaftar
+                                </p>
+                            </TabsContent>
+                            <TabsContent value="mahasiswa-aktif">
+                                <div
+                                    v-if="props.programStatsEnrolled.length > 0"
+                                    class="space-y-4"
+                                >
+                                    <div
+                                        v-for="(stat, index) in props.programStatsEnrolled"
+                                        :key="stat.program_studi.id"
+                                        class="flex items-center justify-between"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="flex size-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-600"
+                                            >
+                                                {{ index + 1 }}
+                                            </span>
+                                            <span class="font-medium">
+                                                {{ stat.program_studi.jenjang }}
+                                                {{ stat.program_studi.name }}
+                                            </span>
+                                        </div>
+                                        <Badge variant="outline" class="border-emerald-200 bg-emerald-50 text-emerald-700">{{ stat.total }} mahasiswa</Badge>
+                                    </div>
+                                </div>
+                                <p v-else class="text-center text-gray-500">
+                                    Belum ada data mahasiswa aktif
+                                </p>
+                            </TabsContent>
+                        </Tabs>
                     </CardContent>
                 </Card>
 

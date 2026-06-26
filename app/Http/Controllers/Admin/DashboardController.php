@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
+use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\ReregistrationPayment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,6 +39,10 @@ class DashboardController extends Controller
 
         $filterPeriodId = $selectedPeriod?->id;
 
+        // Registration path filter (for program stats)
+        $filterPathId = request('registration_path_id') ? (int) request('registration_path_id') : null;
+        $registrationPaths = RegistrationPath::active()->orderBy('name')->get();
+
         // Global stats
         $totalStudents = User::where('role', 'student')
             ->whereHas('registration')
@@ -53,8 +59,23 @@ class DashboardController extends Controller
 
         // Program stats (all active prodi)
         $programStats = ProgramStudi::active()
-            ->withCount(['registrationsChoice1 as total' => function ($q) use ($filterPeriodId) {
-                $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId));
+            ->withCount(['registrationsChoice1 as total' => function ($q) use ($filterPeriodId, $filterPathId) {
+                $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId))
+                    ->when($filterPathId, fn ($q2) => $q2->where('registration_path_id', $filterPathId));
+            }])
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn ($prodi) => [
+                'program_studi' => $prodi,
+                'total' => $prodi->total,
+            ]);
+
+        // Program stats enrolled (all active prodi for enrolled students)
+        $programStatsEnrolled = ProgramStudi::active()
+            ->withCount(['acceptedRegistrations as total' => function ($q) use ($filterPeriodId, $filterPathId) {
+                $q->when($filterPeriodId, fn ($q2) => $q2->where('registration_period_id', $filterPeriodId))
+                    ->when($filterPathId, fn ($q2) => $q2->where('registration_path_id', $filterPathId))
+                    ->where('status', 'enrolled');
             }])
             ->orderByDesc('total')
             ->get()
@@ -131,19 +152,19 @@ class DashboardController extends Controller
             'data' => $trendData,
         ];
 
-        $aiInsight = Inertia::defer(function () use ($statusStats, $todayRegistrations, $weekRegistrations, $monthRegistrations, $pendingVerifications, $waveStats) {
-            $prompt = 'Anda adalah AI Asisten untuk Admin PMB UNU Kaltim. Berikut adalah data saat ini: '.json_encode([
+        $aiInsight = Inertia::defer(function () use ($statusStats, $todayRegistrations, $weekRegistrations, $monthRegistrations, $pendingVerifications, $selectedPeriod) {
+            $periodName = $selectedPeriod ? $selectedPeriod->name : 'Semua Gelombang';
+            $prompt = 'Anda adalah AI Asisten untuk Admin PMB UNU Kaltim. Berikut adalah data pendaftaran untuk gelombang "'.$periodName.'" saat ini: '.json_encode([
                 'total_pendaftar_hari_ini' => $todayRegistrations,
                 'total_pendaftar_minggu_ini' => $weekRegistrations,
                 'total_pendaftar_bulan_ini' => $monthRegistrations,
                 'menunggu_verifikasi' => $pendingVerifications,
                 'diterima' => $statusStats['accepted'] ?? 0,
                 'ditolak' => $statusStats['rejected'] ?? 0,
-                'per_gelombang' => $waveStats->take(3)->values(),
-            ]).'. Berikan SATU paragraf singkat (maksimal 3 kalimat) berupa insight dan saran tindakan yang mempertimbangkan tren harian, mingguan, bulanan, dan antar gelombang. Gunakan bahasa Indonesia yang profesional namun menyemangati. Jangan gunakan markdown tebal/miring, cukup teks biasa.';
+            ]).'. Berikan SATU paragraf berupa insight dan saran tindakan yang profesional mempertimbangkan tren pendaftaran saat ini. Gunakan bahasa Indonesia yang profesional namun menyemangati. Jangan gunakan markdown tebal/miring, cukup teks biasa.';
 
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(15)->withHeaders([
+                $response = Http::timeout(15)->withHeaders([
                     'Authorization' => 'Bearer '.config('services.openrouter.api_key'),
                     'Content-Type' => 'application/json',
                 ])->post('https://openrouter.ai/api/v1/chat/completions', [
@@ -179,6 +200,7 @@ class DashboardController extends Controller
                 'cancelled' => $statusStats['cancelled'] ?? 0,
             ],
             'programStats' => $programStats,
+            'programStatsEnrolled' => $programStatsEnrolled,
             'pendingVerifications' => $pendingVerifications,
             'pendingPaymentVerifications' => $pendingPaymentVerifications,
             'recentRegistrations' => $recentRegistrations,
@@ -190,6 +212,8 @@ class DashboardController extends Controller
             'allPeriods' => $allPeriods,
             'selectedPeriod' => $selectedPeriod,
             'registrationTrend' => $registrationTrend,
+            'registrationPaths' => $registrationPaths,
+            'selectedPathId' => $filterPathId,
             'aiInsight' => $aiInsight,
         ]);
     }

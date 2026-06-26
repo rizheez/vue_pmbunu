@@ -59,7 +59,7 @@ class GenerateChatContext extends Command
         // About Section
         $aboutSettings = $allSettings->get('about', collect());
         $aboutDesc = $aboutSettings->where('key', 'about_description')->first()?->value ?? '';
-        $aboutInfo = $aboutDesc ? 'Tentang: '.$this->compactText($aboutDesc) : '';
+        $aboutInfo = $aboutDesc ? 'Tentang: ' . $this->compactText($aboutDesc) : '';
 
         // Social Media
         $socialSettings = $allSettings->get('social_media', collect());
@@ -70,7 +70,7 @@ class GenerateChatContext extends Command
 
         // Chat Training Q&A (Knowledge Base)
         $knowledgeBase = \App\Models\ChatTraining::all()->map(function ($item) {
-            return 'Q: '.$this->compactText($item->question).' | A: '.$this->compactText($item->answer);
+            return 'Q: ' . $this->compactText($item->question) . ' | A: ' . $this->compactText($item->answer);
         })->implode("\n");
         $knowledgeInfo = $knowledgeBase ? "FAQ:\n{$knowledgeBase}" : '';
 
@@ -90,7 +90,7 @@ class GenerateChatContext extends Command
         $importantInfo = 'Penting: pendaftaran dan daftar ulang gratis; Rp300.000 hanya paket opsional almamater+KTM; panitia tidak meminta transfer ke rekening pribadi; waspada penipuan; kendala teknis hubungi kontak resmi.';
 
         // Informasi Biaya (Pendaftaran, RPL, UKT)
-        $biayaInfo = 'Biaya: pendaftaran/daftar ulang gratis; paket opsional almamater+KTM Rp300.000; RPL/alih jenjang/pindahan Rp120.000/SKS; UKT/semester reguler non-farmasi Rp5.000.000, farmasi Rp7.000.000, kelas karyawan hubungi PMB.';
+        $biayaInfo = 'Biaya: pendaftaran/daftar ulang gratis; paket opsional almamater+KTM Rp300.000; RPL/alih jenjang/pindahan Rp120.000/SKS; UKT/semester reguler non-farmasi Rp5.000.000, farmasi Rp7.500.000, kelas karyawan hubungi PMB.';
 
         // Website Features Info
         $websiteInfo = 'Website: pmb.unukaltim.ac.id menyediakan chatbot PMB di pojok kanan bawah.';
@@ -118,9 +118,9 @@ class GenerateChatContext extends Command
 
         // Clear cached context so next request gets fresh data
         \Illuminate\Support\Facades\Cache::forget('chat_context');
-        \Illuminate\Support\Facades\Cache::forget('chat_context_'.app()->environment());
+        \Illuminate\Support\Facades\Cache::forget('chat_context_' . app()->environment());
 
-        $this->info('Chat context generated successfully at '.storage_path('app/private/chat_context.txt'));
+        $this->info('Chat context generated successfully at ' . storage_path('app/private/chat_context.txt'));
     }
 
     private function compactText(string $text): string

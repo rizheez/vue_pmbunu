@@ -57,6 +57,14 @@ class ProgramStudi extends Model
     }
 
     /**
+     * Get registrations accepted in this program studi
+     */
+    public function acceptedRegistrations()
+    {
+        return $this->hasMany(Registration::class, 'accepted_program_studi_id');
+    }
+
+    /**
      * Get formatted name with jenjang (e.g., "S1 - Akuntansi")
      */
     public function getFullNameAttribute()

@@ -3,8 +3,12 @@
 namespace App\Services;
 
 use App\Models\ChatTraining;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ChatService
 {
@@ -24,7 +28,17 @@ class ChatService
      */
     public function chat(string $message, array $history = [], ?string $systemPrompt = null): array
     {
-        // First, try to find a relevant answer from the training data
+        // Handle greetings directly without calling API
+        $greetingResponse = $this->handleGreeting($message);
+        if ($greetingResponse !== null) {
+            return [
+                'success' => true,
+                'message' => $greetingResponse,
+                'provider' => 'greeting',
+            ];
+        }
+
+        // Try to find a relevant answer from the training data
         $dbAnswer = $this->getRelevantAnswer($message);
         if ($dbAnswer !== null) {
             return [
@@ -34,11 +48,11 @@ class ChatService
             ];
         }
 
-        // If no DB answer, reject out‑of‑scope queries (PMB specific)
+        // Reject clearly out‑of‑scope queries (non-PMB topics)
         if ($this->isOutOfScope($message)) {
             return [
-                'success' => false,
-                'message' => 'Maaf, pertanyaan di luar topik PMB tidak dapat dijawab.',
+                'success' => true,
+                'message' => 'Maaf, saya hanya dapat membantu seputar informasi PMB UNU Kaltim. Ada yang ingin ditanyakan tentang pendaftaran mahasiswa baru? 😊',
                 'provider' => 'rejection',
             ];
         }
@@ -221,14 +235,94 @@ class ChatService
     }
 
     /**
+     * Handle greeting messages directly without calling the AI API.
+     * Returns a greeting response or null if the message is not a greeting.
+     */
+    private function handleGreeting(string $message): ?string
+    {
+        $message = strtolower(trim($message));
+
+        // Remove common punctuation for matching
+        $cleaned = preg_replace('/[^a-z\s]/', '', $message);
+        $cleaned = trim((string) preg_replace('/\s+/', ' ', $cleaned));
+
+        $greetings = [
+            'halo', 'hai', 'hi', 'hey', 'hello',
+            'halo kak', 'hai kak', 'hi kak',
+            'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam',
+            'pagi', 'siang', 'sore', 'malam',
+            'pagi kak', 'siang kak', 'sore kak', 'malam kak',
+            'assalamualaikum', 'assalamu alaikum', 'assalamualaikum wr wb',
+            'permisi', 'permisi kak',
+            'hallo', 'hallo kak',
+            'kak', 'min',
+            'p', 'ping',
+        ];
+
+        if (in_array($cleaned, $greetings)) {
+            return 'Halo! 👋 Saya asisten virtual PMB UNU Kaltim. Ada yang bisa saya bantu tentang pendaftaran mahasiswa baru?';
+        }
+
+        return null;
+    }
+
+    /**
      * Determine if a question is out of scope for PMB.
-     * This basic implementation checks for keywords that are clearly unrelated.
+     * Uses a dual approach: checks for off-topic keywords AND verifies
+     * absence of PMB-related keywords for ambiguous messages.
      */
     private function isOutOfScope(string $question): bool
     {
-        $outOfScopeKeywords = ['weather', 'sports', 'music', 'movie', 'game'];
-        foreach ($outOfScopeKeywords as $keyword) {
-            if (stripos($question, $keyword) !== false) {
+        $question = strtolower(trim($question));
+
+        // Keywords that indicate PMB-related topics — if present, NOT out of scope
+        $pmbKeywords = [
+            'daftar', 'pendaftaran', 'pmb', 'mahasiswa', 'kuliah', 'kampus',
+            'prodi', 'program studi', 'jurusan', 'fakultas',
+            'biaya', 'ukt', 'spp', 'bayar', 'pembayaran',
+            'beasiswa', 'kip', 'gratis',
+            'jadwal', 'seleksi', 'gelombang', 'jalur',
+            'syarat', 'persyaratan', 'dokumen', 'berkas', 'ijazah', 'ktp', 'kk',
+            'daftar ulang', 'registrasi', 'herregistrasi',
+            'unu', 'kaltim', 'unukaltim', 'nahdlatul',
+            'akreditasi', 'visi', 'misi',
+            'wisuda', 'lulus', 'kelulusan',
+            'nim', 'ktm', 'almamater',
+            'kontak', 'alamat', 'telepon', 'whatsapp', 'email',
+            'farmasi', 'akuntansi', 'teknik', 'informatika', 'manajemen',
+            'login', 'akun', 'password', 'verifikasi',
+            'upload', 'foto', 'pas foto',
+            'alur', 'langkah', 'prosedur', 'tahap',
+            'deadline',
+            'reguler', 'karyawan', 'pindahan', 'rpl',
+        ];
+
+        foreach ($pmbKeywords as $keyword) {
+            if (str_contains($question, $keyword)) {
+                return false;
+            }
+        }
+
+        // Keywords that are clearly off-topic
+        $offTopicKeywords = [
+            'resep', 'masak', 'makanan', 'minuman',
+            'bitcoin', 'crypto', 'saham', 'trading', 'forex', 'investasi',
+            'cuaca', 'weather',
+            'game', 'gaming', 'mobile legend', 'ff', 'pubg', 'valorant',
+            'film', 'movie', 'drama', 'anime', 'manga',
+            'musik', 'lagu', 'artis', 'idol', 'kpop',
+            'sepak bola', 'bola', 'liga', 'piala',
+            'politik', 'pilkada', 'pemilu', 'presiden', 'partai',
+            'gossip', 'viral', 'tiktoker', 'youtuber', 'selebgram',
+            'coding', 'programming', 'javascript', 'python',
+            'ai', 'chatgpt', 'openai', 'gemini',
+            'payment gateway', 'merchant', 'e-commerce', 'tokopedia', 'shopee',
+            'ojek', 'grab', 'gojek',
+            'hotel', 'wisata', 'liburan', 'tiket', 'pesawat',
+        ];
+
+        foreach ($offTopicKeywords as $keyword) {
+            if (str_contains($question, $keyword)) {
                 return true;
             }
         }
@@ -239,9 +333,9 @@ class ChatService
     /**
      * Get all training data records.
      */
-    public function getAllTrainingData(): \Illuminate\Database\Eloquent\Collection
+    public function getAllTrainingData(): Collection
     {
-        return \App\Models\ChatTraining::all();
+        return ChatTraining::all();
     }
 
     /**
@@ -252,24 +346,24 @@ class ChatService
         // Cache context for 24 hours to reduce file reads
         $cacheKey = 'chat_context_'.app()->environment();
 
-        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600 * 24, function () {
-            if (! \Illuminate\Support\Facades\Storage::disk('local')->exists('chat_context.txt')) {
+        return Cache::remember($cacheKey, 3600 * 24, function () {
+            if (! Storage::disk('local')->exists('chat_context.txt')) {
                 // Use cache lock to prevent race conditions when multiple requests
                 // attempt to generate the context simultaneously
-                \Illuminate\Support\Facades\Cache::lock('chat_context_generation', 10)->block(5, function () {
+                Cache::lock('chat_context_generation', 10)->block(5, function () {
                     // Double-check after acquiring lock in case another request already generated it
-                    if (! \Illuminate\Support\Facades\Storage::disk('local')->exists('chat_context.txt')) {
-                        \Illuminate\Support\Facades\Artisan::call('chat:generate-context');
+                    if (! Storage::disk('local')->exists('chat_context.txt')) {
+                        Artisan::call('chat:generate-context');
                     }
                 });
             }
 
             // Final safety check - throw if file still doesn't exist
-            if (! \Illuminate\Support\Facades\Storage::disk('local')->exists('chat_context.txt')) {
+            if (! Storage::disk('local')->exists('chat_context.txt')) {
                 throw new \RuntimeException('Chat context file could not be generated.');
             }
 
-            return \Illuminate\Support\Facades\Storage::disk('local')->get('chat_context.txt');
+            return Storage::disk('local')->get('chat_context.txt');
         });
     }
 }
