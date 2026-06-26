@@ -26,6 +26,8 @@ interface Props {
 const props = defineProps<Props>();
 const page = usePage();
 const flash = computed(() => page.props.flash as { success?: string });
+const isAdminKaltim = computed(() => (page.props.auth as any)?.user?.email === 'admin@unukaltim.ac.id');
+
 
 const showDialog = ref(false);
 const editingProdi = ref<ProgramStudi | null>(null);
@@ -98,7 +100,7 @@ const breadcrumbs = [
             <Card>
                 <CardHeader class="flex flex-row items-center justify-between">
                     <CardTitle>Manajemen Program Studi</CardTitle>
-                    <Button @click="openCreate">
+                    <Button v-if="isAdminKaltim" @click="openCreate">
                         <Plus class="mr-2 size-4" />
                         Tambah Prodi
                     </Button>
@@ -115,7 +117,7 @@ const breadcrumbs = [
                                     <th class="px-4 py-3 text-left">Fakultas</th>
                                     <th class="px-4 py-3 text-right">Daya Tampung</th>
                                     <th class="px-4 py-3 text-left">Status</th>
-                                    <th class="px-4 py-3 text-left">Aksi</th>
+                                    <th v-if="isAdminKaltim" class="px-4 py-3 text-left">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y">
@@ -133,7 +135,7 @@ const breadcrumbs = [
                                             {{ prodi.is_active ? 'Aktif' : 'Nonaktif' }}
                                         </Badge>
                                     </td>
-                                    <td class="px-4 py-3">
+                                    <td v-if="isAdminKaltim" class="px-4 py-3">
                                         <div class="flex gap-2">
                                             <Button size="sm" variant="ghost" @click="openEdit(prodi)">
                                                 <Edit class="size-4" />

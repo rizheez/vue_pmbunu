@@ -30,6 +30,11 @@ class ProgramStudiController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->user()->email !== 'admin@unukaltim.ac.id') {
+            abort(403, 'Unauthorized action.');
+        }
+
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:20|unique:program_studi,code',
@@ -47,6 +52,11 @@ class ProgramStudiController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if ($request->user()->email !== 'admin@unukaltim.ac.id') {
+            abort(403, 'Unauthorized action.');
+        }
+
+
         $prodi = ProgramStudi::findOrFail($id);
 
         $validated = $request->validate([
@@ -66,6 +76,11 @@ class ProgramStudiController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        if (request()->user()->email !== 'admin@unukaltim.ac.id') {
+            abort(403, 'Unauthorized action.');
+        }
+
+
         $prodi = ProgramStudi::findOrFail($id);
         $prodi->delete();
 
