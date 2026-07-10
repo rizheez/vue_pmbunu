@@ -9,6 +9,7 @@ use App\Models\Registration;
 use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
+use App\Models\Scholarship;
 use App\Models\StudentBiodata;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class StudentRegistrationController extends Controller
         $registration = Registration::with([
             'registrationType',
             'registrationPath',
+            'scholarship',
             'programStudiChoice1.fakultas',
             'programStudiChoice2.fakultas',
             'programStudiChoice3.fakultas',
@@ -46,6 +48,7 @@ class StudentRegistrationController extends Controller
 
         $registrationTypes = RegistrationType::where('is_active', true)->get();
         $registrationPaths = RegistrationPath::where('is_active', true)->get();
+        $scholarships = Scholarship::where('is_active', true)->get();
 
         $fakultas = Fakultas::where('is_active', true)
             ->with(['programStudi' => function ($query) {
@@ -86,6 +89,7 @@ class StudentRegistrationController extends Controller
             'activePeriod' => $activePeriod,
             'registrationTypes' => $registrationTypes,
             'registrationPaths' => $registrationPaths,
+            'scholarships' => $scholarships,
             'fakultas' => $fakultas,
             'programStudi' => $programStudi,
         ]);
@@ -102,7 +106,7 @@ class StudentRegistrationController extends Controller
         $validated = $request->validate([
             'registration_type_id' => 'required|exists:registration_types,id',
             'registration_path_id' => 'required|exists:registration_paths,id',
-            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
+            'scholarship_id' => 'required|exists:scholarships,id',
             'referral_source' => 'nullable|string|max:255',
             'referral_detail' => 'nullable|string|max:255',
             'choice_1' => 'required|exists:program_studi,id',
@@ -112,11 +116,10 @@ class StudentRegistrationController extends Controller
             'required' => ':attribute wajib diisi.',
             'exists' => ':attribute tidak valid.',
             'different' => ':attribute tidak boleh sama dengan pilihan lain.',
-            'in' => ':attribute tidak valid.',
         ], [
             'registration_type_id' => 'Jenis Pendaftaran',
             'registration_path_id' => 'Jalur Pendaftaran',
-            'beasiswa' => 'Pilihan Beasiswa',
+            'scholarship_id' => 'Pilihan Beasiswa',
             'choice_1' => 'Pilihan 1',
             'choice_2' => 'Pilihan 2',
             'choice_3' => 'Pilihan 3',
@@ -131,7 +134,7 @@ class StudentRegistrationController extends Controller
         $data = [
             'registration_type_id' => $validated['registration_type_id'],
             'registration_path_id' => $validated['registration_path_id'],
-            'beasiswa' => $validated['beasiswa'],
+            'scholarship_id' => $validated['scholarship_id'],
             'referral_source' => $validated['referral_source'] ?? null,
             'referral_detail' => $validated['referral_detail'] ?? null,
             'choice_1' => $validated['choice_1'],

@@ -14,6 +14,7 @@ use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\ReregistrationPayment;
+use App\Models\Scholarship;
 use App\Models\StudentBiodata;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -263,7 +264,7 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
             'registration_type_id' => $this->type->id,
             'registration_path_id' => $this->path->id,
             'registration_number' => Registration::generateRegistrationNumber($this->period),
-            'beasiswa' => 'Reguler',
+            'scholarship_id' => Scholarship::where('name', 'Reguler')->first()->id,
             'choice_1' => $this->prodi1->id,
             'choice_2' => $this->prodi2->id,
             'status' => 'submitted',
@@ -284,13 +285,13 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
             'period_id' => $this->period->id,
             'type_id' => $this->type->id,
             'path_id' => $this->path->id,
-            'beasiswa' => 'GratisPol',
+            'scholarship_id' => Scholarship::where('name', 'GratisPol')->first()->id,
             'program_studi_1' => $this->prodi1->id,
             'program_studi_2' => $this->prodi2->id,
         ]);
 
         $response->assertRedirect();
         $registration->refresh();
-        expect($registration->beasiswa)->toBe('GratisPol');
+        expect($registration->scholarship->name)->toBe('GratisPol');
     });
 });

@@ -155,6 +155,11 @@ const adminPengaturan: NavItem[] = [
         icon: Route,
     },
     {
+        title: 'Pilihan Beasiswa',
+        href: '/admin/scholarships',
+        icon: GraduationCap,
+    },
+    {
         title: 'Paket Almamater & KTM',
         href: '/admin/payment-settings',
         icon: CreditCard,

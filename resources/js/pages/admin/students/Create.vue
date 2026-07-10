@@ -32,11 +32,19 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Info, Save, Upload } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
+interface Scholarship {
+    id: number;
+    name: string;
+    description: string | null;
+    is_active: boolean;
+}
+
 interface Props {
     activePeriod: RegistrationPeriod;
     fakultas: Fakultas[];
     types: RegistrationType[];
     paths: RegistrationPath[];
+    scholarships: Scholarship[];
 }
 
 const props = defineProps<Props>();
@@ -61,7 +69,7 @@ const form = ref({
     period_id: props.activePeriod?.id ? String(props.activePeriod.id) : '',
     type_id: '',
     path_id: '',
-    beasiswa: 'Reguler',
+    scholarship_id: '',
     program_studi_1: '',
     program_studi_2: '',
     // Referral
@@ -704,29 +712,27 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                     >Pilihan Beasiswa
                                     <span class="text-red-500">*</span></Label
                                 >
-                                <Select v-model="form.beasiswa">
+                                <Select v-model="form.scholarship_id">
                                     <SelectTrigger class="w-full">
                                         <SelectValue
                                             placeholder="Pilih Beasiswa"
                                         />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Reguler">
-                                            Reguler (Tidak ambil beasiswa)
-                                        </SelectItem>
-                                        <SelectItem value="KIPK-K">
-                                            KIPK-K
-                                        </SelectItem>
-                                        <SelectItem value="GratisPol">
-                                            GratisPol
+                                        <SelectItem
+                                            v-for="scholarship in props.scholarships"
+                                            :key="scholarship.id"
+                                            :value="String(scholarship.id)"
+                                        >
+                                            {{ scholarship.name }}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <p
-                                    v-if="errors.beasiswa"
+                                    v-if="errors.scholarship_id"
                                     class="text-sm text-red-500"
                                 >
-                                    {{ errors.beasiswa }}
+                                    {{ errors.scholarship_id }}
                                 </p>
                             </div>
                         </div>

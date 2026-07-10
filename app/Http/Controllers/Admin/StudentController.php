@@ -13,6 +13,7 @@ use App\Models\Registration;
 use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
+use App\Models\Scholarship;
 use App\Models\StudentBiodata;
 use App\Models\User;
 use App\Rules\SafeFileName;
@@ -43,12 +44,14 @@ class StudentController extends Controller
             ->get();
         $types = RegistrationType::where('is_active', true)->get();
         $paths = RegistrationPath::where('is_active', true)->get();
+        $scholarships = Scholarship::where('is_active', true)->get();
 
         return Inertia::render('admin/students/Create', [
             'activePeriod' => $activePeriod,
             'fakultas' => $fakultas,
             'types' => $types,
             'paths' => $paths,
+            'scholarships' => $scholarships,
         ]);
     }
 
@@ -79,7 +82,7 @@ class StudentController extends Controller
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',
             'path_id' => 'required|exists:registration_paths,id',
-            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
+            'scholarship_id' => 'required|exists:scholarships,id',
             'program_studi_1' => 'required|exists:program_studi,id',
             'program_studi_2' => 'required|exists:program_studi,id|different:program_studi_1',
             // Referral
@@ -164,7 +167,7 @@ class StudentController extends Controller
                 'registration_period_id' => $validated['period_id'],
                 'registration_type_id' => $validated['type_id'],
                 'registration_path_id' => $validated['path_id'],
-                'beasiswa' => $validated['beasiswa'],
+                'scholarship_id' => $validated['scholarship_id'],
                 'registration_number' => $regNumber,
                 'choice_1' => $validated['program_studi_1'],
                 'choice_2' => $validated['program_studi_2'],
@@ -241,6 +244,7 @@ class StudentController extends Controller
             'registration.registrationPeriod',
             'registration.registrationType',
             'registration.registrationPath',
+            'registration.scholarship',
             'registration.programStudiChoice1.fakultas',
             'registration.programStudiChoice2.fakultas',
             'registration.programStudiChoice3.fakultas',
@@ -292,7 +296,7 @@ class StudentController extends Controller
     {
         $student = User::with([
             'studentBiodata',
-            'registration',
+            'registration.scholarship',
         ])
             ->where('role', 'student')
             ->findOrFail($id);
@@ -305,6 +309,7 @@ class StudentController extends Controller
         $types = RegistrationType::where('is_active', true)->get();
         $paths = RegistrationPath::where('is_active', true)->get();
         $periods = RegistrationPeriod::orderByDesc('created_at')->get();
+        $scholarships = Scholarship::where('is_active', true)->get();
 
         return Inertia::render('admin/students/Edit', [
             'student' => $student,
@@ -312,6 +317,7 @@ class StudentController extends Controller
             'types' => $types,
             'paths' => $paths,
             'periods' => $periods,
+            'scholarships' => $scholarships,
         ]);
     }
 
@@ -346,7 +352,7 @@ class StudentController extends Controller
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',
             'path_id' => 'required|exists:registration_paths,id',
-            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
+            'scholarship_id' => 'required|exists:scholarships,id',
             'program_studi_1' => 'required|exists:program_studi,id',
             'program_studi_2' => 'required|exists:program_studi,id|different:program_studi_1',
             // Referral
@@ -433,7 +439,7 @@ class StudentController extends Controller
                 'registration_period_id' => $validated['period_id'],
                 'registration_type_id' => $validated['type_id'],
                 'registration_path_id' => $validated['path_id'],
-                'beasiswa' => $validated['beasiswa'],
+                'scholarship_id' => $validated['scholarship_id'],
                 'choice_1' => $validated['program_studi_1'],
                 'choice_2' => $validated['program_studi_2'],
                 'referral_source' => $validated['referral_source'] ?? null,

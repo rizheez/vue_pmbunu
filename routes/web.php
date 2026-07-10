@@ -1,15 +1,29 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminReregistrationController;
 use App\Http\Controllers\Admin\AdmissionLetterController;
 use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\ChatLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocumentVerificationController;
+use App\Http\Controllers\Admin\EnrolledStudentController;
 use App\Http\Controllers\Admin\FakultasController;
+use App\Http\Controllers\Admin\LandingPageSettingController;
+use App\Http\Controllers\Admin\NimGenerationController;
+use App\Http\Controllers\Admin\PaymentSettingController;
 use App\Http\Controllers\Admin\PeriodController;
 use App\Http\Controllers\Admin\ProgramStudiController;
+use App\Http\Controllers\Admin\RegistrationPathController;
+use App\Http\Controllers\Admin\RegistrationTypeController;
+use App\Http\Controllers\Admin\ReregistrationPaymentController;
+use App\Http\Controllers\Admin\ScholarshipController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionLetterVerificationController;
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\RegistrationCardController;
+use App\Http\Controllers\ReregistrationController;
 use App\Http\Controllers\StudentAdmissionLetterController;
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
@@ -17,6 +31,7 @@ use App\Http\Controllers\StudentRegistrationController;
 use App\Models\Fakultas;
 use App\Models\LandingPageSetting;
 use App\Models\RegistrationPeriod;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -44,12 +59,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/panduan', [App\Http\Controllers\GuideController::class, 'index'])->name('panduan');
-Route::get('/panduan-lengkap', [App\Http\Controllers\GuideController::class, 'view'])->name('panduan.view');
+Route::get('/panduan', [GuideController::class, 'index'])->name('panduan');
+Route::get('/panduan-lengkap', [GuideController::class, 'view'])->name('panduan.view');
 Route::get('/s/{token}', [AdmissionLetterVerificationController::class, 'show'])->name('admission-letters.short-verify');
 Route::get('/verifikasi-surat/{token}', [AdmissionLetterVerificationController::class, 'show'])->name('admission-letters.verify');
 
-Route::get('dashboard', function (Illuminate\Http\Request $request) {
+Route::get('dashboard', function (Request $request) {
     if ($request->user()->isStudent()) {
         return redirect()->route('student.dashboard', $request->query());
     }
@@ -74,10 +89,10 @@ Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('stu
     Route::post('/pendaftaran', [StudentRegistrationController::class, 'store'])->name('pendaftaran.store');
 
     // Re-registration routes (Neo Feeder compatible)
-    Route::get('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'edit'])->name('reregistration.edit');
-    Route::post('/reregistration', [App\Http\Controllers\ReregistrationController::class, 'update'])->name('reregistration.update');
-    Route::get('/reregistration/payment', [App\Http\Controllers\ReregistrationController::class, 'paymentPage'])->name('reregistration.payment.page');
-    Route::post('/reregistration/payment', [App\Http\Controllers\ReregistrationController::class, 'uploadPayment'])->name('reregistration.payment');
+    Route::get('/reregistration', [ReregistrationController::class, 'edit'])->name('reregistration.edit');
+    Route::post('/reregistration', [ReregistrationController::class, 'update'])->name('reregistration.update');
+    Route::get('/reregistration/payment', [ReregistrationController::class, 'paymentPage'])->name('reregistration.payment.page');
+    Route::post('/reregistration/payment', [ReregistrationController::class, 'uploadPayment'])->name('reregistration.payment');
 
     // Registration card PDF
     Route::get('/registration-card', [RegistrationCardController::class, 'showStudent'])->name('registration-card');
@@ -139,42 +154,48 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
     // Registration Types
-    Route::get('/registration-types', [\App\Http\Controllers\Admin\RegistrationTypeController::class, 'index'])->name('registration-types.index');
-    Route::post('/registration-types', [\App\Http\Controllers\Admin\RegistrationTypeController::class, 'store'])->name('registration-types.store');
-    Route::put('/registration-types/{id}', [\App\Http\Controllers\Admin\RegistrationTypeController::class, 'update'])->name('registration-types.update');
-    Route::delete('/registration-types/{id}', [\App\Http\Controllers\Admin\RegistrationTypeController::class, 'destroy'])->name('registration-types.destroy');
+    Route::get('/registration-types', [RegistrationTypeController::class, 'index'])->name('registration-types.index');
+    Route::post('/registration-types', [RegistrationTypeController::class, 'store'])->name('registration-types.store');
+    Route::put('/registration-types/{id}', [RegistrationTypeController::class, 'update'])->name('registration-types.update');
+    Route::delete('/registration-types/{id}', [RegistrationTypeController::class, 'destroy'])->name('registration-types.destroy');
 
     // Registration Paths
-    Route::get('/registration-paths', [\App\Http\Controllers\Admin\RegistrationPathController::class, 'index'])->name('registration-paths.index');
-    Route::post('/registration-paths', [\App\Http\Controllers\Admin\RegistrationPathController::class, 'store'])->name('registration-paths.store');
-    Route::put('/registration-paths/{id}', [\App\Http\Controllers\Admin\RegistrationPathController::class, 'update'])->name('registration-paths.update');
-    Route::delete('/registration-paths/{id}', [\App\Http\Controllers\Admin\RegistrationPathController::class, 'destroy'])->name('registration-paths.destroy');
+    Route::get('/registration-paths', [RegistrationPathController::class, 'index'])->name('registration-paths.index');
+    Route::post('/registration-paths', [RegistrationPathController::class, 'store'])->name('registration-paths.store');
+    Route::put('/registration-paths/{id}', [RegistrationPathController::class, 'update'])->name('registration-paths.update');
+    Route::delete('/registration-paths/{id}', [RegistrationPathController::class, 'destroy'])->name('registration-paths.destroy');
+
+    // Scholarships
+    Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
+    Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
+    Route::put('/scholarships/{id}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+    Route::delete('/scholarships/{id}', [ScholarshipController::class, 'destroy'])->name('scholarships.destroy');
 
     // Landing Page Settings
-    Route::get('/landing-page', [\App\Http\Controllers\Admin\LandingPageSettingController::class, 'index'])->name('landing-page.index');
-    Route::post('/landing-page', [\App\Http\Controllers\Admin\LandingPageSettingController::class, 'update'])->name('landing-page.update');
+    Route::get('/landing-page', [LandingPageSettingController::class, 'index'])->name('landing-page.index');
+    Route::post('/landing-page', [LandingPageSettingController::class, 'update'])->name('landing-page.update');
 
     // User Management
-    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-    Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::middleware('hashid')->group(function () {
-        Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
     // Dokumentasi
-    Route::get('/dokumentasi', fn () => \Inertia\Inertia::render('admin/Dokumentasi'))->name('dokumentasi');
+    Route::get('/dokumentasi', fn () => Inertia::render('admin/Dokumentasi'))->name('dokumentasi');
 
     // Reregistration Payments
-    Route::get('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'index'])->name('reregistration-payments.index');
-    Route::post('/reregistration-payments', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'store'])->name('reregistration-payments.store');
-    Route::put('/reregistration-payments/{payment}', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'update'])->name('reregistration-payments.update');
-    Route::post('/reregistration-payments/{payment}/verify', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'verify'])->name('reregistration-payments.verify');
-    Route::post('/reregistration-payments/{payment}/reject', [\App\Http\Controllers\Admin\ReregistrationPaymentController::class, 'reject'])->name('reregistration-payments.reject');
+    Route::get('/reregistration-payments', [ReregistrationPaymentController::class, 'index'])->name('reregistration-payments.index');
+    Route::post('/reregistration-payments', [ReregistrationPaymentController::class, 'store'])->name('reregistration-payments.store');
+    Route::put('/reregistration-payments/{payment}', [ReregistrationPaymentController::class, 'update'])->name('reregistration-payments.update');
+    Route::post('/reregistration-payments/{payment}/verify', [ReregistrationPaymentController::class, 'verify'])->name('reregistration-payments.verify');
+    Route::post('/reregistration-payments/{payment}/reject', [ReregistrationPaymentController::class, 'reject'])->name('reregistration-payments.reject');
 
     // NIM Generation
-    Route::get('/nim-generation', [\App\Http\Controllers\Admin\NimGenerationController::class, 'index'])->name('nim-generation.index');
-    Route::post('/nim-generation/generate', [\App\Http\Controllers\Admin\NimGenerationController::class, 'generate'])->name('nim-generation.generate');
+    Route::get('/nim-generation', [NimGenerationController::class, 'index'])->name('nim-generation.index');
+    Route::post('/nim-generation/generate', [NimGenerationController::class, 'generate'])->name('nim-generation.generate');
 
     // Admission Letters
     Route::get('/admission-letters', [AdmissionLetterController::class, 'index'])->name('admission-letters.index');
@@ -184,28 +205,28 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/admission-letters/{letter}/pdf', [AdmissionLetterController::class, 'pdf'])->name('admission-letters.pdf');
 
     // Admin Reregistration (Manual)
-    Route::get('/reregistration', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'index'])->name('reregistration.index');
+    Route::get('/reregistration', [AdminReregistrationController::class, 'index'])->name('reregistration.index');
     Route::middleware('hashid')->group(function () {
-        Route::get('/reregistration/{id}/edit', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'edit'])->name('reregistration.edit');
-        Route::put('/reregistration/{id}', [\App\Http\Controllers\Admin\AdminReregistrationController::class, 'update'])->name('reregistration.update');
+        Route::get('/reregistration/{id}/edit', [AdminReregistrationController::class, 'edit'])->name('reregistration.edit');
+        Route::put('/reregistration/{id}', [AdminReregistrationController::class, 'update'])->name('reregistration.update');
     });
 
     // Enrolled Students
-    Route::get('/enrolled-students', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'index'])->name('enrolled-students.index');
-    Route::post('/enrolled-students/{registration}/cancel', [\App\Http\Controllers\Admin\EnrolledStudentController::class, 'cancel'])->name('enrolled-students.cancel');
+    Route::get('/enrolled-students', [EnrolledStudentController::class, 'index'])->name('enrolled-students.index');
+    Route::post('/enrolled-students/{registration}/cancel', [EnrolledStudentController::class, 'cancel'])->name('enrolled-students.cancel');
 
     // Payment Settings
-    Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('payment-settings.index');
-    Route::post('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('payment-settings.update');
+    Route::get('/payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');
+    Route::post('/payment-settings', [PaymentSettingController::class, 'update'])->name('payment-settings.update');
 
     // Chat Logs
-    Route::get('/chat-logs', [\App\Http\Controllers\Admin\ChatLogController::class, 'index'])->name('chat-logs.index');
-    Route::delete('/chat-logs/{chatLog}', [\App\Http\Controllers\Admin\ChatLogController::class, 'destroy'])->name('chat-logs.destroy');
-    Route::delete('/chat-logs', [\App\Http\Controllers\Admin\ChatLogController::class, 'destroyAll'])->name('chat-logs.destroy-all');
+    Route::get('/chat-logs', [ChatLogController::class, 'index'])->name('chat-logs.index');
+    Route::delete('/chat-logs/{chatLog}', [ChatLogController::class, 'destroy'])->name('chat-logs.destroy');
+    Route::delete('/chat-logs', [ChatLogController::class, 'destroyAll'])->name('chat-logs.destroy-all');
 });
 
 // Chat API
-Route::post('/api/chat', [App\Http\Controllers\Api\ChatController::class, 'send'])->name('api.chat');
-Route::get('/api/chat/training-data', [App\Http\Controllers\Api\ChatController::class, 'trainingData'])->name('api.chat.training');
+Route::post('/api/chat', [ChatController::class, 'send'])->name('api.chat');
+Route::get('/api/chat/training-data', [ChatController::class, 'trainingData'])->name('api.chat.training');
 
 require __DIR__.'/settings.php';

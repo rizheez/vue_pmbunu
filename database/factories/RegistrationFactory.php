@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Registration;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
+use App\Models\Scholarship;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -30,7 +31,7 @@ class RegistrationFactory extends Factory
             'registration_number' => Registration::generateRegistrationNumber($period),
             'registration_period_id' => $period->id,
             'registration_type_id' => $type->id,
-            'beasiswa' => 'Reguler',
+            'scholarship_id' => Scholarship::where('name', 'Reguler')->first()?->id ?? Scholarship::factory(),
             'status' => 'submitted',
         ];
     }

@@ -33,11 +33,19 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { AlertCircle, CheckCircle, GraduationCap } from 'lucide-vue-next';
 import { computed } from 'vue';
 
+interface Scholarship {
+    id: number;
+    name: string;
+    description: string | null;
+    is_active: boolean;
+}
+
 interface Props {
-    registration: Registration | null;
+    registration: (Registration & { scholarship?: Scholarship | null }) | null;
     activePeriod: RegistrationPeriod;
     registrationTypes: RegistrationType[];
     registrationPaths: RegistrationPath[];
+    scholarships: Scholarship[];
     fakultas: Fakultas[];
     programStudi: ProgramStudi[];
 }
@@ -56,7 +64,9 @@ const form = useForm({
     registration_path_id: props.registration?.registration_path_id
         ? String(props.registration.registration_path_id)
         : '',
-    beasiswa: props.registration?.beasiswa ?? 'Reguler',
+    scholarship_id: props.registration?.scholarship_id
+        ? String(props.registration.scholarship_id)
+        : '',
     referral_source: props.registration?.referral_source ?? '',
     referral_detail: props.registration?.referral_detail ?? '',
     choice_1: props.registration?.choice_1
@@ -181,7 +191,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                             <span class="text-gray-500">Pilihan Beasiswa</span>
                             <span class="font-medium">
                                 {{
-                                    props.registration?.beasiswa || 'Reguler'
+                                    props.registration?.scholarship?.name || '-'
                                 }}
                             </span>
                         </div>
@@ -314,32 +324,30 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label for="beasiswa"
+                                    <Label for="scholarship_id"
                                         >Pilihan Beasiswa *</Label
                                     >
-                                    <Select v-model="form.beasiswa">
+                                    <Select v-model="form.scholarship_id">
                                         <SelectTrigger class="w-full">
                                             <SelectValue
                                                 placeholder="Pilih Beasiswa"
                                             />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Reguler">
-                                                Reguler (Tidak ambil beasiswa)
-                                            </SelectItem>
-                                            <SelectItem value="KIPK-K">
-                                                KIPK-K
-                                            </SelectItem>
-                                            <SelectItem value="GratisPol">
-                                                GratisPol
+                                            <SelectItem
+                                                v-for="scholarship in props.scholarships"
+                                                :key="scholarship.id"
+                                                :value="String(scholarship.id)"
+                                            >
+                                                {{ scholarship.name }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <p
-                                        v-if="form.errors.beasiswa"
+                                        v-if="form.errors.scholarship_id"
                                         class="text-sm text-red-500"
                                     >
-                                        {{ form.errors.beasiswa }}
+                                        {{ form.errors.scholarship_id }}
                                     </p>
                                 </div>
                             </div>

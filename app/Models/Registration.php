@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class Registration extends Model
@@ -15,7 +16,7 @@ class Registration extends Model
         'registration_number',
         'registration_type_id',
         'registration_path_id',
-        'beasiswa',
+        'scholarship_id',
         'referral_source',
         'referral_detail',
         'choice_1',
@@ -93,6 +94,11 @@ class Registration extends Model
     public function registrationPath()
     {
         return $this->belongsTo(RegistrationPath::class);
+    }
+
+    public function scholarship(): BelongsTo
+    {
+        return $this->belongsTo(Scholarship::class);
     }
 
     public function programStudiChoice1()

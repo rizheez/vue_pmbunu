@@ -13,6 +13,7 @@ use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\ReregistrationPayment;
+use App\Models\Scholarship;
 use App\Models\StudentBiodata;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -96,7 +97,7 @@ describe('Student Normal Flow: Registration to NIM Generation', function () {
         $response = $this->actingAs($student)->post('/student/pendaftaran', [
             'registration_type_id' => $this->type->id,
             'registration_path_id' => $this->path->id,
-            'beasiswa' => 'Reguler',
+            'scholarship_id' => Scholarship::where('name', 'Reguler')->first()->id,
             'choice_1' => $this->prodi1->id,
             'choice_2' => $this->prodi2->id,
         ]);
