@@ -4,11 +4,12 @@ namespace Database\Factories;
 
 use App\Models\Registration;
 use App\Models\RegistrationPeriod;
+use App\Models\RegistrationType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Registration>
+ * @extends Factory<Registration>
  */
 class RegistrationFactory extends Factory
 {
@@ -22,11 +23,14 @@ class RegistrationFactory extends Factory
     public function definition(): array
     {
         $period = RegistrationPeriod::first() ?? RegistrationPeriod::factory()->create();
+        $type = RegistrationType::first() ?? RegistrationType::create(['name' => 'Umum', 'is_active' => true]);
 
         return [
             'user_id' => User::factory(),
             'registration_number' => Registration::generateRegistrationNumber($period),
             'registration_period_id' => $period->id,
+            'registration_type_id' => $type->id,
+            'beasiswa' => 'Reguler',
             'status' => 'submitted',
         ];
     }

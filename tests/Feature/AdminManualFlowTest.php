@@ -14,9 +14,11 @@ use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\ReregistrationPayment;
+use App\Models\StudentBiodata;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->period = RegistrationPeriod::create([
@@ -83,7 +85,7 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
         ]);
 
         $this->actingAs($this->admin)
-            ->post("/admin/students/{$student->id}/verify")
+            ->post("/admin/students/{$student->hashed_id}/verify")
             ->assertRedirect();
 
         $registration->refresh();
@@ -104,7 +106,7 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
         ]);
 
         $this->actingAs($this->admin)
-            ->post("/admin/students/{$student->id}/accept", [
+            ->post("/admin/students/{$student->hashed_id}/accept", [
                 'program_studi_id' => $this->prodi1->id,
                 'notes' => 'Diterima via admin',
             ])
@@ -191,13 +193,13 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
         ]);
 
         // Step 1: Verify
-        $this->actingAs($this->admin)->post("/admin/students/{$student->id}/verify");
+        $this->actingAs($this->admin)->post("/admin/students/{$student->hashed_id}/verify");
         $registration->refresh();
         expect($registration->status)->toBe('verified');
 
         // Step 2: Accept
         $this->actingAs($this->admin)
-            ->post("/admin/students/{$student->id}/accept", [
+            ->post("/admin/students/{$student->hashed_id}/accept", [
                 'program_studi_id' => $this->prodi1->id,
                 'notes' => 'Diterima',
             ]);
@@ -205,7 +207,7 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
         expect($registration->status)->toBe('accepted');
 
         // Step 3: Simulate student accessing re-registration (status changes to pending)
-        \App\Models\StudentBiodata::create([
+        StudentBiodata::create([
             'user_id' => $student->id,
             'name' => $student->name,
         ]);
@@ -240,5 +242,55 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
 
         expect($registration->status)->toBe('enrolled');
         expect($student->nim)->not->toBeNull();
+    });
+
+    it('allows admin to update student scholarship', function () {
+        $student = User::factory()->create(['role' => 'student']);
+        $biodata = StudentBiodata::factory()->create([
+            'user_id' => $student->id,
+            'nik' => '1234567890123456',
+            'gender' => 'Laki-laki',
+            'birth_place' => 'Jakarta',
+            'birth_date' => '2000-01-01',
+            'religion' => 'Islam',
+            'address' => 'Jl. Test No. 1',
+            'last_education' => 'SMA/SMK Sederajat',
+            'school_origin' => 'SMA Test',
+        ]);
+        $registration = Registration::create([
+            'user_id' => $student->id,
+            'registration_period_id' => $this->period->id,
+            'registration_type_id' => $this->type->id,
+            'registration_path_id' => $this->path->id,
+            'registration_number' => Registration::generateRegistrationNumber($this->period),
+            'beasiswa' => 'Reguler',
+            'choice_1' => $this->prodi1->id,
+            'choice_2' => $this->prodi2->id,
+            'status' => 'submitted',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put("/admin/students/{$student->hashed_id}", [
+            'name' => 'Updated Student Name',
+            'email' => $student->email,
+            'phone' => '081234567890',
+            'nik' => '1234567890123456',
+            'gender' => 'Laki-laki',
+            'birth_place' => 'Jakarta',
+            'birth_date' => '2000-01-01',
+            'religion' => 'Islam',
+            'address' => 'Jl. Test No. 1',
+            'last_education' => 'SMA/SMK Sederajat',
+            'school_origin' => 'SMA Test',
+            'period_id' => $this->period->id,
+            'type_id' => $this->type->id,
+            'path_id' => $this->path->id,
+            'beasiswa' => 'GratisPol',
+            'program_studi_1' => $this->prodi1->id,
+            'program_studi_2' => $this->prodi2->id,
+        ]);
+
+        $response->assertRedirect();
+        $registration->refresh();
+        expect($registration->beasiswa)->toBe('GratisPol');
     });
 });

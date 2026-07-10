@@ -391,6 +391,14 @@ const isPdf = (url: string | null) => {
                                 </span>
                             </div>
                             <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-500">Beasiswa</span>
+                                <span class="font-medium">
+                                    {{
+                                        props.student.registration.beasiswa || '-'
+                                    }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Periode</span>
                                 <span class="font-medium">
                                     {{

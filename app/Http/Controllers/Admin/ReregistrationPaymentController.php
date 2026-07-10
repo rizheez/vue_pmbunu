@@ -137,6 +137,11 @@ class ReregistrationPaymentController extends Controller
             'notes' => $request->notes,
         ]);
 
+        $registration = $payment->user?->registration;
+        if ($registration && $registration->status === 're_registration_pending') {
+            $registration->update(['status' => 're_registration_verified']);
+        }
+
         return redirect()->back()
             ->with('success', 'Pembayaran Almamater & KTM berhasil diverifikasi.');
     }

@@ -61,6 +61,7 @@ const form = ref({
     period_id: props.activePeriod?.id ? String(props.activePeriod.id) : '',
     type_id: '',
     path_id: '',
+    beasiswa: 'Reguler',
     program_studi_1: '',
     program_studi_2: '',
     // Referral
@@ -641,7 +642,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                         <CardTitle>Data Pendaftaran</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="grid gap-4 sm:grid-cols-3">
                             <div class="space-y-2">
                                 <Label
                                     >Jenis Pendaftaran
@@ -696,6 +697,36 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                     class="text-sm text-red-500"
                                 >
                                     {{ errors.path_id }}
+                                </p>
+                            </div>
+                            <div class="space-y-2">
+                                <Label
+                                    >Pilihan Beasiswa
+                                    <span class="text-red-500">*</span></Label
+                                >
+                                <Select v-model="form.beasiswa">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue
+                                            placeholder="Pilih Beasiswa"
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Reguler">
+                                            Reguler (Tidak ambil beasiswa)
+                                        </SelectItem>
+                                        <SelectItem value="KIPK-K">
+                                            KIPK-K
+                                        </SelectItem>
+                                        <SelectItem value="GratisPol">
+                                            GratisPol
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p
+                                    v-if="errors.beasiswa"
+                                    class="text-sm text-red-500"
+                                >
+                                    {{ errors.beasiswa }}
                                 </p>
                             </div>
                         </div>

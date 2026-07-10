@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Registration extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'registration_number',
         'registration_type_id',
         'registration_path_id',
+        'beasiswa',
         'referral_source',
         'referral_detail',
         'choice_1',

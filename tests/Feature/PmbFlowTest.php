@@ -6,9 +6,12 @@ use App\Models\Registration;
 use App\Models\RegistrationPath;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
+use App\Models\ReregistrationPayment;
+use App\Models\StudentBiodata;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Create base data without factories
@@ -98,7 +101,7 @@ describe('PMB Flow', function () {
         ]);
 
         $this->actingAs($this->admin)
-            ->post("/admin/students/{$student->id}/verify")
+            ->post("/admin/students/{$student->hashed_id}/verify")
             ->assertRedirect();
 
         $registration->refresh();
@@ -119,7 +122,7 @@ describe('PMB Flow', function () {
         ]);
 
         $this->actingAs($this->admin)
-            ->post("/admin/students/{$student->id}/accept", [
+            ->post("/admin/students/{$student->hashed_id}/accept", [
                 'program_studi_id' => $this->prodi1->id,
                 'notes' => 'Diterima',
             ])
@@ -145,7 +148,7 @@ describe('PMB Flow', function () {
         ]);
 
         // Create student biodata (required for reregistration page access)
-        \App\Models\StudentBiodata::create([
+        StudentBiodata::create([
             'user_id' => $student->id,
             'name' => $student->name,
         ]);
@@ -173,7 +176,7 @@ describe('PMB Flow', function () {
         ]);
 
         // Create payment record
-        $payment = \App\Models\ReregistrationPayment::create([
+        $payment = ReregistrationPayment::create([
             'user_id' => $student->id,
             'amount' => 300000,
             'payment_proof_path' => 'payments/test.jpg',

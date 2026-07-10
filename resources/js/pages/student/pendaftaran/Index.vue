@@ -56,6 +56,7 @@ const form = useForm({
     registration_path_id: props.registration?.registration_path_id
         ? String(props.registration.registration_path_id)
         : '',
+    beasiswa: props.registration?.beasiswa ?? 'Reguler',
     referral_source: props.registration?.referral_source ?? '',
     referral_detail: props.registration?.referral_detail ?? '',
     choice_1: props.registration?.choice_1
@@ -177,6 +178,14 @@ const hasAvailableOptions = (fak: Fakultas) => {
                             </span>
                         </div>
                         <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">Pilihan Beasiswa</span>
+                            <span class="font-medium">
+                                {{
+                                    props.registration?.beasiswa || 'Reguler'
+                                }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
                             <span class="text-gray-500">Sumber Informasi</span>
                             <div class="text-right">
                                 <span class="block font-medium">
@@ -247,7 +256,7 @@ const hasAvailableOptions = (fak: Fakultas) => {
                     <fieldset :disabled="!canEdit" class="space-y-6">
                         <form @submit.prevent="submit" class="space-y-6">
                             <!-- Registration Type & Path -->
-                            <div class="grid gap-4 md:grid-cols-2">
+                            <div class="grid gap-4 md:grid-cols-3">
                                 <div class="space-y-2">
                                     <Label for="registration_type_id"
                                         >Jenis Pendaftaran *</Label
@@ -301,6 +310,36 @@ const hasAvailableOptions = (fak: Fakultas) => {
                                         class="text-sm text-red-500"
                                     >
                                         {{ form.errors.registration_path_id }}
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <Label for="beasiswa"
+                                        >Pilihan Beasiswa *</Label
+                                    >
+                                    <Select v-model="form.beasiswa">
+                                        <SelectTrigger class="w-full">
+                                            <SelectValue
+                                                placeholder="Pilih Beasiswa"
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Reguler">
+                                                Reguler (Tidak ambil beasiswa)
+                                            </SelectItem>
+                                            <SelectItem value="KIPK-K">
+                                                KIPK-K
+                                            </SelectItem>
+                                            <SelectItem value="GratisPol">
+                                                GratisPol
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <p
+                                        v-if="form.errors.beasiswa"
+                                        class="text-sm text-red-500"
+                                    >
+                                        {{ form.errors.beasiswa }}
                                     </p>
                                 </div>
                             </div>

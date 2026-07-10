@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -85,6 +86,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             'Periode',
             'Jenis Pendaftaran',
             'Jalur Pendaftaran',
+            'Pilihan Beasiswa',
             'Pilihan 1',
             'Pilihan 2',
             'Status',
@@ -120,6 +122,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             $registration?->registrationPeriod?->name ?? '-',
             $registration?->registrationType?->name ?? '-',
             $registration?->registrationPath?->name ?? '-',
+            $registration?->beasiswa ?? '-',
             $registration?->programStudiChoice1 ? ($registration->programStudiChoice1->jenjang.' - '.$registration->programStudiChoice1->name) : '-',
             $registration?->programStudiChoice2 ? ($registration->programStudiChoice2->jenjang.' - '.$registration->programStudiChoice2->name) : '-',
             $this->getStatusLabel($registration?->status),
@@ -161,7 +164,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
                 'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['argb' => 'FF0D9488'],
                 ],
             ],

@@ -67,6 +67,7 @@ const form = ref({
     path_id: props.student.registration?.registration_path_id
         ? String(props.student.registration.registration_path_id)
         : '',
+    beasiswa: props.student.registration?.beasiswa ?? 'Reguler',
     program_studi_1: props.student.registration?.choice_1
         ? String(props.student.registration.choice_1)
         : '',
@@ -735,6 +736,36 @@ const breadcrumbs = [
                                     class="text-sm text-red-500"
                                 >
                                     {{ errors.path_id }}
+                                </p>
+                            </div>
+                            <div class="space-y-2">
+                                <Label
+                                    >Pilihan Beasiswa
+                                    <span class="text-red-500">*</span></Label
+                                >
+                                <Select v-model="form.beasiswa">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue
+                                            placeholder="Pilih Beasiswa"
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Reguler">
+                                            Reguler (Tidak ambil beasiswa)
+                                        </SelectItem>
+                                        <SelectItem value="KIPK-K">
+                                            KIPK-K
+                                        </SelectItem>
+                                        <SelectItem value="GratisPol">
+                                            GratisPol
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p
+                                    v-if="errors.beasiswa"
+                                    class="text-sm text-red-500"
+                                >
+                                    {{ errors.beasiswa }}
                                 </p>
                             </div>
                         </div>

@@ -4,8 +4,9 @@ use App\Models\Registration;
 use App\Models\RegistrationPeriod;
 use App\Models\StudentBiodata;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Create registration period for generating registration numbers
@@ -54,7 +55,7 @@ describe('Admin Registration Card', function () {
             'registration_number' => '252601'.str_pad(1, 5, '0', STR_PAD_LEFT),
         ]);
 
-        $response = $this->actingAs($admin)->get("/admin/students/{$student->id}/registration-card");
+        $response = $this->actingAs($admin)->get("/admin/students/{$student->hashed_id}/registration-card");
 
         $response->assertOk();
         $response->assertHeader('content-type', 'application/pdf');
@@ -64,7 +65,7 @@ describe('Admin Registration Card', function () {
         $admin = User::factory()->create(['role' => 'admin']);
         $student = User::factory()->create(['role' => 'student']);
 
-        $response = $this->actingAs($admin)->get("/admin/students/{$student->id}/registration-card");
+        $response = $this->actingAs($admin)->get("/admin/students/{$student->hashed_id}/registration-card");
 
         $response->assertNotFound();
     });
@@ -82,8 +83,8 @@ describe('Admin Registration Card', function () {
         $otherStudent = User::factory()->create(['role' => 'student']);
         Registration::factory()->create(['user_id' => $otherStudent->id]);
 
-        $response = $this->actingAs($student)->get("/admin/students/{$otherStudent->id}/registration-card");
+        $response = $this->actingAs($student)->get("/admin/students/{$otherStudent->hashed_id}/registration-card");
 
-        $response->assertForbidden();
+        $response->assertRedirect(route('student.dashboard'));
     });
 });

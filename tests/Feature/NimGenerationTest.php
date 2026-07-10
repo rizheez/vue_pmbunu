@@ -1,18 +1,28 @@
 <?php
 
+use App\Models\Fakultas;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
 use App\Models\RegistrationPeriod;
 use App\Models\RegistrationType;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Create registration period
     $this->period = RegistrationPeriod::factory()->create([
         'academic_year' => '2025/2026',
         'wave_number' => 1,
+        'is_active' => true,
+    ]);
+
+    // Create Fakultas
+    Fakultas::create([
+        'id' => 1,
+        'name' => 'Fakultas Teknik',
+        'code' => 'FT',
         'is_active' => true,
     ]);
 
@@ -28,20 +38,17 @@ beforeEach(function () {
     ]);
 
     // Create registration types
-    $this->typePesertaDidikBaru = RegistrationType::updateOrCreate(
-        ['id' => 1],
-        ['name' => 'Peserta Didik Baru', 'is_active' => true]
-    );
+    $this->typePesertaDidikBaru = new RegistrationType(['name' => 'Peserta Didik Baru', 'is_active' => true]);
+    $this->typePesertaDidikBaru->id = 1;
+    $this->typePesertaDidikBaru->save();
 
-    $this->typeAlihJenjang = RegistrationType::updateOrCreate(
-        ['id' => 2],
-        ['name' => 'Alih Jenjang', 'is_active' => true]
-    );
+    $this->typeAlihJenjang = new RegistrationType(['name' => 'Alih Jenjang', 'is_active' => true]);
+    $this->typeAlihJenjang->id = 2;
+    $this->typeAlihJenjang->save();
 
-    $this->typePindahan = RegistrationType::updateOrCreate(
-        ['id' => 4],
-        ['name' => 'Pindahan', 'is_active' => true]
-    );
+    $this->typePindahan = new RegistrationType(['name' => 'Pindahan', 'is_active' => true]);
+    $this->typePindahan->id = 4;
+    $this->typePindahan->save();
 });
 
 it('generates NIM with correct format for Peserta Didik Baru', function () {
@@ -133,7 +140,7 @@ it('throws exception when status is not re_registration_verified', function () {
     ]);
 
     $registration->enrollStudent();
-})->throws(\RuntimeException::class, 'Status harus "Daftar Ulang Terverifikasi" untuk melakukan enrollment');
+})->throws(RuntimeException::class, 'Status harus "Daftar Ulang Terverifikasi" untuk melakukan enrollment');
 
 it('throws exception when accepted_program_studi_id is not set', function () {
     $user = User::factory()->create();
@@ -147,4 +154,4 @@ it('throws exception when accepted_program_studi_id is not set', function () {
     ]);
 
     $registration->enrollStudent();
-})->throws(\RuntimeException::class, 'Program studi yang diterima belum ditentukan');
+})->throws(RuntimeException::class, 'Program studi yang diterima belum ditentukan');

@@ -79,6 +79,7 @@ class StudentController extends Controller
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',
             'path_id' => 'required|exists:registration_paths,id',
+            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
             'program_studi_1' => 'required|exists:program_studi,id',
             'program_studi_2' => 'required|exists:program_studi,id|different:program_studi_1',
             // Referral
@@ -163,6 +164,7 @@ class StudentController extends Controller
                 'registration_period_id' => $validated['period_id'],
                 'registration_type_id' => $validated['type_id'],
                 'registration_path_id' => $validated['path_id'],
+                'beasiswa' => $validated['beasiswa'],
                 'registration_number' => $regNumber,
                 'choice_1' => $validated['program_studi_1'],
                 'choice_2' => $validated['program_studi_2'],
@@ -344,6 +346,7 @@ class StudentController extends Controller
             'period_id' => 'required|exists:registration_periods,id',
             'type_id' => 'required|exists:registration_types,id',
             'path_id' => 'required|exists:registration_paths,id',
+            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
             'program_studi_1' => 'required|exists:program_studi,id',
             'program_studi_2' => 'required|exists:program_studi,id|different:program_studi_1',
             // Referral
@@ -430,6 +433,7 @@ class StudentController extends Controller
                 'registration_period_id' => $validated['period_id'],
                 'registration_type_id' => $validated['type_id'],
                 'registration_path_id' => $validated['path_id'],
+                'beasiswa' => $validated['beasiswa'],
                 'choice_1' => $validated['program_studi_1'],
                 'choice_2' => $validated['program_studi_2'],
                 'referral_source' => $validated['referral_source'] ?? null,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RegistrationReceivedMail;
 use App\Models\Fakultas;
 use App\Models\ProgramStudi;
 use App\Models\Registration;
@@ -12,6 +13,8 @@ use App\Models\StudentBiodata;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -57,7 +60,7 @@ class StudentRegistrationController extends Controller
 
         $prodiCounts = Registration::whereIn('status', $acceptedStatuses)
             ->whereNotNull('accepted_program_studi_id')
-            ->select('accepted_program_studi_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->select('accepted_program_studi_id', DB::raw('count(*) as count'))
             ->groupBy('accepted_program_studi_id')
             ->pluck('count', 'accepted_program_studi_id');
 
@@ -99,6 +102,7 @@ class StudentRegistrationController extends Controller
         $validated = $request->validate([
             'registration_type_id' => 'required|exists:registration_types,id',
             'registration_path_id' => 'required|exists:registration_paths,id',
+            'beasiswa' => 'required|in:KIPK-K,GratisPol,Reguler',
             'referral_source' => 'nullable|string|max:255',
             'referral_detail' => 'nullable|string|max:255',
             'choice_1' => 'required|exists:program_studi,id',
@@ -108,9 +112,11 @@ class StudentRegistrationController extends Controller
             'required' => ':attribute wajib diisi.',
             'exists' => ':attribute tidak valid.',
             'different' => ':attribute tidak boleh sama dengan pilihan lain.',
+            'in' => ':attribute tidak valid.',
         ], [
             'registration_type_id' => 'Jenis Pendaftaran',
             'registration_path_id' => 'Jalur Pendaftaran',
+            'beasiswa' => 'Pilihan Beasiswa',
             'choice_1' => 'Pilihan 1',
             'choice_2' => 'Pilihan 2',
             'choice_3' => 'Pilihan 3',
@@ -125,6 +131,7 @@ class StudentRegistrationController extends Controller
         $data = [
             'registration_type_id' => $validated['registration_type_id'],
             'registration_path_id' => $validated['registration_path_id'],
+            'beasiswa' => $validated['beasiswa'],
             'referral_source' => $validated['referral_source'] ?? null,
             'referral_detail' => $validated['referral_detail'] ?? null,
             'choice_1' => $validated['choice_1'],
@@ -146,8 +153,8 @@ class StudentRegistrationController extends Controller
         // Send confirmation email only for new registrations
         if (! $existingRegistration) {
             $registration->load(['programStudiChoice1', 'programStudiChoice2']);
-            \Illuminate\Support\Facades\Mail::to(Auth::user())->send(
-                new \App\Mail\RegistrationReceivedMail(Auth::user(), $registration)
+            Mail::to(Auth::user())->send(
+                new RegistrationReceivedMail(Auth::user(), $registration)
             );
         }
 
