@@ -998,7 +998,6 @@ const heroTypedStrings = [
                 <div class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-sm text-teal-200/80 backdrop-blur-sm">
                     <span class="flex items-center gap-2"><CheckCircle class="size-4 text-green-400" /> Bebas biaya gedung</span>
                     <span class="flex items-center gap-2"><CheckCircle class="size-4 text-green-400" /> Paket opsional almamater+KTM Rp300.000</span>
-                    <span class="flex items-center gap-2"><CheckCircle class="size-4 text-green-400" /> Kelas karyawan — hubungi PMB</span>
                 </div>
             </div>
         </section>
