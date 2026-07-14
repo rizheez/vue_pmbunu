@@ -233,7 +233,7 @@
     "name": "vendor"
   },
   "resources/js/app.ts": {
-    "file": "assets/app-BnOfin3I.js",
+    "file": "assets/app-DBBhr1Qk.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -289,7 +289,7 @@
       "resources/js/pages/student/reregistration/Payment.vue"
     ],
     "css": [
-      "assets/app-B9qZQVic.css"
+      "assets/app-DmYXevN_.css"
     ]
   },
   "resources/js/pages/Dashboard.vue": {
@@ -350,7 +350,7 @@
     ]
   },
   "resources/js/pages/admin/Dashboard.vue": {
-    "file": "assets/Dashboard-BkKotiNg.js",
+    "file": "assets/Dashboard-BBe_8BPw.js",
     "name": "Dashboard",
     "src": "resources/js/pages/admin/Dashboard.vue",
     "isDynamicEntry": true,
@@ -778,7 +778,7 @@
     ]
   },
   "resources/js/pages/admin/students/Index.vue": {
-    "file": "assets/Index-BvsZaGUs.js",
+    "file": "assets/Index-COsYd2f1.js",
     "name": "Index",
     "src": "resources/js/pages/admin/students/Index.vue",
     "isDynamicEntry": true,
