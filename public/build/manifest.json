@@ -233,7 +233,7 @@
     "name": "vendor"
   },
   "resources/js/app.ts": {
-    "file": "assets/app-BJffn34P.js",
+    "file": "assets/app-Q5tmRvBc.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -337,7 +337,7 @@
     ]
   },
   "resources/js/pages/Welcome.vue": {
-    "file": "assets/Welcome-qSlZicUN.js",
+    "file": "assets/Welcome-CVptpPxM.js",
     "name": "Welcome",
     "src": "resources/js/pages/Welcome.vue",
     "isDynamicEntry": true,
