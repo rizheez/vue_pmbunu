@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\LandingPageSetting;
+use App\Models\Registration;
+use App\Models\ReregistrationPayment;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,6 +59,7 @@ class HandleInertiaRequests extends Middleware
                 ]) : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'contact_phone' => LandingPageSetting::where('key', 'contact_phone_1')->first()?->value ?? '628125317738',
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
@@ -63,8 +67,8 @@ class HandleInertiaRequests extends Middleware
                 'info' => fn () => $request->session()->get('info'),
             ],
             'pending_counts' => $request->user()?->role === 'admin' ? [
-                'documents' => \App\Models\Registration::where('status', 'submitted')->count(),
-                'payments' => \App\Models\ReregistrationPayment::where('status', 'pending')->count(),
+                'documents' => Registration::where('status', 'submitted')->count(),
+                'payments' => ReregistrationPayment::where('status', 'pending')->count(),
             ] : null,
         ];
     }

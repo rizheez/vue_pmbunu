@@ -10,6 +10,7 @@ import {
     User,
     X,
 } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
 import sanitizeHtml from 'sanitize-html';
 import { computed, nextTick, ref, watch } from 'vue';
 
@@ -26,6 +27,17 @@ const inputMessage = ref('');
 const messages = ref<Message[]>([]);
 const isLoading = ref(false);
 const messagesContainer = ref<HTMLElement | null>(null);
+
+const page = usePage();
+
+const whatsappUrl = computed(() => {
+    const rawPhone = (page.props.contact_phone as string) || '628125317738';
+    let cleanPhone = rawPhone.replace(/\D/g, ''); // keep only digits
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62' + cleanPhone.slice(1);
+    }
+    return `https://wa.me/${cleanPhone}?text=Halo%20Panitia%20PMB%20UNU%20Kaltim`;
+});
 
 const canSend = computed(() => inputMessage.value.trim() && !isLoading.value);
 
@@ -290,7 +302,7 @@ function formatMarkdown(content: string) {
 
                     <!-- Option 2: WhatsApp -->
                     <a
-                        href="https://wa.me/628125317738?text=Halo%20Panitia%20PMB%20UNU%20Kaltim"
+                        :href="whatsappUrl"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="flex items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 hover:translate-x-1 hover:shadow-md transition-all duration-200 group"
