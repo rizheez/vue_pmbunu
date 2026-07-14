@@ -14,6 +14,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     Registration,
     RegistrationPeriod,
+    RegistrationType,
     StudentBiodata,
 } from '@/types/pmb';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -42,9 +43,11 @@ interface PaginatedStudents {
 interface Props {
     students: PaginatedStudents;
     periods: RegistrationPeriod[];
+    types: RegistrationType[];
     filters: {
         status?: string;
         period?: string;
+        type?: string;
         search?: string;
     };
 }
@@ -54,6 +57,7 @@ const props = defineProps<Props>();
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || 'all');
 const period = ref(props.filters.period || 'all');
+const type = ref(props.filters.type || 'all');
 const perPage = ref(props.students.per_page || 10);
 
 const applyFilters = () => {
@@ -63,13 +67,14 @@ const applyFilters = () => {
             search: search.value || undefined,
             status: status.value !== 'all' ? status.value : undefined,
             period: period.value !== 'all' ? period.value : undefined,
+            type: type.value !== 'all' ? type.value : undefined,
             per_page: perPage.value,
         },
         { preserveState: true },
     );
 };
 
-watch([status, period, perPage], () => applyFilters());
+watch([status, period, type, perPage], () => applyFilters());
 
 const getStatusBadge = (regStatus: string | undefined) => {
     const map: Record<
@@ -111,6 +116,7 @@ const exportUrl = computed(() => {
     if (search.value) params.append('search', search.value);
     if (status.value !== 'all') params.append('status', status.value);
     if (period.value !== 'all') params.append('period', period.value);
+    if (type.value !== 'all') params.append('type', type.value);
     return `/admin/students-export?${params.toString()}`;
 });
 
@@ -202,6 +208,20 @@ const rowNumber = (index: number) =>
                         </select>
 
                         <select
+                            v-model="type"
+                            class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                        >
+                            <option value="all">Semua Jenis Pendaftaran</option>
+                            <option
+                                v-for="t in props.types"
+                                :key="t.id"
+                                :value="t.id"
+                            >
+                                {{ t.name }}
+                            </option>
+                        </select>
+
+                        <select
                             v-model="perPage"
                             class="rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                         >
@@ -246,6 +266,11 @@ const rowNumber = (index: number) =>
                                         class="min-w-[200px] px-4 py-3 text-left font-medium"
                                     >
                                         Sumber Informasi
+                                    </th>
+                                    <th
+                                        class="min-w-[150px] px-4 py-3 text-left font-medium"
+                                    >
+                                        Jenis Pendaftaran
                                     </th>
                                     <th
                                         class="min-w-[180px] px-4 py-3 text-left font-medium"
@@ -324,6 +349,9 @@ const rowNumber = (index: number) =>
                                             </span>
                                         </div>
                                     </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        {{ student.registration?.registration_type?.name || '-' }}
+                                    </td>
                                     <td class="px-4 py-3">
                                         {{
                                             student.registration
@@ -337,7 +365,7 @@ const rowNumber = (index: number) =>
                                                 ? formatDate(
                                                       student.registration
                                                           .created_at,
-                                                  )
+                                                   )
                                                 : '-'
                                         }}
                                     </td>
@@ -391,7 +419,7 @@ const rowNumber = (index: number) =>
                                 </tr>
                                 <tr v-if="props.students.data.length === 0">
                                     <td
-                                        colspan="9"
+                                        colspan="10"
                                         class="px-4 py-8 text-center text-gray-500"
                                     >
                                         Tidak ada data mahasiswa

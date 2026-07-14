@@ -15,6 +15,7 @@ import type {
     Registration,
     RegistrationPath,
     RegistrationPeriod,
+    RegistrationType,
 } from '@/types/pmb';
 import { Deferred, Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -84,6 +85,8 @@ interface Props {
     };
     registrationPaths: RegistrationPath[];
     selectedPathId: number | null;
+    registrationTypes: RegistrationType[];
+    selectedTypeId: number | null;
     aiInsight?: string;
 }
 
@@ -97,12 +100,14 @@ const filterByPeriod = (periodId: number | string) => {
         {
             period_id: periodId,
             ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
+            ...(selectedTypeId.value ? { registration_type_id: selectedTypeId.value } : {}),
         },
         { preserveState: true, preserveScroll: true },
     );
 };
 
 const selectedPathId = ref<number | string>(props.selectedPathId || '');
+const selectedTypeId = ref<number | string>(props.selectedTypeId || '');
 
 const filterByPath = (pathId: number | string) => {
     selectedPathId.value = pathId;
@@ -111,8 +116,22 @@ const filterByPath = (pathId: number | string) => {
         {
             period_id: props.selectedPeriod?.id ?? '',
             ...(pathId ? { registration_path_id: pathId } : {}),
+            ...(selectedTypeId.value ? { registration_type_id: selectedTypeId.value } : {}),
         },
-        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId'] },
+        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId', 'selectedTypeId'] },
+    );
+};
+
+const filterByType = (typeId: number | string) => {
+    selectedTypeId.value = typeId;
+    router.get(
+        '/admin/dashboard',
+        {
+            period_id: props.selectedPeriod?.id ?? '',
+            ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
+            ...(typeId ? { registration_type_id: typeId } : {}),
+        },
+        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId', 'selectedTypeId'] },
     );
 };
 
@@ -511,9 +530,10 @@ const chartSeries = computed(() => [
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <!-- Jalur Pendaftaran Filter -->
-                        <div v-if="props.registrationPaths.length > 0" class="mb-4">
+                        <!-- Filter Jalur & Jenis Pendaftaran -->
+                        <div class="mb-4 flex flex-col gap-3 sm:flex-row">
                             <select
+                                v-if="props.registrationPaths.length > 0"
                                 class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                                 :value="selectedPathId"
                                 @change="filterByPath(($event.target as HTMLSelectElement).value)"
@@ -525,6 +545,21 @@ const chartSeries = computed(() => [
                                     :value="path.id"
                                 >
                                     {{ path.name }}
+                                </option>
+                            </select>
+                            <select
+                                v-if="props.registrationTypes.length > 0"
+                                class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                                :value="selectedTypeId"
+                                @change="filterByType(($event.target as HTMLSelectElement).value)"
+                            >
+                                <option value="">Semua Jenis Pendaftaran</option>
+                                <option
+                                    v-for="type in props.registrationTypes"
+                                    :key="type.id"
+                                    :value="type.id"
+                                >
+                                    {{ type.name }}
                                 </option>
                             </select>
                         </div>

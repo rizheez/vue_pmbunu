@@ -294,4 +294,45 @@ describe('Admin Manual Flow: Full Admin Registration to NIM Generation', functio
         $registration->refresh();
         expect($registration->scholarship->name)->toBe('GratisPol');
     });
+
+    it('allows admin to filter students list by registration type', function () {
+        $student1 = User::factory()->create(['role' => 'student']);
+        Registration::create([
+            'user_id' => $student1->id,
+            'registration_period_id' => $this->period->id,
+            'registration_type_id' => $this->type->id,
+            'registration_path_id' => $this->path->id,
+            'registration_number' => Registration::generateRegistrationNumber($this->period),
+            'choice_1' => $this->prodi1->id,
+            'choice_2' => $this->prodi2->id,
+            'status' => 'submitted',
+        ]);
+
+        $type2 = RegistrationType::create([
+            'name' => 'CBT',
+            'is_active' => true,
+        ]);
+        $student2 = User::factory()->create(['role' => 'student']);
+        Registration::create([
+            'user_id' => $student2->id,
+            'registration_period_id' => $this->period->id,
+            'registration_type_id' => $type2->id,
+            'registration_path_id' => $this->path->id,
+            'registration_number' => Registration::generateRegistrationNumber($this->period),
+            'choice_1' => $this->prodi1->id,
+            'choice_2' => $this->prodi2->id,
+            'status' => 'submitted',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->get(route('admin.students.index', ['type' => $this->type->id]));
+
+        $response->assertOk();
+
+        $studentsProp = $response->original->getData()['page']['props']['students']['data'];
+
+        $studentIds = collect($studentsProp)->pluck('id');
+        expect($studentIds)->toContain($student1->id);
+        expect($studentIds)->not->toContain($student2->id);
+    });
 });

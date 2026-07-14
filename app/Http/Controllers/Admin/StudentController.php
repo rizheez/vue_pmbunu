@@ -189,6 +189,8 @@ class StudentController extends Controller
             ->orderByDesc('wave_number')
             ->get();
 
+        $types = RegistrationType::where('is_active', true)->orderBy('name')->get();
+
         $query = User::with([
             'studentBiodata',
             'registration.registrationPeriod',
@@ -206,6 +208,11 @@ class StudentController extends Controller
         // Filter by period
         if ($request->filled('period') && $request->period !== 'all') {
             $query->whereHas('registration', fn ($q) => $q->where('registration_period_id', $request->period));
+        }
+
+        // Filter by registration type
+        if ($request->filled('type') && $request->type !== 'all') {
+            $query->whereHas('registration', fn ($q) => $q->where('registration_type_id', $request->type));
         }
 
         // Search
@@ -231,7 +238,8 @@ class StudentController extends Controller
         return Inertia::render('admin/students/Index', [
             'students' => $students,
             'periods' => $periods,
-            'filters' => $request->only(['status', 'period', 'search', 'per_page']),
+            'types' => $types,
+            'filters' => $request->only(['status', 'period', 'type', 'search', 'per_page']),
         ]);
     }
 

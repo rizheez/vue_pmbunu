@@ -49,6 +49,11 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             $query->whereHas('registration', fn ($q) => $q->where('registration_period_id', $this->request->period));
         }
 
+        // Filter by registration type
+        if ($this->request->filled('type') && $this->request->type !== 'all') {
+            $query->whereHas('registration', fn ($q) => $q->where('registration_type_id', $this->request->type));
+        }
+
         // Search
         if ($this->request->filled('search')) {
             $search = $this->request->search;
