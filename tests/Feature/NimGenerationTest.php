@@ -107,6 +107,50 @@ it('generates NIM with correct format for Pindahan (starts at 801)', function ()
     expect($nim)->toBe('250105801');
 });
 
+it('generates NIM formatted as 8100 when Pindahan sequence reaches 100', function () {
+    // Create 99 existing Pindahan students (801 to 899)
+    for ($i = 1; $i <= 99; $i++) {
+        $seq = '8'.str_pad((string) $i, 2, '0', STR_PAD_LEFT);
+        User::factory()->create(['nim' => '250105'.$seq]);
+    }
+
+    $user = User::factory()->create();
+    $registration = Registration::create([
+        'user_id' => $user->id,
+        'registration_number' => '252601000100',
+        'registration_period_id' => $this->period->id,
+        'registration_type_id' => Registration::TYPE_PINDAHAN,
+        'accepted_program_studi_id' => $this->prodi->id,
+        'status' => 're_registration_verified',
+    ]);
+
+    $nim = $registration->enrollStudent();
+
+    expect($nim)->toBe('2501058100');
+});
+
+it('generates NIM formatted as 9100 when Alih Jenjang sequence reaches 100', function () {
+    // Create 99 existing Alih Jenjang students (901 to 999)
+    for ($i = 1; $i <= 99; $i++) {
+        $seq = '9'.str_pad((string) $i, 2, '0', STR_PAD_LEFT);
+        User::factory()->create(['nim' => '250105'.$seq]);
+    }
+
+    $user = User::factory()->create();
+    $registration = Registration::create([
+        'user_id' => $user->id,
+        'registration_number' => '252601000101',
+        'registration_period_id' => $this->period->id,
+        'registration_type_id' => Registration::TYPE_ALIH_JENJANG,
+        'accepted_program_studi_id' => $this->prodi->id,
+        'status' => 're_registration_verified',
+    ]);
+
+    $nim = $registration->enrollStudent();
+
+    expect($nim)->toBe('2501059100');
+});
+
 it('increments NIM sequence correctly', function () {
     // Create first student with NIM
     $user1 = User::factory()->create(['nim' => '250105001']);

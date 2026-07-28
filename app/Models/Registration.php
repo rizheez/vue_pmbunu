@@ -282,12 +282,12 @@ class Registration extends Model
 
     /**
      * Generate unique NIM for enrolled student
-     * Format: [YEAR 2 digit][PRODI CODE 4 digit][SEQUENCE 3 digit]
+     * Format: [YEAR 2 digit][PRODI CODE 4 digit][SEQUENCE]
      *
-     * Sequence ranges:
-     * - Peserta Didik Baru: 001-799
-     * - Pindahan: 801-899
-     * - Alih Jenjang: 901-999
+     * Sequence format:
+     * - Peserta Didik Baru: 001, 002, ..., 799
+     * - Pindahan: 801, 802, ..., 899, 8100, 8101, ...
+     * - Alih Jenjang: 901, 902, ..., 999, 9100, 9101, ...
      *
      * Uses database transaction with row locking to prevent duplicate NIM.
      */
@@ -306,19 +306,13 @@ class Registration extends Model
             $years = explode('/', $period->academic_year);
             $year = substr($years[0], -2);
 
-            // Determine sequence start based on registration type
+            // Determine registration type
             $registrationTypeId = $registration->registration_type_id;
 
-            $sequenceStart = match ($registrationTypeId) {
-                self::TYPE_PINDAHAN => 801,
-                self::TYPE_ALIH_JENJANG => 901,
-                default => 1, // Peserta Didik Baru
-            };
-
-            $sequenceEnd = match ($registrationTypeId) {
-                self::TYPE_PINDAHAN => 899,
-                self::TYPE_ALIH_JENJANG => 999,
-                default => 799,
+            $type = match ($registrationTypeId) {
+                self::TYPE_PINDAHAN => 'pindahan',
+                self::TYPE_ALIH_JENJANG => 'alih_jenjang',
+                default => 'regular',
             };
 
             // Build NIM prefix for this combination
@@ -329,38 +323,73 @@ class Registration extends Model
                 ->lockForUpdate()
                 ->update(['nim' => null]);
 
-            // Get used NIM sequences in this range with lock
-            $usedSequences = User::where('nim', 'like', $nimPrefix.'%')
-                ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) >= ?', [$sequenceStart])
-                ->whereRaw('CAST(SUBSTRING(nim, -3) AS UNSIGNED) <= ?', [$sequenceEnd])
+            // Get used NIMs for this prefix with lock
+            $usedNims = User::where('nim', 'like', $nimPrefix.'%')
                 ->lockForUpdate()
-                ->pluck('nim')
-                ->map(fn (string $nim): int => (int) substr($nim, -3))
-                ->unique()
-                ->sort()
-                ->values();
+                ->pluck('nim');
 
-            $nextSequence = $sequenceStart;
+            $usedCounts = [];
 
-            foreach ($usedSequences as $usedSequence) {
-                if ($usedSequence === $nextSequence) {
-                    $nextSequence++;
-
+            foreach ($usedNims as $existingNim) {
+                if (! is_string($existingNim)) {
                     continue;
                 }
 
-                if ($usedSequence > $nextSequence) {
+                $seqStr = substr($existingNim, strlen($nimPrefix));
+
+                if ($seqStr === false || $seqStr === '') {
+                    continue;
+                }
+
+                if ($type === 'pindahan') {
+                    if (str_starts_with($seqStr, '8')) {
+                        $countStr = substr($seqStr, 1);
+                        if (is_numeric($countStr)) {
+                            $usedCounts[] = (int) $countStr;
+                        }
+                    }
+                } elseif ($type === 'alih_jenjang') {
+                    if (str_starts_with($seqStr, '9')) {
+                        $countStr = substr($seqStr, 1);
+                        if (is_numeric($countStr)) {
+                            $usedCounts[] = (int) $countStr;
+                        }
+                    }
+                } else {
+                    if (strlen($seqStr) === 3 && is_numeric($seqStr) && ! str_starts_with($seqStr, '8') && ! str_starts_with($seqStr, '9')) {
+                        $usedCounts[] = (int) $seqStr;
+                    }
+                }
+            }
+
+            sort($usedCounts);
+            $usedCounts = array_values(array_unique($usedCounts));
+
+            $nextCount = 1;
+
+            foreach ($usedCounts as $used) {
+                if ($used === $nextCount) {
+                    $nextCount++;
+                } elseif ($used > $nextCount) {
                     break;
                 }
             }
 
-            // Check if we've exceeded the range
-            if ($nextSequence > $sequenceEnd) {
-                throw new \RuntimeException('Nomor urut NIM untuk jenis pendaftaran ini sudah penuh');
-            }
+            if ($type === 'pindahan') {
+                $sequence = $nextCount < 100
+                    ? '8'.str_pad((string) $nextCount, 2, '0', STR_PAD_LEFT)
+                    : '8'.$nextCount;
+            } elseif ($type === 'alih_jenjang') {
+                $sequence = $nextCount < 100
+                    ? '9'.str_pad((string) $nextCount, 2, '0', STR_PAD_LEFT)
+                    : '9'.$nextCount;
+            } else {
+                if ($nextCount > 799) {
+                    throw new \RuntimeException('Nomor urut NIM untuk jenis pendaftaran ini sudah penuh');
+                }
 
-            // Format sequence (1 -> 001)
-            $sequence = str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+                $sequence = str_pad((string) $nextCount, 3, '0', STR_PAD_LEFT);
+            }
 
             return $nimPrefix.$sequence;
         });
