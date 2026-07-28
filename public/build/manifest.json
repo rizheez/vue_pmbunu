@@ -233,7 +233,7 @@
     "name": "vendor"
   },
   "resources/js/app.ts": {
-    "file": "assets/app-Q5tmRvBc.js",
+    "file": "assets/app-CYmagV60.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -381,7 +381,7 @@
     ]
   },
   "resources/js/pages/admin/admission-letters/Index.vue": {
-    "file": "assets/Index-Djl1DY4O.js",
+    "file": "assets/Index-B_BzByqa.js",
     "name": "Index",
     "src": "resources/js/pages/admin/admission-letters/Index.vue",
     "isDynamicEntry": true,

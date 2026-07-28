@@ -312,7 +312,7 @@
                 <td class="signature-spacer"></td>
 
                 <td class="signature-block">
-                    <div>Rektor,</div>
+                    <div>An. Rektor<br>Wakil Rektor 1,</div>
 
                     <div class="qr-wrapper">
                         <img src="{{ $qrCodeBase64 }}" class="qr-image">

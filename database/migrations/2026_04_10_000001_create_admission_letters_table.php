@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('letter_number')->unique();
             $table->date('letter_date');
             $table->string('subject')->default('Pemberitahuan');
-            $table->string('signatory_name')->default('Prof. Hamdani');
+            $table->string('signatory_name')->default('Drs. H. Sus Eko Zuhri Ernada, Grad.Dipl.IR., M.A., P.hD., CIQnR., CIQaR.');
             $table->string('verification_token', 64)->unique();
             $table->string('pdf_path')->nullable();
             $table->timestamp('generated_at')->nullable();

@@ -16,7 +16,7 @@ import { Download, FileCheck, Mail, RefreshCw, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 const DEFAULT_SUBJECT = 'Pemberitahuan';
-const DEFAULT_SIGNATORY = 'Prof. Dr. Ir. Hamdani, S.T., M.Cs., IPM';
+const DEFAULT_SIGNATORY = 'Drs. H. Sus Eko Zuhri Ernada, Grad.Dipl.IR., M.A., P.hD., CIQnR., CIQaR.';
 
 interface ProgramStudi {
     id: number;
