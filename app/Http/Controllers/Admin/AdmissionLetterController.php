@@ -139,10 +139,18 @@ class AdmissionLetterController extends Controller
             $letter->verification_token = Str::random(24);
         }
 
+        $defaultSignatory = 'Drs. H. Sus Eko Zuhri Ernada, Grad.Dipl.IR., M.A., P.hD., CIQnR., CIQaR.';
+
         $letter->update([
-            'pdf_path' => $pdfService->generate($letter),
+            'signatory_name' => (empty($letter->signatory_name) || str_contains($letter->signatory_name, 'Hamdani'))
+                ? $defaultSignatory
+                : $letter->signatory_name,
             'generated_at' => now(),
             'verification_token' => $letter->verification_token,
+        ]);
+
+        $letter->update([
+            'pdf_path' => $pdfService->generate($letter),
         ]);
 
         return redirect()

@@ -161,8 +161,9 @@
 
         .signature-name {
             font-weight: 700;
-            font-size: 10.5pt;
-            white-space: nowrap;
+            font-size: 9.5pt;
+            line-height: 1.25;
+            max-width: 95mm;
         }
 
         .copy-list {
@@ -198,12 +199,12 @@
 
         .qr-logo {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 4mm;
-            height: 4mm;
-            padding: 0.8mm;
+            top: 8.25mm;
+            left: 8.25mm;
+            width: 5.5mm;
+            height: 5.5mm;
+            padding: 0.6mm;
+            box-sizing: border-box;
             background: #fff;
             border-radius: 50%;
         }
