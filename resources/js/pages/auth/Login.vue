@@ -17,6 +17,8 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    contactPhone?: string;
+    contactEmail?: string;
 }>();
 
 const showPassword = ref(false);
@@ -126,16 +128,32 @@ const showPassword = ref(false);
                     <div class="space-y-2 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             <Phone class="size-4 text-teal-600" />
-                            <span
-                                >WhatsApp: <strong>0812-5317-738</strong></span
-                            >
+                            <span>
+                                WhatsApp:
+                                <a
+                                    v-if="contactPhone"
+                                    :href="`https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`"
+                                    target="_blank"
+                                    class="font-semibold text-teal-600 hover:underline"
+                                >
+                                    {{ contactPhone }}
+                                </a>
+                                <strong v-else>0812-5317-738</strong>
+                            </span>
                         </div>
                         <div class="flex items-center gap-2">
                             <Mail class="size-4 text-teal-600" />
-                            <span
-                                >Email:
-                                <strong>pmb@unukaltim.ac.id</strong></span
-                            >
+                            <span>
+                                Email:
+                                <a
+                                    v-if="contactEmail"
+                                    :href="`mailto:${contactEmail}`"
+                                    class="font-semibold text-teal-600 hover:underline"
+                                >
+                                    {{ contactEmail }}
+                                </a>
+                                <strong v-else>pmb@unukaltim.ac.id</strong>
+                            </span>
                         </div>
                     </div>
                 </div>
