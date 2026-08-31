@@ -29,13 +29,15 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
     {
         $query = User::query()
             ->with([
-                'studentBiodata',
+                'studentBiodata.father',
+                'studentBiodata.mother',
                 'registration.registrationPeriod',
                 'registration.programStudiChoice1.fakultas',
                 'registration.programStudiChoice2.fakultas',
                 'registration.acceptedProgramStudi',
                 'registration.registrationType',
                 'registration.registrationPath',
+                'registration.scholarship',
             ])
             ->where('role', 'student')
             ->whereHas('registration');
@@ -80,13 +82,27 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             'Nama Lengkap',
             'Email',
             'No. HP',
+            'Telepon',
             'NIK',
             'NISN',
+            'NPWP',
             'Jenis Kelamin',
             'Tempat Lahir',
             'Tanggal Lahir',
             'Agama',
             'Alamat',
+            'Dusun',
+            'RT',
+            'RW',
+            'Kelurahan',
+            'Kecamatan',
+            'Kabupaten / Kota',
+            'Provinsi',
+            'Kode Pos',
+            'Nama Ibu Kandung',
+            'NIK Ibu',
+            'Nama Ayah',
+            'NIK Ayah',
             'Asal Sekolah',
             'Jurusan',
             'Periode',
@@ -94,6 +110,8 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             'Jalur Pendaftaran',
             'Pilihan Beasiswa',
             'Pilihan 1',
+            'Kode Prodi Pilihan 1',
+            'Kode Fakultas Pilihan 1',
             'Pilihan 2',
             'Prodi Diterima',
             'Status',
@@ -110,6 +128,17 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
     {
         $biodata = $user->studentBiodata;
         $registration = $user->registration;
+        $father = $biodata?->father;
+        $mother = $biodata?->mother;
+        $choice1 = $registration?->programStudiChoice1;
+        $choice2 = $registration?->programStudiChoice2;
+
+        $birthDate = '-';
+        if ($biodata?->birth_date) {
+            $birthDate = $biodata->birth_date instanceof \DateTimeInterface
+                ? $biodata->birth_date->format('d/m/Y')
+                : (string) $biodata->birth_date;
+        }
 
         return [
             "'".($registration?->registration_number ?? '-'),
@@ -117,21 +146,37 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithColumnFormatting,
             $biodata?->name ?? $user->name,
             $user->email,
             "'".(string) ($biodata?->phone ?? $user->phone ?? '-'),
+            "'".(string) ($biodata?->telephone ?? '-'),
             "'".(string) ($biodata?->nik ?? '-'),
             "'".(string) ($biodata?->nisn ?? '-'),
+            "'".(string) ($biodata?->npwp ?? '-'),
             $biodata?->gender ?? '-',
             $biodata?->birth_place ?? '-',
-            $biodata?->birth_date ?? '-',
+            $birthDate,
             $biodata?->religion ?? '-',
             $biodata?->address ?? '-',
+            $biodata?->dusun ?? '-',
+            $biodata?->rt ?? '-',
+            $biodata?->rw ?? '-',
+            $biodata?->kelurahan ?? '-',
+            $biodata?->kecamatan ?? '-',
+            $biodata?->kabupaten ?? '-',
+            $biodata?->provinsi ?? '-',
+            $biodata?->kode_pos ?? '-',
+            $biodata?->mother_name ?? $mother?->name ?? '-',
+            "'".(string) ($mother?->nik ?? '-'),
+            $father?->name ?? '-',
+            "'".(string) ($father?->nik ?? '-'),
             $biodata?->school_origin ?? '-',
             $biodata?->major ?? '-',
             $registration?->registrationPeriod?->name ?? '-',
             $registration?->registrationType?->name ?? '-',
             $registration?->registrationPath?->name ?? '-',
             $registration?->scholarship?->name ?? '-',
-            $registration?->programStudiChoice1 ? ($registration->programStudiChoice1->jenjang.' - '.$registration->programStudiChoice1->name) : '-',
-            $registration?->programStudiChoice2 ? ($registration->programStudiChoice2->jenjang.' - '.$registration->programStudiChoice2->name) : '-',
+            $choice1 ? ($choice1->jenjang.' - '.$choice1->name) : '-',
+            $choice1?->code ?? '-',
+            $choice1?->fakultas?->code ?? '-',
+            $choice2 ? ($choice2->jenjang.' - '.$choice2->name) : '-',
             $registration?->acceptedProgramStudi ? ($registration->acceptedProgramStudi->jenjang.' - '.$registration->acceptedProgramStudi->name) : '-',
             $this->getStatusLabel($registration?->status),
             $registration?->referral_source ?? '-',
