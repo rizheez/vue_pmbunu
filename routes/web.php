@@ -213,6 +213,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Enrolled Students
     Route::get('/enrolled-students', [EnrolledStudentController::class, 'index'])->name('enrolled-students.index');
+    Route::patch('/enrolled-students/{registration}/nim', [EnrolledStudentController::class, 'updateNim'])->name('enrolled-students.update-nim');
     Route::post('/enrolled-students/{registration}/cancel', [EnrolledStudentController::class, 'cancel'])->name('enrolled-students.cancel');
 
     // Payment Settings

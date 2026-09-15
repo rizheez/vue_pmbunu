@@ -17,7 +17,16 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -27,8 +36,8 @@ import {
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { GraduationCap, Search, XCircle } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { GraduationCap, Pencil, Search, XCircle } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 
 interface ProgramStudi {
     id: number;
@@ -114,6 +123,80 @@ const formatDate = (dateString: string) => {
 const openCancelDialog = (registration: Registration) => {
     selectedRegistration.value = registration;
     showCancelDialog.value = true;
+};
+
+// Edit NIM state & actions
+const showEditNimDialog = ref(false);
+const editNimRegistration = ref<Registration | null>(null);
+const nimPrefix = ref('');
+const nimSequence = ref('');
+const editNimError = ref('');
+const isSubmittingNim = ref(false);
+
+const openEditNimDialog = (registration: Registration) => {
+    editNimRegistration.value = registration;
+    editNimError.value = '';
+
+    // Calculate prefix: 2 digits year + prodi nim_code (e.g. 250105)
+    const year = registration.registration_period?.academic_year
+        ? registration.registration_period.academic_year.split('/')[0].slice(-2)
+        : '';
+    const prodiCode = registration.accepted_program_studi?.nim_code || '';
+    const prefix = `${year}${prodiCode}`;
+    nimPrefix.value = prefix;
+
+    const currentNim = registration.user.nim || '';
+    if (prefix && currentNim.startsWith(prefix)) {
+        nimSequence.value = currentNim.slice(prefix.length);
+    } else {
+        nimSequence.value = '';
+    }
+
+    showEditNimDialog.value = true;
+};
+
+const previewFullNim = computed(() => {
+    if (!nimPrefix.value) return '-';
+    if (!nimSequence.value) return `${nimPrefix.value}___`;
+    const seq =
+        nimSequence.value.length < 3
+            ? nimSequence.value.padStart(3, '0')
+            : nimSequence.value;
+    return `${nimPrefix.value}${seq}`;
+});
+
+const submitEditNim = () => {
+    if (!editNimRegistration.value) return;
+
+    if (!nimSequence.value || !/^[0-9]{1,4}$/.test(nimSequence.value)) {
+        editNimError.value = 'Nomor urut NIM harus berupa 1-4 digit angka.';
+        return;
+    }
+
+    isSubmittingNim.value = true;
+    editNimError.value = '';
+
+    router.patch(
+        `/admin/enrolled-students/${editNimRegistration.value.id}/nim`,
+        {
+            sequence: nimSequence.value,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                showEditNimDialog.value = false;
+                editNimRegistration.value = null;
+            },
+            onError: (errors) => {
+                if (errors.sequence) {
+                    editNimError.value = errors.sequence;
+                }
+            },
+            onFinish: () => {
+                isSubmittingNim.value = false;
+            },
+        },
+    );
 };
 
 const cancelEnrollment = () => {
@@ -256,13 +339,23 @@ const rowNumber = (index: number) =>
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div class="flex justify-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                class="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950"
+                                                @click="openEditNimDialog(reg)"
+                                                title="Edit Nomor Urut NIM"
+                                            >
+                                                <Pencil class="mr-1 size-3.5" />
+                                                Edit NIM
+                                            </Button>
                                             <Button
                                                 size="sm"
                                                 variant="destructive"
                                                 @click="openCancelDialog(reg)"
                                             >
-                                                <XCircle class="mr-1 size-4" />
+                                                <XCircle class="mr-1 size-3.5" />
                                                 Batalkan
                                             </Button>
                                         </div>
@@ -335,6 +428,93 @@ const rowNumber = (index: number) =>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <!-- Edit NIM Dialog -->
+            <Dialog v-model:open="showEditNimDialog">
+                <DialogContent class="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit Nomor Urut NIM</DialogTitle>
+                        <DialogDescription>
+                            Hanya nomor urut setelah kode angkatan dan prodi yang dapat diubah.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div class="space-y-4 py-2">
+                        <div class="rounded-lg bg-muted/50 p-3 text-sm space-y-1.5">
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Mahasiswa:</span>
+                                <span class="font-medium text-foreground">{{ editNimRegistration?.user.name }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Program Studi:</span>
+                                <span class="font-medium text-foreground">{{ editNimRegistration?.accepted_program_studi?.name || '-' }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">NIM Saat Ini:</span>
+                                <span class="font-mono font-semibold text-foreground">{{ editNimRegistration?.user.nim || '-' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <Label for="nim-sequence-input">Nomor Induk Mahasiswa (NIM)</Label>
+                            <div class="flex items-center gap-2">
+                                <!-- Locked Prefix -->
+                                <div class="flex flex-col">
+                                    <span class="text-[11px] text-muted-foreground mb-1">Angkatan + Prodi</span>
+                                    <div class="flex h-9 items-center rounded-md border border-input bg-muted px-3 font-mono text-sm font-semibold text-muted-foreground select-none cursor-not-allowed">
+                                        {{ nimPrefix || '------' }}
+                                    </div>
+                                </div>
+                                <span class="pt-4 text-base font-bold text-muted-foreground">+</span>
+                                <!-- Editable Sequence -->
+                                <div class="flex-1 flex flex-col">
+                                    <span class="text-[11px] text-muted-foreground mb-1">Nomor Urut (Bisa diedit)</span>
+                                    <Input
+                                        id="nim-sequence-input"
+                                        v-model="nimSequence"
+                                        maxlength="4"
+                                        placeholder="001"
+                                        class="font-mono text-sm"
+                                        @keyup.enter="submitEditNim"
+                                    />
+                                </div>
+                            </div>
+                            <p v-if="editNimError" class="text-xs text-destructive mt-1 font-medium">
+                                {{ editNimError }}
+                            </p>
+                        </div>
+
+                        <!-- Live Preview -->
+                        <div class="rounded-md border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+                            <div class="text-xs font-medium text-blue-900 dark:text-blue-300">Preview NIM Baru:</div>
+                            <div class="mt-0.5 font-mono text-lg font-bold text-blue-700 dark:text-blue-400">
+                                {{ previewFullNim }}
+                            </div>
+                            <div class="mt-1 text-[11px] text-muted-foreground">
+                                * Angka kurang dari 3 digit otomatis ditambahkan nol di depan (contoh: 15 menjadi 015).
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="showEditNimDialog = false"
+                            :disabled="isSubmittingNim"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            @click="submitEditNim"
+                            :disabled="isSubmittingNim || !nimSequence"
+                        >
+                            {{ isSubmittingNim ? 'Menyimpan...' : 'Simpan NIM' }}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     </AppLayout>
 </template>
