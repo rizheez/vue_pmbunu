@@ -84,8 +84,9 @@
 
         .meta-table td,
         .student-table td {
-            padding: 0 0 1px 0;
+            padding: 0;
             vertical-align: top;
+            line-height: 1.1;
         }
 
         .meta-label {
@@ -128,8 +129,9 @@
         }
 
         .student-table {
-            margin: 5px 0 9px 0;
+            margin: 3px 0 6px 0;
             font-weight: 400;
+            line-height: 1.1;
         }
 
         .student-label {
