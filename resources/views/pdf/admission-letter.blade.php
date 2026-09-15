@@ -269,8 +269,9 @@
         </p>
 
         <p class="paragraph">
-            Dengan ini kami memberitahukan bahwa <strong>{{ $biodata->name ?? $user->name }} telah mendaftar dan diterima
-            sebagai Mahasiswa Universitas Nahdlatul Ulama Kalimantan Timur</strong> dengan data sebagai berikut:
+            Dengan ini kami memberitahukan bahwa <strong>{{ $biodata->name ?? $user->name }} telah mendaftar dan
+                diterima
+                sebagai Mahasiswa Universitas Nahdlatul Ulama Kalimantan Timur</strong> dengan data sebagai berikut:
         </p>
 
         <table class="student-table" style="margin-left: 10mm;">
@@ -332,10 +333,11 @@
         <div class="copy-list">
             Tembusan Yth.:
             <ol>
-                <li>Ketua BPP UNU Kaltim di Samarinda</li>
-                <li>Wakil Rektor 1 dan 2 UNU Kaltim di Samarinda</li>
-                <li>Kepala Biro 1 dan 2 Kaltim di Samarinda</li>
-                <li>Ketua UPT PMB UNU Kaltim di Samarinda</li>
+                <li>Ketua BPP</li>
+                <li>Rektor</li>
+                <li>Wakil Rektor 1 dan 2</li>
+                <li>Kepala Biro 1 dan 2</li>
+                <li>Ketua UPT PMB</li>
                 <li>Arsip</li>
             </ol>
         </div>
