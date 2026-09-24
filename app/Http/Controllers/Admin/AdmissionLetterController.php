@@ -8,6 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAdmissionLetterRequest;
 use App\Mail\AdmissionLetterMail;
 use App\Models\AdmissionLetter;
+use App\Models\ProgramStudi;
+use App\Models\Registration;
+use App\Models\RegistrationPeriod;
+use App\Models\RegistrationType;
+use App\Models\StudentBiodata;
 use App\Models\User;
 use App\Services\AdmissionLetterPdfService;
 use Illuminate\Http\RedirectResponse;
@@ -15,9 +20,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -64,9 +71,14 @@ class AdmissionLetterController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
+        $programStudi = ProgramStudi::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'jenjang', 'nim_code']);
+
         return Inertia::render('admin/admission-letters/Index', [
             'eligibleStudents' => $eligibleStudents,
             'letters' => $letters,
+            'programStudi' => $programStudi,
             'filters' => $request->only(['search', 'per_page']),
         ]);
     }
@@ -76,14 +88,112 @@ class AdmissionLetterController extends Controller
         AdmissionLetterPdfService $pdfService
     ): RedirectResponse {
         $validated = $request->validated();
+        $isManual = ($validated['entry_mode'] ?? 'registered') === 'manual';
 
-        $letter = DB::transaction(function () use ($validated, $pdfService) {
-            $student = User::query()
-                ->where('role', 'student')
-                ->whereNotNull('nim')
-                ->whereDoesntHave('admissionLetter')
-                ->whereHas('registration', fn ($query) => $query->where('status', 'enrolled'))
-                ->findOrFail($validated['user_id']);
+        $letter = DB::transaction(function () use ($validated, $isManual, $pdfService) {
+            if ($isManual) {
+                $nim = trim((string) $validated['nim']);
+                $name = trim((string) $validated['student_name']);
+                $email = ! empty($validated['email']) ? trim((string) $validated['email']) : null;
+
+                $existingUser = User::where('nim', $nim)->first();
+
+                if ($existingUser && $existingUser->admissionLetter()->exists()) {
+                    throw ValidationException::withMessages([
+                        'nim' => "Mahasiswa dengan NIM {$nim} sudah memiliki surat penerimaan.",
+                    ]);
+                }
+
+                if ($existingUser) {
+                    $student = $existingUser;
+                    if ($email && $student->email !== $email) {
+                        $emailTaken = User::where('email', $email)
+                            ->where('id', '!=', $student->id)
+                            ->exists();
+                        if ($emailTaken) {
+                            throw ValidationException::withMessages([
+                                'email' => "Email {$email} sudah digunakan oleh pengguna lain.",
+                            ]);
+                        }
+                        $student->email = $email;
+                    }
+                    if ($student->name !== $name) {
+                        $student->name = $name;
+                    }
+                    $student->save();
+                } else {
+                    if ($email) {
+                        $emailTaken = User::where('email', $email)->exists();
+                        if ($emailTaken) {
+                            throw ValidationException::withMessages([
+                                'email' => "Email {$email} sudah digunakan oleh pengguna lain.",
+                            ]);
+                        }
+                    } else {
+                        $baseEmail = strtolower($nim).'@student.unukaltim.ac.id';
+                        $email = $baseEmail;
+                        $counter = 1;
+                        while (User::where('email', $email)->exists()) {
+                            $email = strtolower($nim).$counter.'@student.unukaltim.ac.id';
+                            $counter++;
+                        }
+                    }
+
+                    $student = User::create([
+                        'name' => $name,
+                        'email' => $email,
+                        'nim' => $nim,
+                        'role' => 'student',
+                        'password' => Hash::make(Str::random(16)),
+                        'email_verified_at' => now(),
+                    ]);
+                }
+
+                StudentBiodata::updateOrCreate(
+                    ['user_id' => $student->id],
+                    ['name' => $name]
+                );
+
+                $activePeriodId = RegistrationPeriod::where('is_active', true)->value('id')
+                    ?? RegistrationPeriod::latest('id')->value('id');
+                $defaultTypeId = RegistrationType::where('is_active', true)->value('id')
+                    ?? RegistrationType::first()?->id
+                    ?? 1;
+
+                $regNumber = ! empty($validated['registration_number']) ? trim((string) $validated['registration_number']) : null;
+
+                $registration = Registration::firstOrCreate(
+                    ['user_id' => $student->id],
+                    [
+                        'registration_number' => $regNumber,
+                        'accepted_program_studi_id' => $validated['program_studi_id'],
+                        'status' => 'enrolled',
+                        'registration_period_id' => $activePeriodId,
+                        'registration_type_id' => $defaultTypeId,
+                    ]
+                );
+
+                $updateData = [];
+                if ((int) $registration->accepted_program_studi_id !== (int) $validated['program_studi_id']) {
+                    $updateData['accepted_program_studi_id'] = $validated['program_studi_id'];
+                }
+                if ($registration->status !== 'enrolled') {
+                    $updateData['status'] = 'enrolled';
+                }
+                if ($regNumber !== null && $registration->registration_number !== $regNumber) {
+                    $updateData['registration_number'] = $regNumber;
+                }
+                if (! empty($updateData)) {
+                    $registration->update($updateData);
+                }
+            } else {
+                $student = User::query()
+                    ->where('role', 'student')
+                    ->whereNotNull('nim')
+                    ->whereDoesntHave('admissionLetter')
+                    ->whereHas('registration', fn ($query) => $query->where('status', 'enrolled'))
+                    ->findOrFail($validated['user_id']);
+            }
 
             $letter = AdmissionLetter::create([
                 'user_id' => $student->id,

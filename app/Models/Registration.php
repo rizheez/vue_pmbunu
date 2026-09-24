@@ -216,7 +216,11 @@ class Registration extends Model
 
     public function getRegistrationNumberAttribute($value)
     {
-        return $value ? "UNU-$value" : null;
+        if (! $value) {
+            return null;
+        }
+
+        return str_starts_with((string) $value, 'UNU-') ? (string) $value : "UNU-{$value}";
     }
 
     /**

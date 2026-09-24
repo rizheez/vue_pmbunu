@@ -32,7 +32,7 @@
         }
 
         @page {
-            margin: 38mm 18mm 31mm 18mm;
+            margin: 38mm 18mm 25mm 18mm;
         }
 
         body {
@@ -98,8 +98,8 @@
         }
 
         .recipient {
-            margin-top: 11px;
-            margin-bottom: 11px;
+            margin-top: 6px;
+            margin-bottom: 6px;
             font-weight: 400;
         }
 
@@ -107,8 +107,12 @@
             font-family: 'Candaraz', 'Candara', DejaVu Sans, sans-serif;
         }
 
+        .recipient-location {
+            margin-top: 1px;
+        }
+
         .paragraph {
-            margin: 0 0 8px 0;
+            margin: 0 0 7px 0;
             text-align: justify;
             text-indent: 10mm;
             font-weight: 400;
@@ -122,7 +126,7 @@
         }
 
         .closing {
-            margin: 0 0 8px 0;
+            margin: 0 0 6px 0;
             font-family: 'Candaraz', DejaVu Sans, sans-serif;
             font-size: 11pt;
             font-weight: 400;
@@ -256,12 +260,9 @@
 
         <div class="recipient">
             Kepada Yth.<br>
-            <span class="recipient-name">{{ $biodata->name ?? $user->name }}</span><br>
-
+            <span class="recipient-name">{{ $biodata->name ?? $user->name }}</span>
+            <div class="recipient-location">Di- Tempat</div>
         </div>
-        <p class="">
-            Di- Tempat
-        </p>
 
         <p class="salutation">Assalamu'alaikum Wr. Wb.</p>
 
@@ -277,11 +278,13 @@
         </p>
 
         <table class="student-table" style="margin-left: 10mm;">
-            <tr>
-                <td class="student-label">No. Pendaftaran</td>
-                <td class="colon">:</td>
-                <td>{{ $registration->registration_number ?? '-' }}</td>
-            </tr>
+            @if (!empty(trim((string) ($registration->registration_number ?? ''))) && $registration->registration_number !== '-')
+                <tr>
+                    <td class="student-label">No. Pendaftaran</td>
+                    <td class="colon">:</td>
+                    <td>{{ $registration->registration_number }}</td>
+                </tr>
+            @endif
             <tr>
                 <td class="student-label">Nama Lengkap</td>
                 <td class="colon">:</td>
