@@ -340,7 +340,7 @@
             <ol>
                 <li>Ketua BPP</li>
                 <li>Rektor</li>
-                <li>Wakil Rektor 1 dan 2</li>
+                <li>Wakil Rektor 2</li>
                 <li>Kepala Biro 1 dan 2</li>
                 <li>Ketua UPT PMB</li>
                 <li>Arsip</li>
