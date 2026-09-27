@@ -10,9 +10,25 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { Download, FileCheck, Mail, RefreshCw, Search } from 'lucide-vue-next';
+import {
+    Download,
+    FileCheck,
+    Info,
+    Mail,
+    RefreshCw,
+    Search,
+    UserCheck,
+    UserPlus,
+} from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 const DEFAULT_SUBJECT = 'Pemberitahuan';
@@ -73,6 +89,7 @@ interface PaginatedLetters {
 
 interface Props {
     eligibleStudents: EligibleStudent[];
+    programStudi?: ProgramStudi[];
     letters: PaginatedLetters;
     filters: {
         search?: string;
@@ -103,13 +120,24 @@ const toDateInputValue = (date: Date) => {
 
 const today = toDateInputValue(new Date());
 const form = useForm({
+    entry_mode: 'registered' as 'registered' | 'manual',
     user_id: '',
+    student_name: '',
+    nim: '',
+    program_studi_id: '',
+    registration_number: '',
+    email: '',
     source_type: 'generate_web' as 'generate_web' | 'upload_file',
     letter_date: today,
     subject: DEFAULT_SUBJECT,
     signatory_name: DEFAULT_SIGNATORY,
     uploaded_pdf: null as File | null,
 });
+
+const switchEntryMode = (mode: 'registered' | 'manual') => {
+    form.entry_mode = mode;
+    form.clearErrors();
+};
 
 const studentName = (student: EligibleStudent) =>
     student.student_biodata?.name || student.name;
@@ -179,8 +207,17 @@ const submit = () => {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
-            form.reset('user_id', 'uploaded_pdf');
+            form.reset(
+                'user_id',
+                'student_name',
+                'nim',
+                'program_studi_id',
+                'registration_number',
+                'email',
+                'uploaded_pdf',
+            );
             studentSearch.value = '';
+            form.entry_mode = 'registered';
             form.source_type = 'generate_web';
             form.letter_date = today;
             form.subject = DEFAULT_SUBJECT;
@@ -280,9 +317,7 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                         Buat Surat Penerimaan
                     </CardTitle>
                     <CardDescription>
-                        Pilih mahasiswa yang sudah punya NIM dan belum dibuatkan
-                        surat penerimaan. Nomor surat dibuat otomatis oleh
-                        sistem.
+                        Pilih mahasiswa terdaftar PMB atau input manual untuk mahasiswa lama/non-web yang sudah memiliki NIM. Nomor surat dibuat otomatis oleh sistem.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -290,9 +325,45 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                         class="grid gap-4 md:grid-cols-2"
                         @submit.prevent="submit"
                     >
+                        <!-- Mode Selector Tabs -->
                         <div class="md:col-span-2">
+                            <div class="inline-flex rounded-lg border bg-muted p-1 text-muted-foreground">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-2 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all"
+                                    :class="
+                                        form.entry_mode === 'registered'
+                                            ? 'bg-background text-foreground shadow-sm'
+                                            : 'hover:text-foreground'
+                                    "
+                                    @click="switchEntryMode('registered')"
+                                >
+                                    <UserCheck class="size-4" />
+                                    Pilih dari Mahasiswa Terdaftar (PMB Web)
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-2 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all"
+                                    :class="
+                                        form.entry_mode === 'manual'
+                                            ? 'bg-background text-foreground shadow-sm'
+                                            : 'hover:text-foreground'
+                                    "
+                                    @click="switchEntryMode('manual')"
+                                >
+                                    <UserPlus class="size-4" />
+                                    Input Manual (Mahasiswa Lama / Non-Web)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mode: Mahasiswa Terdaftar -->
+                        <div
+                            v-if="form.entry_mode === 'registered'"
+                            class="md:col-span-2"
+                        >
                             <label class="mb-1 block text-sm font-medium">
-                                Calon Mahasiswa
+                                Calon Mahasiswa <span class="text-destructive">*</span>
                             </label>
                             <div class="relative">
                                 <Input
@@ -347,6 +418,87 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                             >
                                 Program Studi: {{ prodiName(selectedStudent) }}
                             </p>
+                        </div>
+
+                        <!-- Mode: Input Manual -->
+                        <div
+                            v-else
+                            class="md:col-span-2 space-y-4 rounded-lg border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-950/20"
+                        >
+                            <div class="flex items-start gap-2.5 text-xs text-blue-700 dark:text-blue-300">
+                                <Info class="mt-0.5 size-4 shrink-0" />
+                                <span>
+                                    Gunakan opsi ini jika mahasiswa adalah angkatan lama, transfer, atau mendaftar offline tanpa akun PMB web. Sistem otomatis membuat data profil dan menghubungkannya dengan Program Studi.
+                                </span>
+                            </div>
+
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium">
+                                        Nama Lengkap Mahasiswa <span class="text-destructive">*</span>
+                                    </label>
+                                    <Input
+                                        v-model="form.student_name"
+                                        placeholder="Contoh: Siti Nurhaliza"
+                                    />
+                                    <InputError :message="form.errors.student_name" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium">
+                                        NIM Mahasiswa <span class="text-destructive">*</span>
+                                    </label>
+                                    <Input
+                                        v-model="form.nim"
+                                        placeholder="Contoh: 210105011"
+                                    />
+                                    <InputError :message="form.errors.nim" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium">
+                                        Program Studi <span class="text-destructive">*</span>
+                                    </label>
+                                    <Select v-model="form.program_studi_id">
+                                        <SelectTrigger class="w-full bg-background">
+                                            <SelectValue placeholder="Pilih Program Studi" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem
+                                                v-for="prodi in props.programStudi || []"
+                                                :key="prodi.id"
+                                                :value="String(prodi.id)"
+                                            >
+                                                {{ [prodi.jenjang, prodi.name].filter(Boolean).join(' ') }}
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError :message="form.errors.program_studi_id" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium">
+                                        Nomor Pendaftaran <span class="text-xs text-muted-foreground">(Opsional)</span>
+                                    </label>
+                                    <Input
+                                        v-model="form.registration_number"
+                                        placeholder="Contoh: 2026001 atau kosongkan"
+                                    />
+                                    <InputError :message="form.errors.registration_number" />
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium">
+                                        Email Mahasiswa <span class="text-xs text-muted-foreground">(Opsional, jika kosong otomatis {nim}@student.unukaltim.ac.id)</span>
+                                    </label>
+                                    <Input
+                                        v-model="form.email"
+                                        type="email"
+                                        placeholder="nama@domain.com"
+                                    />
+                                    <InputError :message="form.errors.email" />
+                                </div>
+                            </div>
                         </div>
 
                         <!--
@@ -474,7 +626,11 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
 
                         <div class="md:col-span-2">
                             <Button :disabled="form.processing">
-                                Generate PDF
+                                {{
+                                    form.processing
+                                        ? 'Memproses...'
+                                        : 'Generate PDF'
+                                }}
                             </Button>
                         </div>
                     </form>
