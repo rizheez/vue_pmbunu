@@ -120,7 +120,7 @@ const avoid = [
                         class="h-8"
                     />
                     <span class="hidden font-bold text-teal-700 md:block"
-                        >PMB UNUKALTIM</span
+                        >PMB UNU Kaltim</span
                     >
                 </div>
                 <Link

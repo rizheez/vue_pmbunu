@@ -260,7 +260,7 @@
 
         </div>
         <p class="">
-            Di- Tempat
+            di Tempat
         </p>
 
         <p class="salutation">Assalamu'alaikum Wr. Wb.</p>
@@ -316,7 +316,7 @@
                 <td class="signature-spacer"></td>
 
                 <td class="signature-block">
-                    <div>An. Rektor<br>Wakil Rektor 1,</div>
+                    <div>a.n. Rektor<br>Wakil Rektor 1,</div>
 
                     <div class="qr-wrapper">
                         <img src="{{ $qrCodeBase64 }}" class="qr-image">

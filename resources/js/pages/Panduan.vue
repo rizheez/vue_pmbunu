@@ -113,7 +113,7 @@ const avoid = [
                         />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold tracking-wide uppercase">
+                        <h1 class="text-2xl font-bold">
                             Panduan Pendaftaran Mahasiswa Baru
                         </h1>
                         <p class="text-lg opacity-95">
@@ -131,7 +131,7 @@ const avoid = [
                 v-if="activePeriod"
                 class="bg-gradient-to-r from-amber-500 to-amber-400 py-3 text-center font-semibold text-gray-900"
             >
-                📅 <strong>Periode Pendaftaran:</strong>
+                <strong>Periode Pendaftaran:</strong>
                 {{ activePeriod.name }} ({{
                     formatDate(activePeriod.start_date)
                 }}

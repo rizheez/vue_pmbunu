@@ -9,12 +9,12 @@
 
 @theme inline {
     --font-sans:
-        Inter, ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        Inter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --font-serif:
-        Merriweather, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+        Merriweather, ui-serif, Georgia, Cambria, 'Times New Roman', Times,
+        serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -86,9 +86,8 @@
     body,
     html {
         --font-sans:
-            'Inter', ui-sans-serif, system-ui, sans-serif,
-            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-            'Noto Color Emoji';
+            'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+            'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     }
 
     html {
@@ -177,8 +176,8 @@
         @apply bg-background text-foreground;
     }
 
-    h1, h2, h3, h4, h5, h6, .font-serif-heading {
-         font-family: 'Merriweather', serif;
+    .font-serif-heading {
+        font-family: var(--font-serif);
     }
 }
 

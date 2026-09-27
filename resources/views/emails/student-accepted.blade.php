@@ -11,7 +11,7 @@ Kami dengan senang hati memberitahukan bahwa Anda **diterima** sebagai calon mah
 
 ## Langkah Selanjutnya
 
-Silakan lakukan **daftar ulang** untuk mengkonfirmasi penerimaan Anda. Informasi lebih lanjut mengenai jadwal dan
+Silakan lakukan **daftar ulang** untuk mengonfirmasi penerimaan Anda. Informasi lebih lanjut mengenai jadwal dan
 prosedur daftar ulang akan diinformasikan melalui website dan email berikutnya.
 
 <x-mail::button :url="config('app.url') . '/login'">

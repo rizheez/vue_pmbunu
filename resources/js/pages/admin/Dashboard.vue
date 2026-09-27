@@ -8,8 +8,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     ProgramStudi,
     Registration,
@@ -18,27 +18,24 @@ import type {
     RegistrationType,
 } from '@/types/pmb';
 import { Deferred, Head, Link, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
 import {
     BookOpen,
-    CalendarDays,
     CheckCircle,
     Clock,
     FileCheck,
-    FileX,
     GraduationCap,
     Layers,
     Megaphone,
     RefreshCw,
-    TrendingUp,
+    Sparkles,
     UserCheck,
     UserPlus,
     Users,
     XCircle,
     Zap,
-    Sparkles,
 } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 interface ProgramStat {
     total: number;
@@ -99,8 +96,12 @@ const filterByPeriod = (periodId: number | string) => {
         '/admin/dashboard',
         {
             period_id: periodId,
-            ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
-            ...(selectedTypeId.value ? { registration_type_id: selectedTypeId.value } : {}),
+            ...(selectedPathId.value
+                ? { registration_path_id: selectedPathId.value }
+                : {}),
+            ...(selectedTypeId.value
+                ? { registration_type_id: selectedTypeId.value }
+                : {}),
         },
         { preserveState: true, preserveScroll: true },
     );
@@ -116,9 +117,20 @@ const filterByPath = (pathId: number | string) => {
         {
             period_id: props.selectedPeriod?.id ?? '',
             ...(pathId ? { registration_path_id: pathId } : {}),
-            ...(selectedTypeId.value ? { registration_type_id: selectedTypeId.value } : {}),
+            ...(selectedTypeId.value
+                ? { registration_type_id: selectedTypeId.value }
+                : {}),
         },
-        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId', 'selectedTypeId'] },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            only: [
+                'programStats',
+                'programStatsEnrolled',
+                'selectedPathId',
+                'selectedTypeId',
+            ],
+        },
     );
 };
 
@@ -128,10 +140,21 @@ const filterByType = (typeId: number | string) => {
         '/admin/dashboard',
         {
             period_id: props.selectedPeriod?.id ?? '',
-            ...(selectedPathId.value ? { registration_path_id: selectedPathId.value } : {}),
+            ...(selectedPathId.value
+                ? { registration_path_id: selectedPathId.value }
+                : {}),
             ...(typeId ? { registration_type_id: typeId } : {}),
         },
-        { preserveState: true, preserveScroll: true, only: ['programStats', 'programStatsEnrolled', 'selectedPathId', 'selectedTypeId'] },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            only: [
+                'programStats',
+                'programStatsEnrolled',
+                'selectedPathId',
+                'selectedTypeId',
+            ],
+        },
     );
 };
 
@@ -228,21 +251,31 @@ const chartSeries = computed(() => [
                 <template #fallback>
                     <Card class="border-purple-200 bg-purple-50/30">
                         <CardContent class="flex items-center gap-4 p-4">
-                            <div class="size-6 animate-pulse rounded-full bg-purple-200"></div>
+                            <div
+                                class="size-6 animate-pulse rounded-full bg-purple-200"
+                            ></div>
                             <div class="flex-1 space-y-2">
-                                <div class="h-4 w-full animate-pulse rounded bg-purple-200"></div>
-                                <div class="h-4 w-3/4 animate-pulse rounded bg-purple-200"></div>
+                                <div
+                                    class="h-4 w-full animate-pulse rounded bg-purple-200"
+                                ></div>
+                                <div
+                                    class="h-4 w-3/4 animate-pulse rounded bg-purple-200"
+                                ></div>
                             </div>
                         </CardContent>
                     </Card>
                 </template>
-                <Card class="border-purple-200 bg-gradient-to-r from-purple-50 to-white shadow-sm">
+                <Card
+                    class="border-purple-200 bg-gradient-to-r from-purple-50 to-white shadow-sm"
+                >
                     <CardContent class="flex items-start gap-4 p-4">
                         <div class="mt-1">
                             <Sparkles class="size-6 text-purple-500" />
                         </div>
                         <div>
-                            <h3 class="mb-1 font-semibold text-purple-900">✨ Insight AI</h3>
+                            <h3 class="mb-1 font-semibold text-purple-900">
+                                Insight AI
+                            </h3>
                             <p class="text-sm leading-relaxed text-purple-800">
                                 {{ props.aiInsight }}
                             </p>
@@ -266,8 +299,13 @@ const chartSeries = computed(() => [
                         <div class="text-2xl font-bold">
                             {{ props.totalStudents }}
                         </div>
-                        <div class="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                            <p>Hari ini: {{ props.todayRegistrations }} · Minggu ini: {{ props.weekRegistrations }}</p>
+                        <div
+                            class="mt-1 space-y-0.5 text-xs text-muted-foreground"
+                        >
+                            <p>
+                                Hari ini: {{ props.todayRegistrations }} ·
+                                Minggu ini: {{ props.weekRegistrations }}
+                            </p>
                             <p>Bulan ini: {{ props.monthRegistrations }}</p>
                         </div>
                     </CardContent>
@@ -484,16 +522,25 @@ const chartSeries = computed(() => [
                             v-for="wave in props.waveStats"
                             :key="wave.name"
                             class="relative overflow-hidden rounded-lg border p-4 transition-all hover:shadow-md"
-                            :class="wave.is_active ? 'border-indigo-300 bg-indigo-50/50 ring-1 ring-indigo-200' : ''"
+                            :class="
+                                wave.is_active
+                                    ? 'border-indigo-300 bg-indigo-50/50 ring-1 ring-indigo-200'
+                                    : ''
+                            "
                         >
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-muted-foreground">
+                                    <p
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
                                         {{ wave.name }}
                                     </p>
                                     <p class="mt-1 text-2xl font-bold">
                                         {{ wave.total }}
-                                        <span class="text-sm font-normal text-muted-foreground">pendaftar</span>
+                                        <span
+                                            class="text-sm font-normal text-muted-foreground"
+                                            >pendaftar</span
+                                        >
                                     </p>
                                 </div>
                                 <Badge
@@ -504,15 +551,29 @@ const chartSeries = computed(() => [
                                 </Badge>
                             </div>
                             <!-- Progress bar relative to max -->
-                            <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                            <div
+                                class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100"
+                            >
                                 <div
                                     class="h-full rounded-full transition-all"
-                                    :class="wave.is_active ? 'bg-indigo-500' : 'bg-gray-300'"
+                                    :class="
+                                        wave.is_active
+                                            ? 'bg-indigo-500'
+                                            : 'bg-gray-300'
+                                    "
                                     :style="{
-                                        width: Math.max(
-                                            (wave.total / Math.max(...props.waveStats.map(w => w.total), 1)) * 100,
-                                            wave.total > 0 ? 5 : 0
-                                        ) + '%',
+                                        width:
+                                            Math.max(
+                                                (wave.total /
+                                                    Math.max(
+                                                        ...props.waveStats.map(
+                                                            (w) => w.total,
+                                                        ),
+                                                        1,
+                                                    )) *
+                                                    100,
+                                                wave.total > 0 ? 5 : 0,
+                                            ) + '%',
                                     }"
                                 ></div>
                             </div>
@@ -536,9 +597,16 @@ const chartSeries = computed(() => [
                                 v-if="props.registrationPaths.length > 0"
                                 class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                                 :value="selectedPathId"
-                                @change="filterByPath(($event.target as HTMLSelectElement).value)"
+                                @change="
+                                    filterByPath(
+                                        ($event.target as HTMLSelectElement)
+                                            .value,
+                                    )
+                                "
                             >
-                                <option value="">Semua Jalur Pendaftaran</option>
+                                <option value="">
+                                    Semua Jalur Pendaftaran
+                                </option>
                                 <option
                                     v-for="path in props.registrationPaths"
                                     :key="path.id"
@@ -551,9 +619,16 @@ const chartSeries = computed(() => [
                                 v-if="props.registrationTypes.length > 0"
                                 class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                                 :value="selectedTypeId"
-                                @change="filterByType(($event.target as HTMLSelectElement).value)"
+                                @change="
+                                    filterByType(
+                                        ($event.target as HTMLSelectElement)
+                                            .value,
+                                    )
+                                "
                             >
-                                <option value="">Semua Jenis Pendaftaran</option>
+                                <option value="">
+                                    Semua Jenis Pendaftaran
+                                </option>
                                 <option
                                     v-for="type in props.registrationTypes"
                                     :key="type.id"
@@ -578,7 +653,9 @@ const chartSeries = computed(() => [
                                     class="space-y-4"
                                 >
                                     <div
-                                        v-for="(stat, index) in props.programStats"
+                                        v-for="(
+                                            stat, index
+                                        ) in props.programStats"
                                         :key="stat.program_studi.id"
                                         class="flex items-center justify-between"
                                     >
@@ -593,7 +670,9 @@ const chartSeries = computed(() => [
                                                 {{ stat.program_studi.name }}
                                             </span>
                                         </div>
-                                        <Badge>{{ stat.total }} pendaftar</Badge>
+                                        <Badge
+                                            >{{ stat.total }} pendaftar</Badge
+                                        >
                                     </div>
                                 </div>
                                 <p v-else class="text-center text-gray-500">
@@ -606,7 +685,9 @@ const chartSeries = computed(() => [
                                     class="space-y-4"
                                 >
                                     <div
-                                        v-for="(stat, index) in props.programStatsEnrolled"
+                                        v-for="(
+                                            stat, index
+                                        ) in props.programStatsEnrolled"
                                         :key="stat.program_studi.id"
                                         class="flex items-center justify-between"
                                     >
@@ -621,7 +702,11 @@ const chartSeries = computed(() => [
                                                 {{ stat.program_studi.name }}
                                             </span>
                                         </div>
-                                        <Badge variant="outline" class="border-emerald-200 bg-emerald-50 text-emerald-700">{{ stat.total }} mahasiswa</Badge>
+                                        <Badge
+                                            variant="outline"
+                                            class="border-emerald-200 bg-emerald-50 text-emerald-700"
+                                            >{{ stat.total }} mahasiswa</Badge
+                                        >
                                     </div>
                                 </div>
                                 <p v-else class="text-center text-gray-500">
@@ -662,9 +747,26 @@ const chartSeries = computed(() => [
                                             '-'
                                         }}
                                     </p>
-                                    <p class="mt-0.5 text-xs text-muted-foreground">
-                                        {{ new Date(reg.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}
-                                        {{ new Date(reg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }}
+                                    <p
+                                        class="mt-0.5 text-xs text-muted-foreground"
+                                    >
+                                        {{
+                                            new Date(
+                                                reg.created_at,
+                                            ).toLocaleDateString('id-ID', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })
+                                        }}
+                                        {{
+                                            new Date(
+                                                reg.created_at,
+                                            ).toLocaleTimeString('id-ID', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })
+                                        }}
                                     </p>
                                 </div>
                                 <Badge

@@ -297,8 +297,8 @@ const heroTypedStrings = [
                             class="h-10 w-10 object-contain"
                         />
                         <span
-                            class="font-serif-heading text-sm leading-tight font-bold text-teal-600"
-                            >PMB UNUKALTIM</span
+                            class="text-sm leading-tight font-bold text-teal-600"
+                            >PMB UNU Kaltim</span
                         >
                     </div>
 
@@ -486,7 +486,7 @@ const heroTypedStrings = [
                 class="relative z-10 mx-auto max-w-7xl px-4 py-12 text-center text-white sm:px-6 sm:py-20 lg:px-8"
             >
                 <h1
-                    class="mb-4 text-4xl font-bold text-white text-outline-black sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
+                    class="mb-4 text-4xl font-bold text-white drop-shadow-md sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
                 >
                     {{ getSetting('hero', 'hero_title', 'Selamat Datang') }}
                 </h1>
@@ -587,7 +587,6 @@ const heroTypedStrings = [
                 </div>
             </div>
         </section>
-
 
         <!-- Features -->
         <section id="features" class="bg-gray-200 py-20">
@@ -934,70 +933,136 @@ const heroTypedStrings = [
         </section>
 
         <!-- Biaya Kuliah -->
-        <section id="biaya" class="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-cyan-900 py-24 text-white">
+        <section
+            id="biaya"
+            class="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-cyan-900 py-24 text-white"
+        >
             <!-- Decorative elements -->
-            <div class="absolute top-0 left-0 h-72 w-72 rounded-full bg-teal-500/10 blur-[120px]"></div>
-            <div class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]"></div>
-            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/30 to-transparent"></div>
+            <div
+                class="absolute top-0 left-0 h-72 w-72 rounded-full bg-teal-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/30 to-transparent"
+            ></div>
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-14 text-center">
-                    <span class="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-sm font-medium text-teal-300 backdrop-blur-sm">
+                    <span
+                        class="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-sm font-medium text-teal-300 backdrop-blur-sm"
+                    >
                         <Wallet class="size-4" />
                         Transparan &amp; Terjangkau
                     </span>
-                    <h2 class="font-serif-heading mt-4 text-4xl font-bold md:text-5xl">Biaya <span class="text-teal-300">Kuliah</span></h2>
-                    <p class="mx-auto mt-4 max-w-2xl text-lg text-teal-100/80">Investasi pendidikan berkualitas dengan biaya yang bersahabat</p>
+                    <h2
+                        class="font-serif-heading mt-4 text-4xl font-bold md:text-5xl"
+                    >
+                        Biaya <span class="text-teal-300">Kuliah</span>
+                    </h2>
+                    <p class="mx-auto mt-4 max-w-2xl text-lg text-teal-100/80">
+                        Investasi pendidikan berkualitas dengan biaya yang
+                        bersahabat
+                    </p>
                 </div>
 
                 <!-- Cards Grid -->
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     <!-- Pendaftaran -->
-                    <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10">
-                        <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-green-500/20">
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10"
+                    >
+                        <div
+                            class="mb-4 flex size-12 items-center justify-center rounded-xl bg-green-500/20"
+                        >
                             <CheckCircle class="size-6 text-green-400" />
                         </div>
-                        <h3 class="text-lg font-bold text-white">Pendaftaran</h3>
-                        <p class="mt-1 text-3xl font-extrabold text-green-400">GRATIS</p>
-                        <p class="mt-2 text-sm text-teal-200/70">Pendaftaran &amp; daftar ulang tanpa biaya</p>
+                        <h3 class="text-lg font-bold text-white">
+                            Pendaftaran
+                        </h3>
+                        <p class="mt-1 text-3xl font-extrabold text-green-400">
+                            GRATIS
+                        </p>
+                        <p class="mt-2 text-sm text-teal-200/70">
+                            Pendaftaran &amp; daftar ulang tanpa biaya
+                        </p>
                     </div>
 
                     <!-- UKT Non-Farmasi -->
-                    <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10">
-                        <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-teal-500/20">
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10"
+                    >
+                        <div
+                            class="mb-4 flex size-12 items-center justify-center rounded-xl bg-teal-500/20"
+                        >
                             <GraduationCap class="size-6 text-teal-300" />
                         </div>
-                        <h3 class="text-lg font-bold text-white">UKT Non-Farmasi</h3>
-                        <p class="mt-1 text-3xl font-extrabold text-white">Rp5 <span class="text-xl">Juta</span></p>
-                        <p class="mt-2 text-sm text-teal-200/70">Per semester untuk program reguler</p>
+                        <h3 class="text-lg font-bold text-white">
+                            UKT Non-Farmasi
+                        </h3>
+                        <p class="mt-1 text-3xl font-extrabold text-white">
+                            Rp5 <span class="text-xl">Juta</span>
+                        </p>
+                        <p class="mt-2 text-sm text-teal-200/70">
+                            Per semester untuk program reguler
+                        </p>
                     </div>
 
                     <!-- UKT Farmasi -->
-                    <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10">
-                        <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-cyan-500/20">
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10"
+                    >
+                        <div
+                            class="mb-4 flex size-12 items-center justify-center rounded-xl bg-cyan-500/20"
+                        >
                             <GraduationCap class="size-6 text-cyan-300" />
                         </div>
-                        <h3 class="text-lg font-bold text-white">UKT Farmasi</h3>
-                        <p class="mt-1 text-3xl font-extrabold text-white">Rp7,5 <span class="text-xl">Juta</span></p>
-                        <p class="mt-2 text-sm text-teal-200/70">Per semester untuk program reguler</p>
+                        <h3 class="text-lg font-bold text-white">
+                            UKT Farmasi
+                        </h3>
+                        <p class="mt-1 text-3xl font-extrabold text-white">
+                            Rp7,5 <span class="text-xl">Juta</span>
+                        </p>
+                        <p class="mt-2 text-sm text-teal-200/70">
+                            Per semester untuk program reguler
+                        </p>
                     </div>
 
                     <!-- RPL / Alih Jenjang -->
-                    <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10">
-                        <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-amber-500/20">
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-teal-400/30 hover:bg-white/10"
+                    >
+                        <div
+                            class="mb-4 flex size-12 items-center justify-center rounded-xl bg-amber-500/20"
+                        >
                             <BadgePercent class="size-6 text-amber-300" />
                         </div>
-                        <h3 class="text-lg font-bold text-white">RPL / Alih Jenjang</h3>
-                        <p class="mt-1 text-3xl font-extrabold text-white">Rp120rb <span class="text-xl">/SKS</span></p>
-                        <p class="mt-2 text-sm text-teal-200/70">Pindahan &amp; alih jenjang</p>
+                        <h3 class="text-lg font-bold text-white">
+                            RPL / Alih Jenjang
+                        </h3>
+                        <p class="mt-1 text-3xl font-extrabold text-white">
+                            Rp120rb <span class="text-xl">/SKS</span>
+                        </p>
+                        <p class="mt-2 text-sm text-teal-200/70">
+                            Pindahan &amp; alih jenjang
+                        </p>
                     </div>
                 </div>
 
                 <!-- Bottom info -->
-                <div class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-sm text-teal-200/80 backdrop-blur-sm">
-                    <span class="flex items-center gap-2"><CheckCircle class="size-4 text-green-400" /> Bebas biaya gedung</span>
-                    <span class="flex items-center gap-2"><CheckCircle class="size-4 text-green-400" /> Paket opsional almamater+KTM Rp300.000</span>
+                <div
+                    class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-sm text-teal-200/80 backdrop-blur-sm"
+                >
+                    <span class="flex items-center gap-2"
+                        ><CheckCircle class="size-4 text-green-400" /> Bebas
+                        biaya gedung</span
+                    >
+                    <span class="flex items-center gap-2"
+                        ><CheckCircle class="size-4 text-green-400" /> Paket
+                        opsional almamater+KTM Rp300.000</span
+                    >
                 </div>
             </div>
         </section>

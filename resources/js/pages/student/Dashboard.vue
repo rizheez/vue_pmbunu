@@ -2,13 +2,8 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/composables/useFormat';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     Announcement,
@@ -73,7 +68,7 @@ const props = defineProps<Props>();
             >
                 <div class="relative z-10">
                     <h2 class="mb-2 text-2xl font-bold">
-                        Selamat Datang di Website PMB UNUKALTIM
+                        Selamat Datang di Website PMB UNU Kaltim
                     </h2>
                     <p class="mb-4 max-w-2xl text-teal-100">
                         Sistem Penerimaan Mahasiswa Baru Universitas Nahdlatul
@@ -91,9 +86,12 @@ const props = defineProps<Props>();
                 </div>
                 <!-- Decorative Element -->
                 <div
-                    class="absolute right-0 top-0 h-full w-1/3 translate-x-10 -translate-y-10 opacity-10"
+                    class="absolute top-0 right-0 h-full w-1/3 translate-x-10 -translate-y-10 opacity-10"
                 >
-                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                        viewBox="0 0 200 200"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
                         <path
                             fill="currentColor"
                             d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.1,-19.2,95.8,-4.9C93.5,9.3,82.3,22.9,71.3,35.1C60.3,47.3,49.5,58.1,36.9,64.9C24.3,71.7,9.9,74.5,-3.3,80.2C-16.5,85.9,-28.5,94.5,-39.2,87.3C-49.9,80.1,-59.3,57.1,-65.8,38.3C-72.3,19.5,-75.9,4.9,-73.4,-8.6C-70.9,-22.1,-62.3,-34.5,-52,-44.9C-41.7,-55.3,-29.7,-63.7,-16.8,-68.2C-3.9,-72.7,10,-73.3,23.5,-73.8L37,-74.3Z"
@@ -162,7 +160,7 @@ const props = defineProps<Props>();
                         href="/student/biodata/edit"
                         class="mt-3 font-medium underline"
                     >
-                        Perbaiki sekarang →
+                        Perbaiki sekarang
                     </Link>
                 </AlertDescription>
             </Alert>
@@ -193,10 +191,11 @@ const props = defineProps<Props>();
                                         >
                                             {{ ann.title }}
                                         </h4>
-                                        <p class="mt-2 text-sm md:text-justify text-teal-700">
+                                        <p
+                                            class="mt-2 text-sm text-teal-700 md:text-justify"
+                                        >
                                             {{ ann.content }}
                                         </p>
-
                                     </div>
                                 </div>
                             </div>
@@ -217,10 +216,7 @@ const props = defineProps<Props>();
                         <CardTitle>Biodata Wajib</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div
-                            v-if="props.biodata"
-                            class="space-y-3 text-sm"
-                        >
+                        <div v-if="props.biodata" class="space-y-3 text-sm">
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Nama Lengkap</span>
                                 <span class="font-medium">{{
@@ -261,10 +257,7 @@ const props = defineProps<Props>();
                             <p class="mb-3 text-sm text-gray-500">
                                 Biodata belum diisi.
                             </p>
-                            <Button
-                                as-child
-                                :disabled="!props.activePeriod"
-                            >
+                            <Button as-child :disabled="!props.activePeriod">
                                 <Link href="/student/biodata">Isi Biodata</Link>
                             </Button>
                         </div>
@@ -277,9 +270,14 @@ const props = defineProps<Props>();
                         <CardTitle>Status Pendaftaran</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div v-if="props.registration" class="space-y-3 text-sm">
+                        <div
+                            v-if="props.registration"
+                            class="space-y-3 text-sm"
+                        >
                             <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">No. Pendaftaran</span>
+                                <span class="text-gray-500"
+                                    >No. Pendaftaran</span
+                                >
                                 <span class="font-mono font-medium">{{
                                     props.registration.registration_number ||
                                     '-'
@@ -313,23 +311,34 @@ const props = defineProps<Props>();
                             </div>
                             <div class="flex justify-between border-b pb-2">
                                 <span class="text-gray-500">Status</span>
-                                <Badge :class="props.registration?.status_badge_class">{{
-                                    props.registration?.status_label ||
-                                    props.registration?.status
-                                }} </Badge>
-
+                                <Badge
+                                    :class="
+                                        props.registration?.status_badge_class
+                                    "
+                                    >{{
+                                        props.registration?.status_label ||
+                                        props.registration?.status
+                                    }}
+                                </Badge>
                             </div>
 
                             <!-- Accepted -->
                             <div
                                 v-if="
-                                    ['accepted', 're_registration_pending'].includes(props.registration?.status || '') &&
+                                    [
+                                        'accepted',
+                                        're_registration_pending',
+                                    ].includes(
+                                        props.registration?.status || '',
+                                    ) &&
                                     props.registration?.accepted_program_studi
                                 "
                                 class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
                             >
                                 <div class="mb-2 flex items-center gap-2">
-                                    <PartyPopper class="size-5 text-green-600" />
+                                    <PartyPopper
+                                        class="size-5 text-green-600"
+                                    />
                                     <span class="font-semibold text-green-800"
                                         >Selamat! Anda Diterima</span
                                     >
@@ -363,22 +372,39 @@ const props = defineProps<Props>();
                                 class="mt-4 rounded-lg border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-4"
                             >
                                 <div class="mb-3 flex items-center gap-2">
-                                    <PartyPopper class="size-5 text-emerald-600" />
+                                    <PartyPopper
+                                        class="size-5 text-emerald-600"
+                                    />
                                     <span class="font-semibold text-emerald-800"
                                         >Anda Resmi Menjadi Mahasiswa!</span
                                     >
                                 </div>
                                 <div class="space-y-2 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="text-gray-600">Program Studi:</span>
-                                        <span class="font-medium text-emerald-900">
-                                            {{ props.registration.accepted_program_studi?.name }}
+                                        <span class="text-gray-600"
+                                            >Program Studi:</span
+                                        >
+                                        <span
+                                            class="font-medium text-emerald-900"
+                                        >
+                                            {{
+                                                props.registration
+                                                    .accepted_program_studi
+                                                    ?.name
+                                            }}
                                         </span>
                                     </div>
-                                    <div class="flex justify-between border-t border-emerald-200 pt-2">
+                                    <div
+                                        class="flex justify-between border-t border-emerald-200 pt-2"
+                                    >
                                         <span class="text-gray-600">NIM:</span>
-                                        <span class="font-mono text-lg font-bold text-emerald-700">
-                                            {{ props.registration.user?.nim || '-' }}
+                                        <span
+                                            class="font-mono text-lg font-bold text-emerald-700"
+                                        >
+                                            {{
+                                                props.registration.user?.nim ||
+                                                '-'
+                                            }}
                                         </span>
                                     </div>
                                 </div>
@@ -386,7 +412,10 @@ const props = defineProps<Props>();
 
                             <!-- Admission Letter -->
                             <div
-                                v-if="props.admissionLetter && props.admissionLetterUrl"
+                                v-if="
+                                    props.admissionLetter &&
+                                    props.admissionLetterUrl
+                                "
                                 class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4"
                             >
                                 <div class="mb-3 flex items-center gap-2">
@@ -397,15 +426,29 @@ const props = defineProps<Props>();
                                 </div>
                                 <div class="space-y-2 text-sm text-blue-800">
                                     <div class="flex justify-between gap-4">
-                                        <span class="text-blue-700">Nomor Surat:</span>
-                                        <span class="font-mono font-medium text-right">
-                                            {{ props.admissionLetter.letter_number }}
+                                        <span class="text-blue-700"
+                                            >Nomor Surat:</span
+                                        >
+                                        <span
+                                            class="text-right font-mono font-medium"
+                                        >
+                                            {{
+                                                props.admissionLetter
+                                                    .letter_number
+                                            }}
                                         </span>
                                     </div>
                                     <div class="flex justify-between gap-4">
-                                        <span class="text-blue-700">Tanggal:</span>
+                                        <span class="text-blue-700"
+                                            >Tanggal:</span
+                                        >
                                         <span class="font-medium">
-                                            {{ formatDate(props.admissionLetter.letter_date) }}
+                                            {{
+                                                formatDate(
+                                                    props.admissionLetter
+                                                        .letter_date,
+                                                )
+                                            }}
                                         </span>
                                     </div>
                                 </div>
@@ -413,7 +456,10 @@ const props = defineProps<Props>();
                                     as-child
                                     class="mt-4 w-full bg-blue-600 text-white hover:bg-blue-700"
                                 >
-                                    <a :href="props.admissionLetterUrl" target="_blank">
+                                    <a
+                                        :href="props.admissionLetterUrl"
+                                        target="_blank"
+                                    >
                                         <Download class="mr-2 size-4" />
                                         Download Surat Penerimaan
                                     </a>
@@ -445,7 +491,7 @@ const props = defineProps<Props>();
                             </div>
 
                             <!-- Print Registration Card Button -->
-                            <div class="mt-4 pt-4 border-t">
+                            <div class="mt-4 border-t pt-4">
                                 <Button
                                     as-child
                                     variant="outline"
@@ -472,7 +518,9 @@ const props = defineProps<Props>();
                             </p>
                             <Button
                                 as-child
-                                :disabled="!props.activePeriod || !props.biodata"
+                                :disabled="
+                                    !props.activePeriod || !props.biodata
+                                "
                             >
                                 <Link href="/student/pendaftaran"
                                     >Daftar Sekarang</Link
