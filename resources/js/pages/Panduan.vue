@@ -90,22 +90,22 @@ const avoid = [
     <Head title="Panduan Pendaftaran" />
 
     <!-- Print Button -->
-    <Button @click="printPage" class="fixed top-5 right-5 z-50 print:hidden">
+    <Button @click="printPage" class="fixed bottom-5 right-5 sm:bottom-auto sm:top-5 sm:right-5 z-50 shadow-lg print:hidden">
         <Printer class="mr-2 size-4" />
         Cetak Poster
     </Button>
 
-    <div class="min-h-screen bg-white print:bg-white">
+    <div class="min-h-screen bg-slate-100 py-0 sm:py-8 print:bg-white print:py-0">
         <!-- A4 Container -->
         <div
-            class="relative mx-auto w-[210mm] overflow-hidden bg-white print:w-full"
+            class="relative mx-auto w-full max-w-[210mm] overflow-hidden bg-white shadow-xl sm:rounded-xl print:max-w-none print:w-full print:rounded-none print:shadow-none"
         >
             <!-- Header -->
             <div
-                class="relative bg-gradient-to-r from-teal-600 via-teal-700 to-cyan-700 px-8 py-6 text-white"
+                class="relative bg-gradient-to-r from-teal-600 via-teal-700 to-cyan-700 px-4 py-6 sm:px-8 text-white print:px-8"
             >
-                <div class="relative z-10 flex items-center gap-6">
-                    <div class="h-20 w-20 rounded-lg bg-white p-2 shadow-lg">
+                <div class="relative z-10 flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 sm:gap-6 print:flex-row print:text-left print:gap-6">
+                    <div class="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded-lg bg-white p-2 shadow-lg">
                         <img
                             src="/assets/images/logo_unu.png"
                             alt="Logo UNU"
@@ -113,10 +113,10 @@ const avoid = [
                         />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold">
+                        <h1 class="text-xl sm:text-2xl font-bold">
                             Panduan Pendaftaran Mahasiswa Baru
                         </h1>
-                        <p class="text-lg opacity-95">
+                        <p class="text-base sm:text-lg opacity-95">
                             Universitas Nahdlatul Ulama Kalimantan Timur
                         </p>
                     </div>
@@ -129,7 +129,7 @@ const avoid = [
             <!-- Period Banner -->
             <div
                 v-if="activePeriod"
-                class="bg-gradient-to-r from-amber-500 to-amber-400 py-3 text-center font-semibold text-gray-900"
+                class="bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-3 text-center text-sm sm:text-base font-semibold text-gray-900"
             >
                 <strong>Periode Pendaftaran:</strong>
                 {{ activePeriod.name }} ({{
@@ -139,36 +139,36 @@ const avoid = [
             </div>
 
             <!-- Main Content -->
-            <div class="p-6">
+            <div class="p-4 sm:p-6 print:p-6">
                 <!-- Steps Section -->
                 <div class="mb-5 text-center">
                     <h2
-                        class="inline-flex items-center gap-3 text-xl font-bold text-teal-600"
+                        class="inline-flex items-center gap-3 text-lg sm:text-xl font-bold text-teal-600"
                     >
                         <span
-                            class="h-1 w-12 rounded bg-gradient-to-r from-transparent to-teal-500"
+                            class="h-1 w-8 sm:w-12 rounded bg-gradient-to-r from-transparent to-teal-500"
                         ></span>
                         Langkah Pendaftaran
                         <span
-                            class="h-1 w-12 rounded bg-gradient-to-l from-transparent to-teal-500"
+                            class="h-1 w-8 sm:w-12 rounded bg-gradient-to-l from-transparent to-teal-500"
                         ></span>
                     </h2>
                 </div>
 
-                <div class="mb-5 grid grid-cols-2 gap-3">
+                <div class="mb-5 grid grid-cols-1 sm:grid-cols-2 gap-3 print:grid-cols-2">
                     <div
                         v-for="step in steps"
                         :key="step.number"
                         :class="[
                             'rounded-lg border p-4',
                             step.highlight
-                                ? 'col-span-2 border-teal-300 bg-gradient-to-br from-teal-50 to-cyan-50'
+                                ? 'col-span-1 sm:col-span-2 print:col-span-2 border-teal-300 bg-gradient-to-br from-teal-50 to-cyan-50'
                                 : 'border-gray-200 bg-gradient-to-br from-gray-50 to-white',
                         ]"
                     >
                         <div class="mb-2 flex items-center gap-3">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-700 text-sm font-bold text-white shadow"
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-700 text-sm font-bold text-white shadow"
                             >
                                 {{ step.number }}
                             </div>
@@ -183,7 +183,7 @@ const avoid = [
                 </div>
 
                 <!-- Info Cards -->
-                <div class="mb-5 grid grid-cols-3 gap-3">
+                <div class="mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 print:grid-cols-3">
                     <!-- Documents -->
                     <div
                         class="rounded-lg border border-teal-200 bg-gradient-to-br from-teal-50 to-white p-3"
@@ -271,7 +271,7 @@ const avoid = [
 
                 <!-- QR Section -->
                 <div
-                    class="mb-4 flex gap-4 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 p-5"
+                    class="mb-4 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 p-4 sm:p-5 print:flex-row print:text-left"
                 >
                     <div
                         class="h-24 w-24 shrink-0 rounded-lg bg-white p-1.5 shadow-lg"
@@ -297,10 +297,10 @@ const avoid = [
                 </div>
 
                 <!-- Contact -->
-                <div class="mb-4 flex justify-center gap-5">
+                <div class="mb-4 flex flex-col sm:flex-row justify-center gap-3 sm:gap-5">
                     <div
                         v-if="contactPhone"
-                        class="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm"
+                        class="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm"
                     >
                         <Phone class="size-4 text-teal-600" />
                         <span
@@ -310,7 +310,7 @@ const avoid = [
                     </div>
                     <div
                         v-if="contactEmail"
-                        class="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm"
+                        class="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm"
                     >
                         <Mail class="size-4 text-teal-600" />
                         <span

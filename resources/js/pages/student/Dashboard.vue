@@ -543,60 +543,62 @@ const props = defineProps<Props>();
                     <CardTitle>Alur Pendaftaran</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div class="relative">
-                        <div
-                            class="absolute inset-0 flex items-center"
-                            aria-hidden="true"
-                        >
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-between">
+                    <div class="overflow-x-auto pb-4 pt-2 -mx-2 px-2 sm:mx-0 sm:px-0">
+                        <div class="relative min-w-[520px] sm:min-w-0">
                             <div
-                                v-for="(step, index) in props.steps"
-                                :key="step.name"
-                                class="group flex flex-col items-center"
+                                class="absolute inset-0 flex items-center"
+                                aria-hidden="true"
                             >
-                                <span
-                                    class="flex size-8 items-center justify-center rounded-full ring-4 ring-white"
-                                    :class="{
-                                        'bg-red-600': step.failed,
-                                        'bg-teal-600':
-                                            step.completed && !step.failed,
-                                        'bg-blue-600':
-                                            step.active &&
-                                            !step.completed &&
-                                            !step.failed,
-                                        'bg-gray-200':
-                                            !step.failed &&
-                                            !step.completed &&
-                                            !step.active,
-                                    }"
+                                <div class="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div class="relative flex justify-between">
+                                <div
+                                    v-for="(step, index) in props.steps"
+                                    :key="step.name"
+                                    class="group flex flex-col items-center"
                                 >
-                                    <X
-                                        v-if="step.failed"
-                                        class="size-5 text-white"
-                                    />
-                                    <Check
-                                        v-else-if="step.completed"
-                                        class="size-5 text-white"
-                                    />
-                                    <span v-else class="text-xs text-white">{{
-                                        index + 1
-                                    }}</span>
-                                </span>
-                                <span
-                                    class="mt-2 text-xs font-medium"
-                                    :class="{
-                                        'text-red-600': step.failed,
-                                        'text-gray-900':
-                                            step.active || step.completed,
-                                        'text-gray-500':
-                                            !step.failed &&
-                                            !step.active &&
-                                            !step.completed,
-                                    }"
-                                    >{{ step.name }}</span
-                                >
+                                    <span
+                                        class="flex size-8 items-center justify-center rounded-full ring-4 ring-white"
+                                        :class="{
+                                            'bg-red-600': step.failed,
+                                            'bg-teal-600':
+                                                step.completed && !step.failed,
+                                            'bg-blue-600':
+                                                step.active &&
+                                                !step.completed &&
+                                                !step.failed,
+                                            'bg-gray-200':
+                                                !step.failed &&
+                                                !step.completed &&
+                                                !step.active,
+                                        }"
+                                    >
+                                        <X
+                                            v-if="step.failed"
+                                            class="size-5 text-white"
+                                        />
+                                        <Check
+                                            v-else-if="step.completed"
+                                            class="size-5 text-white"
+                                        />
+                                        <span v-else class="text-xs text-white">{{
+                                            index + 1
+                                        }}</span>
+                                    </span>
+                                    <span
+                                        class="mt-2 text-xs font-medium text-center max-w-[90px]"
+                                        :class="{
+                                            'text-red-600': step.failed,
+                                            'text-gray-900':
+                                                step.active || step.completed,
+                                            'text-gray-500':
+                                                !step.failed &&
+                                                !step.active &&
+                                                !step.completed,
+                                        }"
+                                        >{{ step.name }}</span
+                                    >
+                                </div>
                             </div>
                         </div>
                     </div>

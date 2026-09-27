@@ -346,7 +346,8 @@ const heroTypedStrings = [
                         <!-- Mobile Menu Button -->
                         <button
                             @click="isMobileMenuOpen = !isMobileMenuOpen"
-                            class="rounded-lg p-2 text-gray-700 transition hover:bg-gray-100 lg:hidden"
+                            class="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-gray-700 transition hover:bg-gray-100 lg:hidden"
+                            aria-label="Toggle navigation menu"
                         >
                             <Menu v-if="!isMobileMenuOpen" class="size-6" />
                             <X v-else class="size-6" />
@@ -374,49 +375,49 @@ const heroTypedStrings = [
                 <!-- Mobile Menu -->
                 <div
                     v-show="isMobileMenuOpen"
-                    class="border-t border-gray-200 pb-4 lg:hidden"
+                    class="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-gray-200 pb-4 lg:hidden"
                 >
-                    <div class="flex flex-col space-y-2 pt-2">
+                    <div class="flex flex-col space-y-1 pt-2">
                         <a
                             href="#home"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Beranda</a
                         >
                         <a
                             href="#features"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Keunggulan</a
                         >
                         <a
                             href="#steps"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Alur Pendaftaran</a
                         >
                         <a
                             href="#programs"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Program Studi</a
                         >
                         <a
                             href="#biaya"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Biaya</a
                         >
                         <a
                             href="#about"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Tentang</a
                         >
                         <a
                             href="#contact"
                             @click="isMobileMenuOpen = false"
-                            class="rounded-lg px-3 py-2 text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
+                            class="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-teal-50 hover:text-teal-600"
                             >Kontak</a
                         >
 
@@ -424,14 +425,14 @@ const heroTypedStrings = [
                             <Button
                                 v-if="user"
                                 as-child
-                                class="w-full rounded-full bg-teal-600 text-white hover:bg-teal-700"
+                                class="min-h-[44px] w-full rounded-full bg-teal-600 text-white hover:bg-teal-700"
                             >
                                 <Link :href="dashboardUrl">Dashboard</Link>
                             </Button>
                             <Button
                                 v-else
                                 as-child
-                                class="w-full rounded-full bg-teal-600 text-white hover:bg-teal-700"
+                                class="min-h-[44px] w-full rounded-full bg-teal-600 text-white hover:bg-teal-700"
                             >
                                 <Link href="/login">Login</Link>
                             </Button>
@@ -589,13 +590,13 @@ const heroTypedStrings = [
         </section>
 
         <!-- Features -->
-        <section id="features" class="bg-gray-200 py-20">
+        <section id="features" class="border-y border-slate-200/80 bg-slate-50 py-14 sm:py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mb-16 text-center">
-                    <h2 class="mb-4 text-4xl font-bold text-gray-900">
+                <div class="mb-10 sm:mb-16 text-center">
+                    <h2 class="mb-4 text-3xl sm:text-4xl font-bold text-gray-900">
                         Keunggulan Kami
                     </h2>
-                    <p class="text-xl text-gray-600">
+                    <p class="text-lg sm:text-xl text-gray-600">
                         Mengapa memilih kami untuk masa depan pendidikan Anda
                     </p>
                 </div>
@@ -604,7 +605,7 @@ const heroTypedStrings = [
                     <div
                         v-for="(f, i) in features"
                         :key="i"
-                        class="rounded-2xl bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                        class="rounded-2xl border border-slate-200/60 bg-white p-6 sm:p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                     >
                         <div
                             class="mb-6 flex size-16 items-center justify-center rounded-full bg-teal-100"
@@ -614,10 +615,10 @@ const heroTypedStrings = [
                                 class="size-8 text-teal-600"
                             />
                         </div>
-                        <h3 class="mb-4 text-2xl font-bold text-gray-900">
+                        <h3 class="mb-4 text-xl sm:text-2xl font-bold text-gray-900">
                             {{ f.title }}
                         </h3>
-                        <p class="text-justify leading-relaxed text-gray-600">
+                        <p class="leading-relaxed text-gray-600">
                             {{ f.description }}
                         </p>
                     </div>
@@ -667,7 +668,7 @@ const heroTypedStrings = [
         <!-- Registration Steps -->
         <section
             id="steps"
-            class="relative overflow-hidden bg-gradient-to-b from-[#0B1120] via-[#0D4E45] to-[#0B1120] py-24 text-white"
+            class="relative overflow-hidden bg-gradient-to-b from-[#0B1120] via-[#0D4E45] to-[#0B1120] py-14 sm:py-24 text-white"
         >
             <!-- Background Elements -->
             <div
@@ -686,7 +687,7 @@ const heroTypedStrings = [
             ></div>
 
             <div class="relative mx-auto max-w-7xl px-4">
-                <div class="mb-16 text-center">
+                <div class="mb-10 sm:mb-16 text-center">
                     <Link
                         href="/panduan-lengkap"
                         class="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-900/30 px-4 py-1.5 text-sm font-medium text-teal-300 transition hover:bg-teal-900/50"
@@ -696,11 +697,11 @@ const heroTypedStrings = [
                     </Link>
 
                     <h2
-                        class="font-serif-heading mb-4 text-4xl font-bold md:text-5xl"
+                        class="font-serif-heading mb-4 text-3xl sm:text-4xl font-bold md:text-5xl"
                     >
                         Alur Pendaftaran <span class="text-teal-400">PMB</span>
                     </h2>
-                    <p class="mx-auto max-w-2xl text-lg text-gray-300">
+                    <p class="mx-auto max-w-2xl text-base sm:text-lg text-gray-300">
                         Ikuti 5 langkah mudah berikut untuk menyelesaikan
                         pendaftaran mahasiswa baru
                     </p>
@@ -794,7 +795,7 @@ const heroTypedStrings = [
                 </div>
 
                 <div
-                    class="mt-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
+                    class="mt-10 sm:mt-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
                 >
                     <Button
                         as-child
@@ -823,13 +824,13 @@ const heroTypedStrings = [
         </section>
 
         <!-- Programs -->
-        <section id="programs" class="bg-white py-20">
+        <section id="programs" class="bg-white py-14 sm:py-20">
             <div class="mx-auto max-w-7xl px-4">
-                <div class="mb-16 text-center">
-                    <h2 class="mb-4 text-4xl font-bold text-gray-900">
+                <div class="mb-10 sm:mb-16 text-center">
+                    <h2 class="mb-4 text-3xl sm:text-4xl font-bold text-gray-900">
                         Program Studi
                     </h2>
-                    <p class="text-xl text-gray-600">
+                    <p class="text-lg sm:text-xl text-gray-600">
                         Pilih program studi yang sesuai dengan minat dan bakatmu
                     </p>
                 </div>
@@ -935,7 +936,7 @@ const heroTypedStrings = [
         <!-- Biaya Kuliah -->
         <section
             id="biaya"
-            class="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-cyan-900 py-24 text-white"
+            class="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-cyan-900 py-14 sm:py-24 text-white"
         >
             <!-- Decorative elements -->
             <div
@@ -950,7 +951,7 @@ const heroTypedStrings = [
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
-                <div class="mb-14 text-center">
+                <div class="mb-10 sm:mb-14 text-center">
                     <span
                         class="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-sm font-medium text-teal-300 backdrop-blur-sm"
                     >
@@ -958,11 +959,11 @@ const heroTypedStrings = [
                         Transparan &amp; Terjangkau
                     </span>
                     <h2
-                        class="font-serif-heading mt-4 text-4xl font-bold md:text-5xl"
+                        class="font-serif-heading mt-4 text-3xl sm:text-4xl font-bold md:text-5xl"
                     >
                         Biaya <span class="text-teal-300">Kuliah</span>
                     </h2>
-                    <p class="mx-auto mt-4 max-w-2xl text-lg text-teal-100/80">
+                    <p class="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-teal-100/80">
                         Investasi pendidikan berkualitas dengan biaya yang
                         bersahabat
                     </p>
@@ -1068,11 +1069,11 @@ const heroTypedStrings = [
         </section>
 
         <!-- About -->
-        <section id="about" class="bg-gray-200 py-20">
+        <section id="about" class="border-y border-slate-200/80 bg-slate-50 py-14 sm:py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="grid items-center gap-12 md:grid-cols-2">
+                <div class="grid items-center gap-8 md:gap-12 md:grid-cols-2">
                     <div>
-                        <h2 class="mb-6 text-4xl font-bold text-gray-900">
+                        <h2 class="mb-6 text-3xl sm:text-4xl font-bold text-gray-900">
                             {{
                                 getSetting(
                                     'about',
@@ -1082,7 +1083,7 @@ const heroTypedStrings = [
                             }}
                         </h2>
                         <div
-                            class="space-y-4 text-justify leading-relaxed text-gray-600"
+                            class="space-y-4 leading-relaxed text-gray-600"
                         >
                             <p>
                                 {{
@@ -1112,39 +1113,50 @@ const heroTypedStrings = [
         </section>
 
         <!-- Location Map -->
-        <section id="location" class="bg-gray-50 py-20">
+        <section id="location" class="bg-white py-14 sm:py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mb-12 text-center">
-                    <h2 class="mb-4 text-4xl font-bold text-gray-900">
+                <div class="mb-10 sm:mb-12 text-center">
+                    <h2 class="mb-4 text-3xl sm:text-4xl font-bold text-gray-900">
                         Lokasi Kampus
                     </h2>
-                    <p class="text-xl text-gray-600">
+                    <p class="text-lg sm:text-xl text-gray-600">
                         Kunjungi kampus kami di Samarinda
                     </p>
                 </div>
-                <div class="overflow-hidden rounded-2xl shadow-lg">
+                <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-lg">
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6709.759363348243!2d117.12728847972218!3d-0.531295777316329!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2df67f382d6e5633%3A0xb15fef11f1f68259!2sNahdlatul%20Ulama%20University%20SAMARINDA%20-%20CAMPUS%202!5e0!3m2!1sen!2sid!4v1767164903242!5m2!1sen!2sid"
                         width="100%"
-                        height="450"
+                        height="400"
                         style="border: 0"
                         allowfullscreen="true"
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"
-                        class="w-full"
+                        class="h-[300px] w-full sm:h-[400px]"
                     ></iframe>
+                </div>
+                <div class="mt-4 text-center">
+                    <a
+                        href="https://maps.google.com/?q=Nahdlatul+Ulama+University+SAMARINDA+-+CAMPUS+2"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-teal-50 px-4 py-2 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+                    >
+                        <MapPin class="size-4" />
+                        Buka di Google Maps
+                    </a>
                 </div>
             </div>
         </section>
 
         <!-- Contact -->
-        <section id="contact" class="bg-white py-20">
+        <section id="contact" class="border-t border-slate-200/80 bg-slate-50 py-14 sm:py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mb-16 text-center">
-                    <h2 class="mb-4 text-4xl font-bold text-gray-900">
+                <div class="mb-10 sm:mb-16 text-center">
+                    <h2 class="mb-4 text-3xl sm:text-4xl font-bold text-gray-900">
                         Hubungi Kami
                     </h2>
-                    <p class="text-xl text-gray-600">
+                    <p class="text-lg sm:text-xl text-gray-600">
                         Kami siap membantu menjawab pertanyaan Anda
                     </p>
                 </div>

@@ -217,7 +217,7 @@ function formatMarkdown(content: string) {
 
 <template>
     <!-- Floating Button -->
-    <div class="fixed right-6 bottom-6 z-50">
+    <div class="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-50">
         <Button
             v-if="!isOpen && !isMenuOpen"
             size="lg"
@@ -238,7 +238,7 @@ function formatMarkdown(content: string) {
         >
             <div
                 v-if="isMenuOpen"
-                class="absolute right-0 bottom-0 flex w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-[#f4f5f7] shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+                class="absolute right-0 bottom-0 flex w-[360px] max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] sm:max-w-[360px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-[#f4f5f7] shadow-2xl dark:border-gray-700 dark:bg-gray-900"
             >
                 <!-- Header -->
                 <div
@@ -432,7 +432,7 @@ function formatMarkdown(content: string) {
         >
             <div
                 v-if="isOpen"
-                class="absolute right-0 bottom-0 flex h-[500px] w-[380px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+                class="absolute right-0 bottom-0 flex h-[500px] max-h-[calc(100dvh-5rem)] w-[380px] max-w-[calc(100vw-2rem)] sm:max-w-[380px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
             >
                 <!-- Header -->
                 <div
