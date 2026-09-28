@@ -197,3 +197,46 @@ it('omits no pendaftaran in admission letter pdf when registration number is emp
 
     expect($pageCount)->toBe(1);
 });
+
+it('generates admission letter pdf for manual student without registration record', function () {
+    $fakultas = Fakultas::firstOrCreate(
+        ['id' => 1],
+        ['name' => 'Fakultas Ekonomi dan Bisnis', 'code' => 'FEB', 'is_active' => true]
+    );
+
+    $prodi = ProgramStudi::firstOrCreate(
+        ['code' => 'AKT'],
+        ['fakultas_id' => $fakultas->id, 'name' => 'Akuntansi', 'nim_code' => '0203', 'jenjang' => 'S1', 'quota' => 100, 'is_active' => true]
+    );
+
+    $user = User::factory()->create([
+        'name' => 'AJI PUTRI MAHARANI',
+        'nim' => '240105099',
+    ]);
+
+    StudentBiodata::create([
+        'user_id' => $user->id,
+        'name' => 'AJI PUTRI MAHARANI',
+    ]);
+
+    $letter = AdmissionLetter::create([
+        'user_id' => $user->id,
+        'entry_mode' => 'manual',
+        'program_studi_id' => $prodi->id,
+        'registration_number' => null,
+        'source_type' => 'generate_web',
+        'letter_number' => '275/PMB/UNU-KT/09/2026',
+        'letter_date' => now(),
+        'subject' => 'Pemberitahuan',
+        'signatory_name' => 'Drs. H. Sus Eko Zuhri Ernada, Grad.Dipl.IR., M.A., P.hD., CIQnR., CIQaR.',
+        'verification_token' => Str::random(24),
+        'created_by' => $user->id,
+        'generated_at' => now(),
+    ]);
+
+    $service = app(AdmissionLetterPdfService::class);
+    $path = $service->generate($letter);
+
+    expect($path)->not->toBeNull();
+    expect(Storage::disk('public')->exists($path))->toBeTrue();
+});

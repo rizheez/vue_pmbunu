@@ -277,12 +277,17 @@
                 sebagai Mahasiswa Universitas Nahdlatul Ulama Kalimantan Timur</strong> dengan data sebagai berikut:
         </p>
 
+        @php
+            $regNumber = $registrationNumber ?? $registration?->registration_number;
+            $prodi = $programStudi ?? $registration?->acceptedProgramStudi;
+        @endphp
+
         <table class="student-table" style="margin-left: 10mm;">
-            @if (!empty(trim((string) ($registration->registration_number ?? ''))) && $registration->registration_number !== '-')
+            @if (!empty(trim((string) ($regNumber ?? ''))) && $regNumber !== '-')
                 <tr>
                     <td class="student-label">No. Pendaftaran</td>
                     <td class="colon">:</td>
-                    <td>{{ $registration->registration_number }}</td>
+                    <td>{{ $regNumber }}</td>
                 </tr>
             @endif
             <tr>
@@ -294,8 +299,8 @@
                 <td>Program Studi</td>
                 <td>:</td>
                 <td>
-                    {{ $registration->acceptedProgramStudi?->jenjang }}
-                    {{ $registration->acceptedProgramStudi?->name ?? '-' }}
+                    {{ $prodi?->jenjang }}
+                    {{ $prodi?->name ?? '-' }}
                 </td>
             </tr>
             <tr>

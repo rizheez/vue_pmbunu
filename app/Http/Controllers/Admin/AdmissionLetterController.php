@@ -9,9 +9,6 @@ use App\Http\Requests\Admin\StoreAdmissionLetterRequest;
 use App\Mail\AdmissionLetterMail;
 use App\Models\AdmissionLetter;
 use App\Models\ProgramStudi;
-use App\Models\Registration;
-use App\Models\RegistrationPeriod;
-use App\Models\RegistrationType;
 use App\Models\StudentBiodata;
 use App\Models\User;
 use App\Services\AdmissionLetterPdfService;
@@ -53,6 +50,7 @@ class AdmissionLetterController extends Controller
             ->with([
                 'user:id,name,email,nim',
                 'user.studentBiodata:id,user_id,name',
+                'programStudi:id,jenjang,name',
                 'user.registration:id,user_id,accepted_program_studi_id',
                 'user.registration.acceptedProgramStudi:id,jenjang,name',
                 'creator:id,name',
@@ -62,6 +60,7 @@ class AdmissionLetterController extends Controller
 
                 $query->where(function ($letterQuery) use ($search) {
                     $letterQuery->where('letter_number', 'like', "%{$search}%")
+                        ->orWhere('admission_letters.registration_number', 'like', "%{$search}%")
                         ->orWhereHas('user', fn ($userQuery) => $userQuery
                             ->where('name', 'like', "%{$search}%")
                             ->orWhere('nim', 'like', "%{$search}%"));
@@ -154,49 +153,26 @@ class AdmissionLetterController extends Controller
                     ['name' => $name]
                 );
 
-                $activePeriodId = RegistrationPeriod::where('is_active', true)->value('id')
-                    ?? RegistrationPeriod::latest('id')->value('id');
-                $defaultTypeId = RegistrationType::where('is_active', true)->value('id')
-                    ?? RegistrationType::first()?->id
-                    ?? 1;
-
                 $regNumber = ! empty($validated['registration_number']) ? trim((string) $validated['registration_number']) : null;
-
-                $registration = Registration::firstOrCreate(
-                    ['user_id' => $student->id],
-                    [
-                        'registration_number' => $regNumber,
-                        'accepted_program_studi_id' => $validated['program_studi_id'],
-                        'status' => 'enrolled',
-                        'registration_period_id' => $activePeriodId,
-                        'registration_type_id' => $defaultTypeId,
-                    ]
-                );
-
-                $updateData = [];
-                if ((int) $registration->accepted_program_studi_id !== (int) $validated['program_studi_id']) {
-                    $updateData['accepted_program_studi_id'] = $validated['program_studi_id'];
-                }
-                if ($registration->status !== 'enrolled') {
-                    $updateData['status'] = 'enrolled';
-                }
-                if ($regNumber !== null && $registration->registration_number !== $regNumber) {
-                    $updateData['registration_number'] = $regNumber;
-                }
-                if (! empty($updateData)) {
-                    $registration->update($updateData);
-                }
+                $prodiId = (int) $validated['program_studi_id'];
             } else {
                 $student = User::query()
                     ->where('role', 'student')
                     ->whereNotNull('nim')
                     ->whereDoesntHave('admissionLetter')
                     ->whereHas('registration', fn ($query) => $query->where('status', 'enrolled'))
+                    ->with('registration')
                     ->findOrFail($validated['user_id']);
+
+                $regNumber = $student->registration?->registration_number;
+                $prodiId = (int) $student->registration?->accepted_program_studi_id;
             }
 
             $letter = AdmissionLetter::create([
                 'user_id' => $student->id,
+                'entry_mode' => $isManual ? 'manual' : 'registered',
+                'program_studi_id' => $prodiId,
+                'registration_number' => $regNumber,
                 'source_type' => $validated['source_type'],
                 'letter_number' => $this->nextLetterNumber($validated['letter_date']),
                 'letter_date' => $validated['letter_date'],

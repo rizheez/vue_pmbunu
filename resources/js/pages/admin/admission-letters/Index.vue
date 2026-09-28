@@ -62,6 +62,10 @@ interface EligibleStudent {
 
 interface AdmissionLetter {
     id: number;
+    entry_mode: 'registered' | 'manual';
+    program_studi_id?: number | null;
+    program_studi?: ProgramStudi | null;
+    registration_number?: string | null;
     source_type: 'generate_web' | 'upload_file';
     letter_number: string;
     letter_date: string;
@@ -144,6 +148,16 @@ const studentName = (student: EligibleStudent) =>
 
 const prodiName = (student: EligibleStudent) => {
     const prodi = student.registration?.accepted_program_studi;
+
+    if (!prodi) return '-';
+
+    return [prodi.jenjang, prodi.name].filter(Boolean).join(' ');
+};
+
+const letterProdiName = (letter: AdmissionLetter) => {
+    const prodi =
+        letter.program_studi ||
+        letter.user?.registration?.accepted_program_studi;
 
     if (!prodi) return '-';
 
@@ -699,6 +713,11 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                                         Program Studi
                                     </th>
                                     <th
+                                        class="min-w-[160px] px-4 py-3 text-left font-medium"
+                                    >
+                                        Kategori
+                                    </th>
+                                    <th
                                         class="px-4 py-3 text-left font-medium whitespace-nowrap"
                                     >
                                         Tanggal
@@ -734,7 +753,44 @@ const sourceTypeLabel = (sourceType: AdmissionLetter['source_type']) =>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
-                                        {{ prodiName(letter.user) }}
+                                        {{ letterProdiName(letter) }}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div
+                                            v-if="letter.entry_mode === 'manual'"
+                                            class="space-y-0.5"
+                                        >
+                                            <Badge
+                                                variant="outline"
+                                                class="border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                                            >
+                                                Input Manual
+                                            </Badge>
+                                            <div
+                                                class="text-[11px] text-muted-foreground"
+                                            >
+                                                Non-Web / Mahasiswa Lama
+                                            </div>
+                                            <div
+                                                v-if="letter.registration_number"
+                                                class="font-mono text-[11px] text-muted-foreground"
+                                            >
+                                                No: {{ letter.registration_number }}
+                                            </div>
+                                        </div>
+                                        <div v-else class="space-y-0.5">
+                                            <Badge
+                                                variant="outline"
+                                                class="border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                            >
+                                                PMB Web
+                                            </Badge>
+                                            <div
+                                                class="text-[11px] text-muted-foreground"
+                                            >
+                                                Mahasiswa Terdaftar
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         {{ formatDate(letter.letter_date) }}

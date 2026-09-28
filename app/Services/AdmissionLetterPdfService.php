@@ -22,8 +22,12 @@ class AdmissionLetterPdfService
 
         $letter->loadMissing([
             'user.studentBiodata',
+            'programStudi',
             'user.registration.acceptedProgramStudi',
         ]);
+
+        $programStudi = $letter->programStudi ?? $letter->user?->registration?->acceptedProgramStudi;
+        $registrationNumber = $letter->registration_number ?? $letter->user?->registration?->registration_number;
 
         $verificationUrl = route('admission-letters.short-verify', $letter->verification_token);
         $pdf = Pdf::loadView('pdf.admission-letter', [
@@ -31,6 +35,8 @@ class AdmissionLetterPdfService
             'user' => $letter->user,
             'biodata' => $letter->user->studentBiodata,
             'registration' => $letter->user->registration,
+            'programStudi' => $programStudi,
+            'registrationNumber' => $registrationNumber,
             'verificationUrl' => $verificationUrl,
             'qrCodeBase64' => $this->makeQrCodeBase64($verificationUrl),
             'headerBase64' => $this->imageBase64(public_path('assets/letter_header.jpg'), 'image/jpeg'),

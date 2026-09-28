@@ -12,6 +12,9 @@ class AdmissionLetter extends Model
 {
     protected $fillable = [
         'user_id',
+        'entry_mode',
+        'program_studi_id',
+        'registration_number',
         'source_type',
         'letter_number',
         'letter_date',
@@ -41,6 +44,11 @@ class AdmissionLetter extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function programStudi(): BelongsTo
+    {
+        return $this->belongsTo(ProgramStudi::class, 'program_studi_id');
     }
 
     public function creator(): BelongsTo

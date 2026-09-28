@@ -67,15 +67,17 @@ it('allows admin to create admission letter for non-registered student via manua
     expect($user->name)->toBe('Ahmad Dahlan');
     expect($user->email)->toBe('ahmad.dahlan@example.com');
     expect($user->role)->toBe('student');
+    expect($user->registration)->toBeNull();
 
-    $registration = $user->registration;
-    expect($registration)->not->toBeNull();
-    expect($registration->accepted_program_studi_id)->toBe($this->prodi->id);
-    expect($registration->status)->toBe('enrolled');
-    expect($registration->registration_number)->toBe('UNU-2022-0088');
+    // Verify student does NOT appear in Calon Mahasiswa
+    $studentsResponse = $this->actingAs($this->admin)->get(route('admin.students.index'));
+    $studentsResponse->assertDontSee('Ahmad Dahlan');
 
     $letter = $user->admissionLetter;
     expect($letter)->not->toBeNull();
+    expect($letter->entry_mode)->toBe('manual');
+    expect($letter->program_studi_id)->toBe($this->prodi->id);
+    expect($letter->registration_number)->toBe('UNU-2022-0088');
     expect($letter->pdf_path)->not->toBeNull();
 });
 
@@ -97,7 +99,13 @@ it('auto-generates student email when email is omitted in manual mode', function
     $user = User::where('nim', '210105011')->first();
     expect($user)->not->toBeNull();
     expect($user->email)->toBe('210105011@student.unukaltim.ac.id');
-    expect($user->registration->registration_number)->toBeNull();
+    expect($user->registration)->toBeNull();
+
+    $letter = $user->admissionLetter;
+    expect($letter)->not->toBeNull();
+    expect($letter->entry_mode)->toBe('manual');
+    expect($letter->program_studi_id)->toBe($this->prodi->id);
+    expect($letter->registration_number)->toBeNull();
 });
 
 it('prevents creating duplicate admission letter for the same NIM in manual mode', function () {

@@ -83,7 +83,7 @@
                 </tr>
                 <tr>
                     <td>Program Studi</td>
-                    <td>{{ $registration->acceptedProgramStudi?->jenjang }} {{ $registration->acceptedProgramStudi?->name ?? '-' }}</td>
+                    <td>{{ ($programStudi ?? $registration?->acceptedProgramStudi)?->jenjang }} {{ ($programStudi ?? $registration?->acceptedProgramStudi)?->name ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td>Penandatangan</td>
