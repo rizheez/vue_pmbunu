@@ -198,7 +198,7 @@ class StudentController extends Controller
             'registration.registrationType',
         ])
             ->where('role', 'student')
-            ->whereHas('registration');
+            ->whereHas('registration', fn ($q) => $q->whereNotNull('registration_period_id'));
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'all') {
